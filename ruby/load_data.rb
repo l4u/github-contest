@@ -15,6 +15,7 @@ require 'repository_language'
 db_name = "github_contest"
 data_dir = "../data"
 loadtest = false
+loadtest_max = 10000
 
 # 
 # connect, presume DB is already created
@@ -69,48 +70,6 @@ ActiveRecord::Schema.define :version => 0 do
 end
 
 # 
-# process data.text
-# 
-counter = 1
-begin
-  file = File.new("#{data_dir}/data.txt", "r")
-  while (line = file.gets)
-    user_id, repo_id = line.split(":")    
-    # user
-    user = nil
-    if (user=User.find_by_user_id(user_id)).nil?
-      user = User.new
-      user.user_id = user_id
-      user.save!
-    end
-    # repo
-    repo = nil
-    if (repo=Repository.find_by_repository_id(repo_id)).nil?
-      repo = Repository.new
-      repo.repository_id = repo_id
-      repo.save!
-    end
-    # user repo
-    if !UserRepository.find_by_user_id_and_repository_id(user_id, repo_id).nil?
-      raise "User[#{user_id}] Repository[#{repo_id}] relationship already defined, bad data!"
-    end
-    userrepo = UserRepository.new
-    userrepo.user_id = user.id
-    userrepo.repository_id = repo.id
-    userrepo.save!
-    # count
-    counter = counter + 1
-    # testing...
-    break if loadtest and counter > 200    
-  end
-  file.close
-rescue => err
-  puts "Exception: #{err}"
-  err
-end
-puts "data.txt, processed #{counter} lines"
-
-# 
 # process repos.txt
 # 
 counter = 1
@@ -122,21 +81,23 @@ begin
     repo_fullname, repo_date, repo_parent = blob.split(",")
     repo_name, repo_username = repo_fullname.split("/")
     # repo
-    repo = nil
-    if (repo=Repository.find_by_repository_id(repo_id)).nil?
-      raise "Repository[#{repo_id}] does not exist, bad data!"      
-    end    
-    # user repo
-    repo.fullname = repo_fullname
-    repo.date = repo_date
-    repo.name = repo_name
-    repo.username = repo_username
-    repo.parent_id = repo_parent
-    repo.save!
+    repo = Repository.find_by_repository_id(repo_id)
+    if !repo.nil?
+      puts "=> Repository[#{repo_id}] already exists, bad data!"      
+    else
+      repo = Repository.new
+      repo.repository_id = repo_id
+      repo.fullname = repo_fullname
+      repo.date = repo_date
+      repo.name = repo_name
+      repo.username = repo_username
+      repo.parent_id = repo_parent
+      repo.save!
+    end 
     # count
     counter = counter + 1
     # testing...
-    break if loadtest and counter > 200    
+    break if loadtest and counter > loadtest_max    
   end
   file.close
 rescue => err
@@ -144,6 +105,50 @@ rescue => err
   err
 end
 puts "repos.txt, processed #{counter} lines"
+
+# 
+# process data.text
+# 
+counter = 1
+begin
+  file = File.new("#{data_dir}/data.txt", "r")
+  while (line = file.gets)
+    user_id, repo_id = line.split(":")    
+    # user
+    user = User.find_by_user_id(user_id)
+    if user.nil?
+      user = User.new
+      user.user_id = user_id
+      user.save!
+    end
+    # repo
+    repo=Repository.find_by_repository_id(repo_id)
+    if repo.nil?
+      repo = Repository.new
+      repo.repository_id = repo_id
+      repo.save!
+    end
+    # user repo
+    if !UserRepository.find_by_user_id_and_repository_id(user_id, repo_id).nil?
+      puts "=> User[#{user_id}] Repository[#{repo_id}] relationship already defined, bad data!"
+    else
+      userrepo = UserRepository.new
+      userrepo.user_id = user.id
+      userrepo.repository_id = repo.id
+      userrepo.save!
+    end
+    # count
+    counter = counter + 1
+    # testing...
+    break if loadtest and counter > loadtest_max    
+  end
+  file.close
+rescue => err
+  puts "Exception: #{err}"
+  err
+end
+puts "data.txt, processed #{counter} lines"
+
 
 # 
 # process lang.txt
@@ -155,23 +160,24 @@ begin
     # chop it up
     repo_id, blob = line.split(":")        
     # repo
-    repo = nil
-    if (repo=Repository.find_by_repository_id(repo_id)).nil?
-      raise "Repository[#{repo_id}] does not exist, bad data!"
+    repo = Repository.find_by_repository_id(repo_id)
+    if repo.nil?
+      puts "=> Repository[#{repo_id}] does not exist, bad data!"
+    else
+      # process langs
+      blob.split(",").each do |language| 
+        name, lines = language.split(";")
+        lang = RepositoryLanguage.new
+        lang.repository_id = repo.id
+        lang.name = name;
+        lang.lines = lines
+        lang.save!
+      end
     end        
-    # process langs
-    blob.split(",").each do |language| 
-      name, lines = language.split(";")
-      lang = RepositoryLanguage.new
-      lang.repository_id = repo.id
-      lang.name = name;
-      lang.lines = lines
-      lang.save!
-    end    
     # count
     counter = counter + 1
     # testing...
-    break if loadtest and counter > 200      
+    break if loadtest and counter > loadtest_max      
   end
   file.close
 rescue => err
@@ -202,7 +208,7 @@ begin
     # count
     counter = counter + 1
     # testing...
-    break if loadtest and counter > 200    
+    break if loadtest and counter > loadtest_max    
   end
   file.close
 rescue => err
