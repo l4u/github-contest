@@ -23,13 +23,31 @@ The following is a summary of the data provided in the competition, see /data/re
 * <b>lang.txt</b> language information for 73,496 repositories (id,lang;total_lines,...)
 * <b>test.txt</b> 4,788 users from data.txt, each of which requires a prediction of (up to) 10 repositories
 
-h3. Training
+Some indicators that may be exploited include
+* language correlation
+* repository size correlation
+* repository hierarchy size or type correlation
+
+h3. Strategies
 
 N/A
 
-h3. Algorithm
+h3. Training Test
 
-N/A
+The internet (pre-submission) testing strategy involves a 10-fold cross-validation on the provided data.text relationships. This is where the training data is partitioned (by user id) into 10 distinct sections. A model is then created from 9 parts and tested on the 10th. This process is repeated 9 more times for each part and the scoring averaged. 
+
+The scoring for a single user is calculated by assigning one point to each correct prediction for each user without a penalty for incorrect guesses and without considering recommendation rank. The scoring for one run is the percentage of correct recommendations. 
+
+h3. Open Questions
+
+# How exactly does the online scoring work? 
+## Are incorrect recommendations punished?
+## Is recommendation order important (list or set of recommendations)?
+
+h2. Links and Refences
+
+# "Github contest page":http://contest.github.com
+# "Sample submission by schacon":http://github.com/schacon/test-entry
 
 h2. License 
 
