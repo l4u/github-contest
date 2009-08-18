@@ -3,7 +3,7 @@ class Repository
   
   attr_accessor :id
   attr_accessor :fullname, :owner, :name
-  attr_accessor :parent
+  attr_accessor :parent_id, :parent_repo
   attr_accessor :date
   attr_accessor :languages
   attr_accessor :users
@@ -17,10 +17,10 @@ class Repository
   end
   
   # expect <id:owner/name,date,parent>
-  # parent and owner are optional
+  # parent_id and owner are optional
   def parse_details(line)
     @id, blob = line.split(":")
-    @fullname, @date, @parent = blob.split(",")
+    @fullname, @date, @parent_id = blob.split(",")
     @owner, @name = fullname.split("/")
   end
   

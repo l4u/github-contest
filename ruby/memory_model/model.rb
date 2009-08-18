@@ -59,10 +59,27 @@ class MemDataModel
   end
   
   def prep_second_order
-    # repo parents
-    
+    # repo parents    
+    t = time {attach_parent_repos}
+    puts "...attached parent repositories in #{t.to_i} seconds"
     # repo owners
     
+  end
+  
+  def attach_parent_repos
+    attached = 0
+    unattached = 0
+    @repository_map.each do |id, repo|
+      if(!repo.parent_id.nil?)
+        if(!@repository_map[repo.parent_id].nil?)
+          repo.parent_repo = @repository_map[repo.parent_id]
+          attached = attached + 1
+        else
+          unattached = unattached + 1
+        end
+      end
+    end
+    puts "....#{(attached+unattached)} of #{@repository_map.size} repos have a parent, #{attached} of which were attached #{(attached/(attached+unattached))*100}%"
   end
   
   def load_repos    

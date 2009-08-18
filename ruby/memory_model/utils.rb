@@ -15,30 +15,32 @@ def fast_load_file(filename)
   return File.open(filename, "r") { |file| file.readlines}
 end
 
+KILOBYTE = 1024
+MEGABYTE = 1024 * KILOBYTE
+
 #  looking for a speed increase
 # http://pleac.sourceforge.net/pleac_ruby/fileaccess.html
 def fast_load_file2(filename)
   # return nil on EOF
   data = ""
   t = time do 
-  begin
-     File.open filename, (File::RDONLY | File::NONBLOCK) do |io|
-       tmp = nil
-       until((tmp = io.read(4096)).nil?)         
-         data += tmp
+    begin
+       File.open filename, (File::RDONLY | File::NONBLOCK) do |io|
+         tmp = nil
+         until((tmp = io.read(MEGABYTE)).nil?)         
+           data += tmp
+         end
        end
-     end
-  rescue Errno::ENOENT
-     puts "no such file #{fname}"
+    rescue Errno::ENOENT
+       puts "no such file #{fname}"
+    end
   end
-end
-puts "done in #{t} seconds"
+  puts "loaded #{filename} in #{t} seconds"
   return data.split("\n")
 end
 
-
 # testing
-start = Time.now
-lines = fast_load_file("../../data/data.txt")
-t = Time.now - start
-puts "loaded #{lines.size} lines in #{t} seconds"
+# start = Time.now
+# lines = fast_load_file2("../../data/data.txt")
+# t = Time.now - start
+# puts "loaded #{lines.size} lines in #{t} seconds"
