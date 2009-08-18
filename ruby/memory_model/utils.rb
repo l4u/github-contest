@@ -14,3 +14,31 @@ end
 def fast_load_file(filename)    
   return File.open(filename, "r") { |file| file.readlines}
 end
+
+#  looking for a speed increase
+# http://pleac.sourceforge.net/pleac_ruby/fileaccess.html
+def fast_load_file2(filename)
+  # return nil on EOF
+  data = ""
+  t = time do 
+  begin
+     File.open filename, (File::RDONLY | File::NONBLOCK) do |io|
+       tmp = nil
+       until((tmp = io.read(4096)).nil?)         
+         data += tmp
+       end
+     end
+  rescue Errno::ENOENT
+     puts "no such file #{fname}"
+  end
+end
+puts "done in #{t} seconds"
+  return data.split("\n")
+end
+
+
+# testing
+start = Time.now
+lines = fast_load_file("../../data/data.txt")
+t = Time.now - start
+puts "loaded #{lines.size} lines in #{t} seconds"
