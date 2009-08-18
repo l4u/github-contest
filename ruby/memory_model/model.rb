@@ -3,6 +3,8 @@
 #  In memory data model
 #  Usage: m = Model.new.build
 
+# TODO: save/load this thing from disk
+
 require 'user'
 require 'repository'
 require 'utils'
@@ -67,6 +69,7 @@ class MemDataModel
     line_num = 1
     fast_load_file("#{DATA_HOME}/#{DATA_REPOS}").each do |line|
       begin
+        line.strip!
         repo = Repository.new(line)
         # check for bad data
         if !@repository_map[repo.id].nil?
@@ -86,6 +89,7 @@ class MemDataModel
     num_skipped = 0
     fast_load_file("#{DATA_HOME}/#{DATA_REPO_LANGUAGES}").each do |line|
       begin
+        line.strip!
         repo_id, blob = line.split(":")  
         # check for bad data
         if @repository_map[repo_id].nil?
@@ -106,6 +110,7 @@ class MemDataModel
     line_num = 1
     fast_load_file("#{DATA_HOME}/#{DATA_RELATIONSHIPS}").each do |line|
       begin
+        line.strip!
         user_id, repo_id = line.split(":")
         # check for bad data
         if @repository_map[repo_id].nil?
@@ -126,9 +131,10 @@ class MemDataModel
   
   def load_testusers
     line_num = 1
-    fast_load_file("#{DATA_HOME}/#{DATA_RELATIONSHIPS}").each do |line|
+    fast_load_file("#{DATA_HOME}/#{DATA_TEST_USERS}").each do |line|
       begin
-        user_id = line.trim
+        line.strip!
+        user_id = line
         # check for bad data
         if !@test_users[user_id].nil?
           puts ">duplicate users test user id=#{user_id}, skipping"          
