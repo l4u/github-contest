@@ -12,6 +12,8 @@ h2. Description
 
 This project provides code to generate a solution (results.txt) to the "github contest":http://contest.github.com August 2009.
 
+<b>Note</b>: This is a project designed for me to learn more about Ruby rather than seriously compete in the competition.
+
 h2. Details
 
 The objective is to recommend repositories to users. Specifically to predict which repositories to recommend to a user given existing known user-repository relationships.
@@ -46,9 +48,10 @@ h3. Open Questions
 ## Are incorrect recommendations punished?
 ## Is recommendation order important (list or set of recommendations)?
 
-h2. Links and Refences
+h2. Links and References
 
 # "Github contest page":http://contest.github.com
+# "Github contest leaderboard":http://contest.github.com/leaderboard
 # "Sample submission by schacon":http://github.com/schacon/test-entry
 
 h2. License 
