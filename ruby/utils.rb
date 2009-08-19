@@ -11,7 +11,7 @@ end
 
 # FYI: http://www.techotopia.com/index.php/Working_with_Files_in_Ruby
 def fast_write_file(filename, data)
-  File.new(filename, "w")  {|file| file.write(data) }
+  File.open(filename, "w")  {|file| file.write(data) }
 end
 
 # returns an array of lines, closes the file automatically, no error handling

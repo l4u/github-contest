@@ -65,7 +65,7 @@ class MemDataModel
   def output_prediction_model(strategy)
     data = ""
     @test_users.each do |user|
-      data << "#{user.id}:#{user.predicted.values.join(",")}\n"
+      data << "#{user.get_prediction_string}\n"
     end
     # output a backup
     fast_write_file("#{BACKUP_HOME}/#{strategy}-#{Time.now}-#{DATA_RESULTS}", data)    

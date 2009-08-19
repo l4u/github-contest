@@ -25,4 +25,9 @@ class User
     @predicted[repository.id] = repository
   end
   
+  def get_prediction_string
+    return "#{@id}:" if @predicted.nil? or @predicted.empty?
+    return "#{@id}:#{@predicted.keys.join(",")}"
+  end
+  
 end
