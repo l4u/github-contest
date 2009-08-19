@@ -1,9 +1,10 @@
 
 # 
 #  In memory data model
-#  Usage: m = Model.new; m.build
-
-# TODO: save/load this thing from disk
+#  Usage: m = MemDataModel.get_model
+# 
+# It will attempt to load the model from disk otherwise create and marshal it for next time 
+# loads factor of 3+ times faster from mashaled version than building it again
 
 require 'user'
 require 'repository'
