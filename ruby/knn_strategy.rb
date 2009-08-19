@@ -24,11 +24,11 @@ def apply_strategy(model)
   # process all of the test users
   model.test_users.each do |user|
     # calculate user neighbours
-    neighbours = calculate_neighbours
+    neighbours = calculate_neighbours(user)
     # rank repo's missing from user
     repos = rank_missing_repos(user, neighbours)
     # suggest top <=10 best whereever possible
-    next if repos.empty? or repos.nil?
+    next if repos.nil? or repos.empty?
     repos.each_with_index do |r, i|
       break if i > MemDataModel.PREDICTION_MAX_REPOS
       user.add_prediction(r)      
