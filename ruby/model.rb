@@ -52,12 +52,12 @@ class MemDataModel
   # static method 
   def self.get_model
     # try and load     
-    # m = Utils.unmarshal_object(MODEL_MARSHAL)
+    m = Utils.unmarshal_object(MODEL_MARSHAL)
     m = nil
     if m.nil?
       m = MemDataModel.new
       m.build
-      # Utils.marshal_object(MODEL_MARSHAL, m)
+      Utils.marshal_object(MODEL_MARSHAL, m)
     end
     return m
   end

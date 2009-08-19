@@ -34,7 +34,7 @@ The following is a summary of the data provided in the competition, see /data/re
 Observations
 * All repos with parents have those parents in the dataset
 * There are 5 repo language definitions for repos that are not in main repo set
-* All of the test users are in the user set
+* All but 2 of the test users are in the main user set (2 are unknown or new users)
 
 Some indicators that may be exploited include
 * language correlation
