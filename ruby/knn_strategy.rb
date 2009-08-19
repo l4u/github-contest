@@ -12,21 +12,24 @@ STRATEGY_NAME = "kNN"
 K = 5
 
 
-def calculate_user_distance(user, other)
+# larger == better
+def calculate_user_scoring(user, other)
   return 0 if user.id == other.id
   dist = 0
-  # hard match: number of overlapping repos
+  # hard match: repo intersection
+  intersection = user.repositories & other.repositories
+  dist = intersection.size
   
-  return 100
+  return dist
 end
 
 # returns a set of K users in the users neighbourhood
 def calculate_neighbours(user, all_users)
   # score all other users against user of interest
   all_neighbours = Hash.new
-  all_users.values.each {|other| all_neighbours[other.id] = calculate_user_distance(user, other)}
-  # order by distance ascending (small is better)
-  nested = all_neighbours.sort {|a,b| a[1]<=>b[1]}
+  all_users.values.each {|other| all_neighbours[other.id] = calculate_user_scoring(user, other)}
+  # order by distance decending 
+  nested = all_neighbours.sort {|a,b| b[1]<=>a[1]}
   # select the k best user id's
   neighbours = Array.new  
   nested.each_with_index do |a, i|
