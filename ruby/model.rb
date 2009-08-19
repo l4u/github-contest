@@ -19,7 +19,7 @@ class MemDataModel
   attr_accessor :test_users
   
   
-  DATA_HOME = "../../data"
+  DATA_HOME = "../data"
   
   DATA_REPOS = "repos.txt"
   DATA_RELATIONSHIPS = "data.txt"
@@ -31,6 +31,13 @@ class MemDataModel
     @user_map = Hash.new
     @user_repository_map = Hash.new
     @test_users = Hash.new
+  end
+  
+  # static method 
+  def self.get_model
+    m = MemDataModel.new
+    m.build
+    return m
   end
   
   def build
@@ -178,6 +185,6 @@ class MemDataModel
 end
 
 
+
 # testing
-m = MemDataModel.new
-m.build
+MemDataModel.get_model
