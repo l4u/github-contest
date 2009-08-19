@@ -55,11 +55,11 @@ class MemDataModel
     puts "...loaded user-repository relationships from #{DATA_RELATIONSHIPS} in #{t.to_i} seconds"    
     # test users
     t = time {load_testusers}
-    puts "...loaded test users #{DATA_TEST_USERS} in #{t.to_i} seconds"
+    puts "...loaded test #{@test_users.size} users #{DATA_TEST_USERS} in #{t.to_i} seconds"
   end
   
   def prep_second_order
-    # repo parents    
+    # repo parent hierarchies  
     t = time {attach_parent_repos}
     puts "...attached parent repositories in #{t.to_i} seconds"
     # repo owners
@@ -79,7 +79,7 @@ class MemDataModel
         end
       end
     end
-    puts "....#{(attached+unattached)} of #{@repository_map.size} repos have a parent, #{attached} of which were attached #{(attached/(attached+unattached))*100}%"
+    puts "....#{(attached+unattached)} of #{@repository_map.size} repos have a parent (#{((attached+unattached)/@repository_map.size.to_f)*100}%), #{attached} of which were attached (#{(attached/(attached+unattached).to_f)*100}%)"
   end
   
   def load_repos    
@@ -144,9 +144,11 @@ class MemDataModel
       end
       line_num = line_num + 1
     end
+    puts "....loaded #{line_num} user-repository relationships"
   end
   
   def load_testusers
+    unknown = 0
     line_num = 1
     fast_load_file("#{DATA_HOME}/#{DATA_TEST_USERS}").each do |line|
       begin
@@ -154,20 +156,23 @@ class MemDataModel
         user_id = line
         # check for bad data
         if !@test_users[user_id].nil?
-          puts ">duplicate users test user id=#{user_id}, skipping"          
+          puts ">duplicate test user id=#{user_id}, skipping"    
         else
           # ensure user is defined
-          @test_users[user_id] = User.new(user_id)
-        end
-        # check for test user is in training data
-        if !@user_map[user_id].nil? 
-          ">test user is in training data, id=#{user_id}"
+          if @user_map[user_id].nil? 
+            @user_map[user_id] = User.new(user_id)
+            puts ">test user is not known, creating"
+            unknown = unknown + 1
+          end
+          @user_map[user_id].test = true
+          @test_users[user_id] = @user_map[user_id]
         end
       rescue StandardError => myStandardError
         raise "error on line #{line_num}: #{myStandardError}"
       end
       line_num = line_num + 1
     end
+    puts "....defined #{@test_users.size} test users, #{unknown} of which are so-called new users"
   end
   
 end
