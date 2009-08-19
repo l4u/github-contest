@@ -17,7 +17,25 @@ end
 
 # returns a list of unique repos ordered by neighbourhood occurance decending 
 def rank_missing_repos(user, neighbours)
-  return nil
+  return nil if neighbours.nil? or neighbours.empty?
+  # build a histogram of repo occurance
+  occurance_histogram = Hasn.new
+  neigbours.each do |neighbour|
+    neighbour.repositories.each do |repo_id|
+      # ensure user does not have it already
+      next if user.has_repo?(repo_id)
+      # create as needed
+      occurance_histogram[repo_id] = 0 if !occurance_histogram.has_key?(repo_id)
+      # increment 
+      occurance_histogram[repo_id] = occurance_histogram[repo_id] + 1
+    end
+  end
+  # order by occurance decending
+  nested = occurance_histogram.sort {|a,b| b[1]<=>a[1]}
+  # covert to an array of repo ids
+  ranked = []
+  nested.each {|a| ranked << a[0]}  
+  return nested
 end
 
 def apply_strategy(model) 
@@ -31,7 +49,7 @@ def apply_strategy(model)
     next if repos.nil? or repos.empty?
     repos.each_with_index do |r, i|
       break if i > MemDataModel.PREDICTION_MAX_REPOS
-      user.add_prediction(r)      
+      user.add_prediction(r)
     end
   end
 end
