@@ -9,6 +9,11 @@ def time
   Time.now - start
 end
 
+# FYI: http://www.techotopia.com/index.php/Working_with_Files_in_Ruby
+def fast_write_file(filename, data)
+  File.new(filename, "w")  {|file| file.write(data) }
+end
+
 # returns an array of lines, closes the file automatically, no error handling
 # FYI: http://numericalruby.com/2007/06/22/reading-a-file-with-ruby/
 def fast_load_file(filename)    

@@ -15,22 +15,27 @@ class MemDataModel
   attr_accessor :repository_map
   # id=>user
   attr_accessor :user_map
-  # id=>user
+  # user
   attr_accessor :test_users
   
   
   DATA_HOME = "../data"
+  BACKUP_HOME = "../backup"
+  RESULTS_HOME = "../"
   
   DATA_REPOS = "repos.txt"
   DATA_RELATIONSHIPS = "data.txt"
   DATA_REPO_LANGUAGES = "lang.txt"
   DATA_TEST_USERS = "test.txt"
+  DATA_RESULTS = "results.txt"
+  
+  PREDICTION_MAX_REPOS = 10
   
   def initialize
     @repository_map = Hash.new
     @user_map = Hash.new
     @user_repository_map = Hash.new
-    @test_users = Hash.new
+    @test_users = Array.new
   end
   
   # static method 
@@ -38,6 +43,34 @@ class MemDataModel
     m = MemDataModel.new
     m.build
     return m
+  end
+  
+  def validate_prediction_model
+    @test_users.each do |user|
+      # check size
+      if user.predicted.size > PREDICTION_MAX_REPOS
+        raise "user has an invalid number of predicted repositories: #{user.predicted.size}"
+      end
+      # check for prediction of already assigned repos
+      user.predicted.values.each do |repo|
+        if !user.repositories[repo.id].nil?
+          raise "user predicted repository [#{repo.id}] that they already use [#{user.repositories[repo.id].id}]"
+        end
+      end      
+    end
+  end
+  
+  # does the results.txt have to be in the same order as the test.txt? (yes now now...)
+  # does the order of the predictions have an effect?
+  def output_prediction_model(strategy)
+    data = ""
+    @test_users.each do |user|
+      data << "#{user.id}:#{user.predicted.values.join(",")}\n"
+    end
+    # output a backup
+    fast_write_file("#{BACKUP_HOME}/#{strategy}-#{Time.now}-#{DATA_RESULTS}", data)    
+    # output in default location
+    fast_write_file("#{RESULTS_HOME}/#{DATA_RESULTS}", data)
   end
   
   def build
@@ -68,9 +101,7 @@ class MemDataModel
   def prep_second_order
     # repo parent hierarchies  
     t = time {attach_parent_repos}
-    puts "...attached parent repositories in #{t.to_i} seconds"
-    # repo owners
-    
+    puts "...attached parent repositories in #{t.to_i} seconds"    
   end
   
   def attach_parent_repos
@@ -102,7 +133,7 @@ class MemDataModel
           @repository_map[repo.id] = repo
         end
       rescue StandardError => myStandardError
-        raise "error on line #{line_num}: #{myStandardError}"
+        raise "error on line #{line_num}: line=#{line}, error=#{myStandardError}"
       end
       line_num = line_num + 1
     end    
@@ -123,7 +154,7 @@ class MemDataModel
           @repository_map[repo_id].parse_languages(line)
         end
       rescue StandardError => myStandardError
-        raise "error on line #{line_num}: #{myStandardError}"
+        raise "error on line #{line_num}: line=#{line}, error=#{myStandardError}"
       end
       line_num = line_num + 1
     end
@@ -147,7 +178,7 @@ class MemDataModel
           @user_map[user_id].repositories[repo_id] = @repository_map[repo_id]
         end
       rescue StandardError => myStandardError
-        raise "error on line #{line_num}: #{myStandardError}"
+        raise "error on line #{line_num}: line=#{line}, error=#{myStandardError}"
       end
       line_num = line_num + 1
     end
@@ -161,21 +192,20 @@ class MemDataModel
       begin
         line.strip!
         user_id = line
-        # check for bad data
-        if !@test_users[user_id].nil?
-          puts ">duplicate test user id=#{user_id}, skipping"    
+        # ensure user is defined
+        if @user_map[user_id].nil? 
+          @user_map[user_id] = User.new(user_id)
+          puts ">test user is not known, creating"
+          unknown = unknown + 1
+        end          
+        if(@user_map[user_id].test) 
+          ">user already marked as a test user, duplicate in file: #{user_id}"
         else
-          # ensure user is defined
-          if @user_map[user_id].nil? 
-            @user_map[user_id] = User.new(user_id)
-            puts ">test user is not known, creating"
-            unknown = unknown + 1
-          end
           @user_map[user_id].test = true
-          @test_users[user_id] = @user_map[user_id]
+          @test_users << @user_map[user_id]
         end
       rescue StandardError => myStandardError
-        raise "error on line #{line_num}: #{myStandardError}"
+        raise "error on line #{line_num}: line=#{line}, error=#{myStandardError}"
       end
       line_num = line_num + 1
     end
