@@ -28,7 +28,7 @@ def apply_strategy(model)
       # add
       user.add_prediction(repo)
     end  
-    puts "...predicted #{iser.predicted.size} repos for user id=#{user.id}"
+    puts "...predicted #{user.predicted.size} repos for user id=#{user.id}"
   end
 end
 
