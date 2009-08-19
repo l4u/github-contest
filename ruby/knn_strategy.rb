@@ -5,12 +5,14 @@
 # 
 # it's all in the user distance baby!
 
+# TODO marshal neighbourhood graph
+
 require 'model'
 
 PREDICTION_MAX_REPOS = 10
 STRATEGY_NAME = "kNN"
 K = 5
-
+SCORE_CUT_OFF = 0
 
 # larger == better
 def calculate_user_scoring(user, other)
@@ -27,7 +29,12 @@ end
 def calculate_neighbours(user, all_users)
   # score all other users against user of interest
   all_neighbours = Hash.new
-  all_users.values.each {|other| all_neighbours[other.id] = calculate_user_scoring(user, other)}
+  all_users.values.each do |other| 
+    next if other.id == user.id
+    score = calculate_user_scoring(user, other)
+    next if score <= SCORE_CUT_OFF
+    all_neighbours[other.id] = score
+  end
   # order by distance decending 
   nested = all_neighbours.sort {|a,b| b[1]<=>a[1]}
   # select the k best user id's
