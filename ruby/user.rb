@@ -14,11 +14,11 @@ class User
   end
   
   def has_repo?(repository)
-    return @repositories[repository.id].nil?
+    return !@repositories[repository.id].nil?
   end
   
   def has_or_predicted_repo?(repository)
-    return (@repositories[repository.id].nil? or @predicted[repository.id].nil?)
+    return (!@repositories[repository.id].nil? or !@predicted[repository.id].nil?)
   end
   
   def add_prediction(repository)

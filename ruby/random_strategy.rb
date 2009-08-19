@@ -37,7 +37,7 @@ STRATEGY_NAME = "Random"
 # load the model
 model = MemDataModel.get_model
 # apply strategy
-puts "...building prediction"
+puts "building prediction model using strategy: #{STRATEGY_NAME}..."
 t = time {apply_strategy(model)}
 puts "finished #{STRATEGY_NAME} prediction strategy in #{t} seconds"
 # validate predicted model
