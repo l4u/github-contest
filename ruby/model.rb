@@ -72,8 +72,13 @@ class MemDataModel
       if user.predicted.size > PREDICTION_MAX_REPOS
         raise "user has an invalid number of predicted repositories: #{user.predicted.size}"
       end
-      # check for prediction of already assigned repos
+      # validate predicted repos
       user.predicted.each do |repo_id|
+        # must be a valid repo
+        if !@repository_map.has_key?(repo_id)
+          raise "user predicted repo id #{repo_id} that is not a known repo"
+        end
+        # must not already be in use
         if user.repositories.include?(repo_id)
           raise "user predicted repository [#{repo_id}] that they already use"
         end

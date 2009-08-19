@@ -27,7 +27,7 @@ def apply_strategy(model)
         done = true if !user.has_or_predicted_repo?(repo)
       end
       # add
-      user.add_prediction(repo)
+      user.add_prediction(repo.id)
     end  
   end
 end

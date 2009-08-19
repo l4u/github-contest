@@ -19,16 +19,17 @@ class User
     @predicted = Set.new 
   end
   
-  def has_repo?(repository)
-    @repositories.include?(repository.id)
+  def has_repo?(repo_id)
+    @repositories.include?(repo_id)
   end
   
   def has_or_predicted_repo?(repository)
     return (@repositories.include?(repository.id) or @predicted.include?(repository.id))
   end
   
-  def add_prediction(repository)
-    @predicted.add(repository.id)
+  def add_prediction(repo_id)
+    raise "cannot add predicted repo id #{repo_id}, already in predicted set" if @predicted.include?(repo_id)
+    @predicted.add(repo_id)
   end
   
   def get_prediction_string

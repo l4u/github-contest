@@ -3,24 +3,48 @@
 #  Name: k-nearest neighbour strategy
 #  Description: calculate user neighbourhoods and suggest based on highest ranked missing repos
 # 
+# it's all in the user distance baby!
 
 require 'model'
 
+PREDICTION_MAX_REPOS = 10
 STRATEGY_NAME = "kNN"
 K = 5
 
 
+def calculate_user_distance(user, other)
+  return 0 if user.id == other.id
+  dist = 0
+  # hard match: number of overlapping repos
+  
+  return 100
+end
+
 # returns a set of K users in the users neighbourhood
-def calculate_neighbours(user)
-  return nil
+def calculate_neighbours(user, all_users)
+  # score all other users against user of interest
+  all_neighbours = Hash.new
+  all_users.values.each {|other| all_neighbours[other.id] = calculate_user_distance(user, other)}
+  # order by distance ascending (small is better)
+  nested = all_neighbours.sort {|a,b| a[1]<=>b[1]}
+  # select the k best user id's
+  neighbours = Array.new  
+  nested.each_with_index do |a, i|
+    break if i >= K
+    neighbours << a[0]
+  end
+  # simple validation
+  raise "too many neighbours #{neighbours.size}, expect #{K}" if neighbours.size > K
+  return neighbours
 end
 
 # returns a list of unique repos ordered by neighbourhood occurance decending 
-def rank_missing_repos(user, neighbours)
+def rank_missing_repos(user, neighbours, model)
   return nil if neighbours.nil? or neighbours.empty?
   # build a histogram of repo occurance
-  occurance_histogram = Hasn.new
-  neigbours.each do |neighbour|
+  occurance_histogram = Hash.new
+  neighbours.each do |neighbour_id|
+    neighbour =  model.user_map[neighbour_id]
     neighbour.repositories.each do |repo_id|
       # ensure user does not have it already
       next if user.has_repo?(repo_id)
@@ -33,27 +57,27 @@ def rank_missing_repos(user, neighbours)
   # order by occurance decending
   nested = occurance_histogram.sort {|a,b| b[1]<=>a[1]}
   # covert to an array of repo ids
-  ranked = []
+  ranked = Array.new
   nested.each {|a| ranked << a[0]}  
   return nested
 end
 
 def apply_strategy(model) 
   # process all of the test users
-  model.test_users.each do |user|
+  model.test_users.each do |user_id|
+    user =  model.user_map[user_id]
     # calculate user neighbours
-    neighbours = calculate_neighbours(user)
+    neighbours = calculate_neighbours(user, model.user_map)
     # rank repo's missing from user
-    repos = rank_missing_repos(user, neighbours)
+    repos = rank_missing_repos(user, neighbours, model)
     # suggest top <=10 best whereever possible
     next if repos.nil? or repos.empty?
     repos.each_with_index do |r, i|
-      break if i > MemDataModel.PREDICTION_MAX_REPOS
+      break if i > PREDICTION_MAX_REPOS
       user.add_prediction(r)
     end
   end
 end
-
 
 # load the model
 model = MemDataModel.get_model
