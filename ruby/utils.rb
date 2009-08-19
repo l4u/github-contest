@@ -46,10 +46,21 @@ module Utils
     return data.split("\n")
   end
   
+  def self.marshal_object(filename, object)
+    t=Utils.time { File.open(filename, "w") { |f| Marshal.dump(object, f) } }
+    puts "marshalled object to disk in #{t} seconds"
+  end
+  
+  def self.unmarshal_object(filename)
+    return nil if !File.exists?(filename)    
+    object = nil
+    t=Utils.time {object=File.open(filename, "r") { |f| Marshal.load(f) } }
+    puts "unmarshalled object from disk in #{t} seconds"
+  end
+  
 end
 
 # testing
-# start = Time.now
-# lines = Utils.fast_load_file2("../../data/data.txt")
-# t = Time.now - start
+# lines = nil
+# t = Utils.time {lines = Utils.fast_load_file2("../data/data.txt")}
 # puts "loaded #{lines.size} lines in #{t} seconds"

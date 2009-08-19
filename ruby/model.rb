@@ -1,7 +1,7 @@
 
 # 
 #  In memory data model
-#  Usage: m = Model.new.build
+#  Usage: m = Model.new; m.build
 
 # TODO: save/load this thing from disk
 
@@ -23,6 +23,8 @@ class MemDataModel
   BACKUP_HOME = "../backup"
   RESULTS_HOME = "../"
   
+  MODEL_MARSHAL = "marshaled_mode.bin"   
+  
   DATA_REPOS = "repos.txt"
   DATA_RELATIONSHIPS = "data.txt"
   DATA_REPO_LANGUAGES = "lang.txt"
@@ -40,10 +42,17 @@ class MemDataModel
   
   # static method 
   def self.get_model
-    m = MemDataModel.new
-    m.build
+    # try and load     
+    m=Utils.unmarshal_object(MODEL_MARSHAL)
+    if m.nil?
+      m = MemDataModel.new
+      m.build
+      Utils.marshal_object(MODEL_MARSHAL, m)
+    end
     return m
   end
+  
+
   
   def validate_prediction_model
     @test_users.each do |user|
@@ -217,4 +226,5 @@ end
 
 
 # testing
-# MemDataModel.get_model
+m = MemDataModel.get_model
+puts "things..."
