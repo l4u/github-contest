@@ -2,7 +2,11 @@ h1. GitHub Contest: August 2009
 
 "github-contest":http://github.com/jbrownlee/github-contest submission by jbrownlee.
 
-For background on the contest, see the "github contest website":http://contest.github.com 
+h2. Quick Links
+
+* "Github contest website":http://contest.github.com 
+* "Contest Leaderboard":http://contest.github.com/leaderboard
+* "jbrownlee (my) contest submissions":http://contest.github.com/p/jbrownlee/github-contest
 
 h2. Author
 
