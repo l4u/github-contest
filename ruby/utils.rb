@@ -47,8 +47,18 @@ module Utils
   end
   
   def self.marshal_object(filename, object)
-    t=Utils.time { File.open(filename, "w") { |f| Marshal.dump(object, f) } }
-    puts "marshalled object to disk in #{t} seconds"
+    # t=Utils.time { File.open(filename, "w") { |f| Marshal.dump(object, f) } }
+    t = 0
+    
+    begin
+      f = File.open(filename, "w")
+      Marshal.dump(object, f) 
+      f.close
+    rescue StandardError => myStandardError
+      raise "problem: #{myStandardError}"
+    end
+    
+     puts "marshalled object to disk in #{t} seconds"
   end
   
   def self.unmarshal_object(filename)
@@ -56,6 +66,7 @@ module Utils
     object = nil
     t=Utils.time {object=File.open(filename, "r") { |f| Marshal.load(f) } }
     puts "unmarshalled object from disk in #{t} seconds"
+    return object
   end
   
 end

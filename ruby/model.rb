@@ -40,14 +40,24 @@ class MemDataModel
     @test_users = Array.new
   end
   
+  
+  def print_model_stats
+    puts "model stats:"
+    puts "repositories:.....#{@repository_map.size}"
+    puts "users:............#{@user_map.size}"
+    puts "test users:.......#{@test_users.size}"
+    puts "non-test users:...#{@user_map.size - @test_users.size}"
+  end
+  
   # static method 
   def self.get_model
     # try and load     
-    m=Utils.unmarshal_object(MODEL_MARSHAL)
+    # m = Utils.unmarshal_object(MODEL_MARSHAL)
+    m = nil
     if m.nil?
       m = MemDataModel.new
       m.build
-      Utils.marshal_object(MODEL_MARSHAL, m)
+      # Utils.marshal_object(MODEL_MARSHAL, m)
     end
     return m
   end
@@ -86,8 +96,8 @@ class MemDataModel
     t = Utils.time do
       puts "loading and preparing first order structures.."
       load_first_order
-      puts "building second order structures..."
-      prep_second_order
+      # puts "building second order structures..."
+      # prep_second_order
     end
     puts "memory model was built in #{t} seconds"
   end
@@ -99,35 +109,18 @@ class MemDataModel
     # language data
     t = Utils.time {load_languages}
     puts "...loaded language data for repositories from #{DATA_REPO_LANGUAGES} in #{t.to_i} seconds"    
-    # relationships
+    # # relationships
     t = Utils.time {load_relationships}
     puts "...loaded user-repository relationships from #{DATA_RELATIONSHIPS} in #{t.to_i} seconds"    
-    # test users
+    # # test users
     t = Utils.time {load_testusers}
     puts "...loaded test #{@test_users.size} users #{DATA_TEST_USERS} in #{t.to_i} seconds"
   end
   
   def prep_second_order
-    # repo parent hierarchies  
-    t = Utils.time {attach_parent_repos}
-    puts "...attached parent repositories in #{t.to_i} seconds"    
+
   end
   
-  def attach_parent_repos
-    attached = 0
-    unattached = 0
-    @repository_map.each do |id, repo|
-      if(!repo.parent_id.nil?)
-        if(!@repository_map[repo.parent_id].nil?)
-          repo.parent_repo = @repository_map[repo.parent_id]
-          attached = attached + 1
-        else
-          unattached = unattached + 1
-        end
-      end
-    end
-    puts "....#{(attached+unattached)} of #{@repository_map.size} repos have a parent (#{((attached+unattached)/@repository_map.size.to_f)*100}%), #{attached} of which were attached (#{(attached/(attached+unattached).to_f)*100}%)"
-  end
   
   def load_repos    
     line_num = 1
@@ -183,8 +176,8 @@ class MemDataModel
           # ensure user is defined
           @user_map[user_id] = User.new(user_id) if @user_map[user_id].nil?
           # store relationship lots of ways
-          @repository_map[repo_id].users[user_id] = @user_map[user_id]
-          @user_map[user_id].repositories[repo_id] = @repository_map[repo_id]
+          @repository_map[repo_id].users.add(user_id)
+          @user_map[user_id].repositories.add(repo_id)
         end
       rescue StandardError => myStandardError
         raise "error on line #{line_num}: line=#{line}, error=#{myStandardError}"
@@ -211,7 +204,7 @@ class MemDataModel
           ">user already marked as a test user, duplicate in file: #{user_id}"
         else
           @user_map[user_id].test = true
-          @test_users << @user_map[user_id]
+          @test_users << user_id
         end
       rescue StandardError => myStandardError
         raise "error on line #{line_num}: line=#{line}, error=#{myStandardError}"
@@ -227,4 +220,4 @@ end
 
 # testing
 m = MemDataModel.get_model
-puts "things..."
+m.print_model_stats

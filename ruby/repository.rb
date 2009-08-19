@@ -1,9 +1,12 @@
 
+require 'set'
+
+
 class Repository 
   
   attr_accessor :id
   attr_accessor :fullname, :owner, :name
-  attr_accessor :parent_id, :parent_repo
+  attr_accessor :parent_id
   attr_accessor :date
   attr_accessor :languages
   attr_accessor :users
@@ -15,7 +18,7 @@ class Repository
     validate
     # prep structures
     @languages = Hash.new
-    @users = Hash.new
+    @users = Set.new
     @project_size = 0
   end
   
