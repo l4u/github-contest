@@ -68,7 +68,7 @@ class MemDataModel
       data << "#{user.get_prediction_string}\n"
     end
     # output a backup
-    fast_write_file("#{BACKUP_HOME}/#{strategy}-#{Time.now}-#{DATA_RESULTS}", data)    
+    fast_write_file("#{BACKUP_HOME}/#{strategy}-#{Time.now.to_i}-#{DATA_RESULTS}", data)    
     # output in default location
     fast_write_file("#{RESULTS_HOME}/#{DATA_RESULTS}", data)
   end
