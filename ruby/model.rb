@@ -68,13 +68,13 @@ class MemDataModel
       data << "#{user.get_prediction_string}\n"
     end
     # output a backup
-    fast_write_file("#{BACKUP_HOME}/#{strategy}-#{Time.now.to_i}-#{DATA_RESULTS}", data)    
+    Utils.fast_write_file("#{BACKUP_HOME}/#{strategy}-#{Time.now.to_i}-#{DATA_RESULTS}", data)    
     # output in default location
-    fast_write_file("#{RESULTS_HOME}/#{DATA_RESULTS}", data)
+    Utils.fast_write_file("#{RESULTS_HOME}/#{DATA_RESULTS}", data)
   end
   
   def build
-    t = time do
+    t = Utils.time do
       puts "loading and preparing first order structures.."
       load_first_order
       puts "building second order structures..."
@@ -85,22 +85,22 @@ class MemDataModel
   
   def load_first_order
     # repo
-    t = time {load_repos}
+    t = Utils.time {load_repos}
     puts "...loaded #{@repository_map.size} repositories from #{DATA_REPOS} in #{t.to_i} seconds"
     # language data
-    t = time {load_languages}
+    t = Utils.time {load_languages}
     puts "...loaded language data for repositories from #{DATA_REPO_LANGUAGES} in #{t.to_i} seconds"    
     # relationships
-    t = time {load_relationships}
+    t = Utils.time {load_relationships}
     puts "...loaded user-repository relationships from #{DATA_RELATIONSHIPS} in #{t.to_i} seconds"    
     # test users
-    t = time {load_testusers}
+    t = Utils.time {load_testusers}
     puts "...loaded test #{@test_users.size} users #{DATA_TEST_USERS} in #{t.to_i} seconds"
   end
   
   def prep_second_order
     # repo parent hierarchies  
-    t = time {attach_parent_repos}
+    t = Utils.time {attach_parent_repos}
     puts "...attached parent repositories in #{t.to_i} seconds"    
   end
   
@@ -122,7 +122,7 @@ class MemDataModel
   
   def load_repos    
     line_num = 1
-    fast_load_file("#{DATA_HOME}/#{DATA_REPOS}").each do |line|
+    Utils.fast_load_file("#{DATA_HOME}/#{DATA_REPOS}").each do |line|
       begin
         line.strip!
         repo = Repository.new(line)
@@ -142,7 +142,7 @@ class MemDataModel
   def load_languages
     line_num = 1
     num_skipped = 0
-    fast_load_file("#{DATA_HOME}/#{DATA_REPO_LANGUAGES}").each do |line|
+    Utils.fast_load_file("#{DATA_HOME}/#{DATA_REPO_LANGUAGES}").each do |line|
       begin
         line.strip!
         repo_id, blob = line.split(":")  
@@ -163,7 +163,7 @@ class MemDataModel
   
   def load_relationships
     line_num = 1
-    fast_load_file("#{DATA_HOME}/#{DATA_RELATIONSHIPS}").each do |line|
+    Utils.fast_load_file("#{DATA_HOME}/#{DATA_RELATIONSHIPS}").each do |line|
       begin
         line.strip!
         user_id, repo_id = line.split(":")
@@ -188,7 +188,7 @@ class MemDataModel
   def load_testusers
     unknown = 0
     line_num = 1
-    fast_load_file("#{DATA_HOME}/#{DATA_TEST_USERS}").each do |line|
+    Utils.fast_load_file("#{DATA_HOME}/#{DATA_TEST_USERS}").each do |line|
       begin
         line.strip!
         user_id = line
@@ -217,4 +217,4 @@ end
 
 
 # testing
-MemDataModel.get_model
+# MemDataModel.get_model
