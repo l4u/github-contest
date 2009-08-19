@@ -3,12 +3,15 @@ require 'set'
 
 
 class User
+  # integer user id
   attr_accessor :id
-  attr_accessor :test
+  # boolean of whether the user is a test user or not
+  attr_accessor :test  
+  # set of repo id's
   attr_accessor :repositories
-  
+  # set of repo id's
   attr_accessor :predicted
-  
+    
   def initialize(id)
     @id = id
     @test = false

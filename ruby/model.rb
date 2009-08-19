@@ -65,15 +65,16 @@ class MemDataModel
 
   
   def validate_prediction_model
-    @test_users.each do |user|
+    @test_users.each do |user_id|
+      user = @user_map[user_id]
       # check size
       if user.predicted.size > PREDICTION_MAX_REPOS
         raise "user has an invalid number of predicted repositories: #{user.predicted.size}"
       end
       # check for prediction of already assigned repos
-      user.predicted.values.each do |repo|
-        if !user.repositories[repo.id].nil?
-          raise "user predicted repository [#{repo.id}] that they already use [#{user.repositories[repo.id].id}]"
+      user.predicted.each do |repo_id|
+        if user.repositories.include?(repo_id)
+          raise "user predicted repository [#{repo_id}] that they already use"
         end
       end      
     end
@@ -83,7 +84,8 @@ class MemDataModel
   # does the order of the predictions have an effect?
   def output_prediction_model(strategy)
     data = ""
-    @test_users.each do |user|
+    @test_users.each do |user_id|
+      user = @user_map[user_id]
       data << "#{user.get_prediction_string}\n"
     end
     # output a backup
@@ -217,7 +219,6 @@ class MemDataModel
 end
 
 
-
 # testing
-m = MemDataModel.get_model
-m.print_model_stats
+# m = MemDataModel.get_model
+# m.print_model_stats
