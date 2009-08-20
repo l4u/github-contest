@@ -33,7 +33,7 @@ class User
   
   def add_prediction(repo_id)
     raise "user=#{@id} cannot add predicted repo id #{repo_id}, already in predicted set" if has_predicted?(repo_id)
-    raise "user=#{@id} cannot add predicted repo id #{repo_id}, already in use set" if has_repo?(repo_id)
+    raise "user=#{@id} cannot add predicted repo id #{repo_id}, already in use set #{@repositories.to_a.join(",")}" if has_repo?(repo_id)
     @predicted.add(repo_id.to_s)
   end
   

@@ -31,7 +31,7 @@ def calculate_neighbours(user, all_users)
   # score all other users against user of interest
   all_neighbours = Hash.new
   all_users.each do |other| 
-    next if other.id.to_s == user.id.to_s
+    next if (other.id.to_s == user.id.to_s)
     score = calculate_user_scoring(user, other)
     next if score <= SCORE_CUT_OFF
     all_neighbours[other.id.to_s] = score
@@ -69,8 +69,8 @@ def rank_missing_repos(user, neighbours, model)
   nested = occurance_histogram.sort {|a,b| b[1]<=>a[1]}
   # covert to an array of repo ids
   ranked = Array.new
-  nested.each {|a| ranked << a[0]}  
-  return nested
+  nested.each {|a| ranked << a[0]}    
+  return ranked
 end
 
 def apply_strategy(model) 
@@ -81,7 +81,7 @@ def apply_strategy(model)
     neighbours = calculate_neighbours(user, model.all_users)
     # rank repo's missing from user
     repos = rank_missing_repos(user, neighbours, model)
-    # suggest top <=10 best whereever possible
+    # suggest top <=10 best wherever possible
     next if repos.nil? or repos.empty?
     repos.each_with_index do |repo_id, i|
       break if i >= PREDICTION_MAX_REPOS
