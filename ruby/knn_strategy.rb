@@ -11,7 +11,7 @@ require 'model'
 
 PREDICTION_MAX_REPOS = 10
 STRATEGY_NAME = "kNN"
-K = 5
+K = 10
 SCORE_CUT_OFF = 0
 
 # larger == better
@@ -86,7 +86,9 @@ def apply_strategy(model)
       break if i > PREDICTION_MAX_REPOS
       user.add_prediction(r)
     end
+    puts " > user #{user.id} with #{neighbours.size} neighbours was recommended #{user.predicted} repos" 
   end
+  puts "done."
 end
 
 # load the model
