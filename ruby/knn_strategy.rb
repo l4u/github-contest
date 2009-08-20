@@ -74,7 +74,7 @@ end
 
 def apply_strategy(model) 
   # process all of the test users
-  model.test_users.each do |user_id|
+  model.test_users.each_with_index do |user_id, i|
     user =  model.user_map[user_id]
     # calculate user neighbours
     neighbours = calculate_neighbours(user, model.user_map)
@@ -86,7 +86,7 @@ def apply_strategy(model)
       break if i > PREDICTION_MAX_REPOS
       user.add_prediction(r)
     end
-    puts " > user #{user.id} with #{neighbours.size} neighbours was recommended #{user.predicted} repos" 
+    puts " > user (#{i + 1}/#{model.test_users.size}) id=#{user.id} with #{neighbours.size} neighbours was recommended #{user.predicted.size} repos" 
   end
   puts "done."
 end
