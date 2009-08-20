@@ -31,7 +31,7 @@ def calculate_neighbours(user, all_users)
   # score all other users against user of interest
   all_neighbours = Hash.new
   all_users.each do |other| 
-    next if other.id == user.id
+    next if other.id.to_s == user.id.to_s
     score = calculate_user_scoring(user, other)
     next if score <= SCORE_CUT_OFF
     all_neighbours[other.id.to_s] = score

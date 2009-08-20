@@ -20,11 +20,11 @@ class User
   end
   
   def has_repo?(repo_id)
-    @repositories.include?(repo_id.to_s)
+    return @repositories.include?(repo_id.to_s)
   end
   
   def has_predicted?(repo_id)
-    @predicted.include?(repo_id.to_s)
+    return  @predicted.include?(repo_id.to_s)
   end
   
   def has_or_predicted_repo?(repository)
@@ -32,12 +32,13 @@ class User
   end
   
   def add_prediction(repo_id)
-    raise "cannot add predicted repo id #{repo_id}, already in predicted set" if has_predicted?(repo_id)
+    raise "user=#{@id} cannot add predicted repo id #{repo_id}, already in predicted set" if has_predicted?(repo_id)
+    raise "user=#{@id} cannot add predicted repo id #{repo_id}, already in use set" if has_repo?(repo_id)
     @predicted.add(repo_id.to_s)
   end
   
   def add_repo(repo_id)
-    raise "cannot add repo id #{repo_id}, already in in use " if has_repo?(repo_id)
+    raise "user=#{@id} cannot add repo id #{repo_id}, already in in use " if has_repo?(repo_id)
     @repositories.add(repo_id.to_s)
   end
   

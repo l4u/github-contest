@@ -111,7 +111,7 @@ class MemDataModel
         end
         # must not already be in use
         if user.has_repo?(repo_id)
-          raise "user predicted repository [#{repo_id}] that they already use"
+          raise "user #{user.id} predicted repository [#{repo_id}] that they already use"
         end
       end      
     end
