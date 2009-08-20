@@ -257,5 +257,5 @@ end
 
 
 # testing
-m = MemDataModel.get_model
-m.print_model_stats
+# m = MemDataModel.get_model
+# m.print_model_stats

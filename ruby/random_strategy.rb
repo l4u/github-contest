@@ -13,10 +13,10 @@ end
 
 def apply_strategy(model)
   # list of all repos
-  all_repos = model.repository_map.values
+  all_repos = model.all_repos
   # process all of the test users
-  model.test_users.each do |user_id|
-    user =  model.user_map[user_id]
+  model.all_test_users.each do |user_id|
+    user = model.get_user(user_id)
     # may have 0..10 predicted repos
     num_repos = Kernel.rand(10 + 1)
     num_repos.times do
