@@ -13,7 +13,7 @@ PREDICTION_MAX_REPOS = 10
 STRATEGY_NAME = "kNN"
 K = 10
 SCORE_CUT_OFF = 0
-TESTING = false
+TESTING = true
 
 # larger == better
 def calculate_user_scoring(user, other)
