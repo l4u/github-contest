@@ -4,14 +4,22 @@ require 'set'
 
 class Repository 
   
+  # provided
   attr_accessor :id
-  attr_accessor :fullname, :owner, :name
-  attr_accessor :parent_id
+  attr_accessor :fullname
   attr_accessor :date
-  attr_accessor :languages
-  attr_accessor :users
+  # optional
+  attr_accessor :parent_id
+    
   
+  # derived and calculated
   attr_accessor :project_size
+  attr_accessor :owner
+  attr_accessor :name
+  # collections
+  attr_accessor :languages
+  attr_accessor :users  
+  
   
   def initialize(line)
     parse_details(line)
