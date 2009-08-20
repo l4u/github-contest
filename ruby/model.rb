@@ -12,12 +12,12 @@ require 'utils'
 
 class MemDataModel
   
-  # id=>repository
-  attr_accessor :repository_map
-  # id=>user
-  attr_accessor :user_map
-  # user
-  attr_accessor :test_users
+  # # id=>repository
+  # attr_accessor :repository_map
+  # # id=>user
+  # attr_accessor :user_map
+  # # user
+  # attr_accessor :test_users
   
   
   DATA_HOME = "../data"
@@ -34,11 +34,44 @@ class MemDataModel
   
   PREDICTION_MAX_REPOS = 10
   
+
   def initialize
     @repository_map = Hash.new
     @user_map = Hash.new
-    @user_repository_map = Hash.new
     @test_users = Array.new
+  end
+  
+  # 
+  # note: these are all-decouled (mediated methods)
+  # so we can change the underlying model without messing it all up
+  # 
+  
+  def get_repo(repo_id)
+    return @repository_map[repo_id.to_s]
+  end
+  
+  def repo_exists?(repo_id)
+    return @repository_map.has_key?(repo_id.to_s)
+  end
+  
+  def get_user(user_id)
+    return @user_map[user_id.to_s]
+  end
+  
+  def user_exists?(user_id)
+   return @user_map.has_key?(user_id.to_s)
+  end
+  
+  def all_repos
+    return @repository_map.values
+  end
+  
+  def all_users
+    return @user_map.values
+  end
+  
+  def all_test_users
+    return @test_users
   end
   
   
@@ -63,11 +96,9 @@ class MemDataModel
     return model
   end
   
-
-  
   def validate_prediction_model
     @test_users.each do |user_id|
-      user = @user_map[user_id]
+      user = get_user(user_id)
       # check size
       if user.predicted.size > PREDICTION_MAX_REPOS
         raise "user has an invalid number of predicted repositories: #{user.predicted.size}"
@@ -75,11 +106,11 @@ class MemDataModel
       # validate predicted repos
       user.predicted.each do |repo_id|
         # must be a valid repo
-        if !@repository_map.has_key?(repo_id)
-          raise "user predicted repo id #{repo_id} that is not a known repo"
+        if !repo_exists?(repo_id)
+          raise "user #{user.id} predicted repo id #{repo_id} that is not a known repo"
         end
         # must not already be in use
-        if user.repositories.include?(repo_id)
+        if user.has_repo?(repo_id)
           raise "user predicted repository [#{repo_id}] that they already use"
         end
       end      
@@ -90,8 +121,8 @@ class MemDataModel
   # does the order of the predictions have an effect?
   def output_prediction_model(strategy)
     data = ""
-    @test_users.each do |user_id|
-      user = @user_map[user_id]
+    all_test_users.each do |user_id|
+      user = get_user(user_id)
       data << "#{user.get_prediction_string}\n"
     end
     # output a backup
@@ -104,8 +135,8 @@ class MemDataModel
     t = Utils.time do
       puts "loading and preparing first order structures.."
       load_first_order
-      # puts "building second order structures..."
-      # prep_second_order
+      puts "building second order structures..."
+      prep_second_order
     end
     puts "memory model was built in #{t} seconds"
   end
@@ -137,10 +168,10 @@ class MemDataModel
         line.strip!
         repo = Repository.new(line)
         # check for bad data
-        if !@repository_map[repo.id].nil?
+        if repo_exists?(repo.id)
           puts ">duplicate repository id=#{repo.id}, skipping" 
         else
-          @repository_map[repo.id] = repo
+          @repository_map[repo.id.to_s] = repo
         end
       rescue StandardError => myStandardError
         raise "error on line #{line_num}: line=#{line}, error=#{myStandardError}"
@@ -157,11 +188,11 @@ class MemDataModel
         line.strip!
         repo_id, blob = line.split(":")  
         # check for bad data
-        if @repository_map[repo_id].nil?
+        if !repo_exists?(repo_id)
           puts ">language definition for unknown repository id=#{repo_id}, skipping"
           num_skipped = num_skipped + 1
         else
-          @repository_map[repo_id].parse_languages(line)
+          get_repo(repo_id).parse_languages(line)
         end
       rescue StandardError => myStandardError
         raise "error on line #{line_num}: line=#{line}, error=#{myStandardError}"
@@ -178,14 +209,14 @@ class MemDataModel
         line.strip!
         user_id, repo_id = line.split(":")
         # check for bad data
-        if @repository_map[repo_id].nil?
+        if !repo_exists?(repo_id)
           puts ">relationship definition for unknown repository id=#{repo_id}, skipping" 
         else
           # ensure user is defined
-          @user_map[user_id] = User.new(user_id) if @user_map[user_id].nil?
+          @user_map[user_id.to_s] = User.new(user_id) if !user_exists?(user_id)
           # store relationship lots of ways
-          @repository_map[repo_id].users.add(user_id)
-          @user_map[user_id].repositories.add(repo_id)
+          get_repo(repo_id).add_user(user_id)
+          get_user(user_id).add_repo(repo_id)
         end
       rescue StandardError => myStandardError
         raise "error on line #{line_num}: line=#{line}, error=#{myStandardError}"
@@ -203,16 +234,16 @@ class MemDataModel
         line.strip!
         user_id = line
         # ensure user is defined
-        if @user_map[user_id].nil? 
-          @user_map[user_id] = User.new(user_id)
+        if !user_exists?(user_id)
+          @user_map[user_id.to_s] = User.new(user_id)
           puts ">test user is not known, creating"
           unknown = unknown + 1
         end          
-        if(@user_map[user_id].test) 
-          ">user already marked as a test user, duplicate in file: #{user_id}"
+        if(get_user(user_id).test) 
+          puts ">user already marked as a test user, duplicate in file: #{user_id}"
         else
-          @user_map[user_id].test = true
-          @test_users << user_id
+          get_user(user_id).test = true
+          @test_users << user_id.to_s
         end
       rescue StandardError => myStandardError
         raise "error on line #{line_num}: line=#{line}, error=#{myStandardError}"
@@ -226,5 +257,5 @@ end
 
 
 # testing
-# m = MemDataModel.get_model
-# m.print_model_stats
+m = MemDataModel.get_model
+m.print_model_stats

@@ -14,6 +14,7 @@ STRATEGY_NAME = "kNN"
 K = 10
 SCORE_CUT_OFF = 0
 
+
 # larger == better
 def calculate_user_scoring(user, other)
   return 0 if user.id == other.id
@@ -83,10 +84,11 @@ def apply_strategy(model)
     # suggest top <=10 best whereever possible
     next if repos.nil? or repos.empty?
     repos.each_with_index do |r, i|
-      break if i > PREDICTION_MAX_REPOS
+      break if i >= PREDICTION_MAX_REPOS
       user.add_prediction(r)
     end
     puts " > user (#{index + 1}/#{model.test_users.size}) id=#{user.id} with #{neighbours.size} neighbours was recommended #{user.predicted.size} repos" 
+    break if index > 10
   end
   puts "done."
 end

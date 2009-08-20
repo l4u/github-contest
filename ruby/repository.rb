@@ -26,6 +26,15 @@ class Repository
     @project_size = @languages.values.inject{|sum, n| sum + n }
   end
   
+  def has_user?(user_id)
+    return @users.include?(user_id.to_s)
+  end
+  
+  def add_user(user_id)
+    raise "cannot add user #{user_id}, user already added" if has_user?(user_id)
+    @users.add(user_id.to_s)
+  end
+  
   # expect <id:owner/name,date,parent>
   # parent_id and owner are optional
   def parse_details(line)
@@ -41,7 +50,7 @@ class Repository
       if lname.nil? or lname.empty? or lines.nil? or lines.empty? 
         raise "invalid language definition for repo #{@id}, data: #{pair}"
       else        
-        @languages[lname] = lines
+        @languages[lname.to_s] = lines.to_i
       end
     end
     calculate_project_size
