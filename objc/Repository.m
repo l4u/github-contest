@@ -31,15 +31,13 @@
 	
 	// must be a better way to process strings?
 
-	// no error checking, we know the data is good right?	
 	NSArray *bigBits = [repoDef componentsSeparatedByString:@":"];
 	repoId = [[bigBits objectAtIndex:0] integerValue];
 	
-	NSArray *items = [[bigBits objectAtIndex:1] componentsSeparatedByString:@","];
-	NSLog([items objectAtIndex:0]);
-	fullname = [[NSString alloc] initWithString:[items objectAtIndex:0]];
-	date = [NSString stringWithString:[items objectAtIndex:1]];
-
+	NSArray *items = [[bigBits objectAtIndex:1] componentsSeparatedByString:@","];	
+	fullname = [[[NSString stringWithString:[items objectAtIndex:0]] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] retain];
+	date = [[[NSString stringWithString:[items objectAtIndex:1]] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] retain];
+	
 	if([items count] == 3) {
 		parentId = [[items objectAtIndex:2] integerValue];
 	} 

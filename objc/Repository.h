@@ -8,7 +8,7 @@
 }
 
 @property(readonly, nonatomic) int repoId, parentId;
-@property(readonly, copy, nonatomic) NSString *date, *fullname;
+@property(readonly, nonatomic) NSString *date, *fullname;
 
 -(void)parse:(NSString*)repoDef;
 

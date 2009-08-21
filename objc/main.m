@@ -16,13 +16,17 @@ void runTest() {
 	// user test
 	User *user = [[User alloc] initWithId:10];
 	NSLog(@"User id=%i\n", [user userId]);
-	// [user release];
+	[user release];
 
 	// repo test
-	Repository *repo = [[Repository alloc] init];
-	[repo parse:@"123338:DylanFM/roro-faces,2009-05-31,13635"];
-	NSLog(@"Repo id=%i, name=%s, date=%s, parent=%i\n", [repo repoId], [repo fullname], [repo date], [repo parentId]);
+	// Repository *repo = [[Repository alloc] init];
+	// [repo parse:@"123338:DylanFM/roro-faces,2009-05-31,13635"];
+	// NSLog(@"Repo id=%i, name=%@, date=%@, parent=%i\n", [repo repoId], [repo fullname], [repo date], [repo parentId]);
 	// [repo release];
+	
+	Model *model = [[Model alloc] init];
+	[model loadRepos];
+	[model printStats];
 }
 
 int main(int argc, const char *argv[]) {
