@@ -13,17 +13,17 @@ PREDICTION_MAX_REPOS = 10
 STRATEGY_NAME = "kNN"
 K = 10
 SCORE_CUT_OFF = 0
-TESTING = true
+TESTING = false
+
 
 # larger == better
 def calculate_user_scoring(user, other)
-  return 0 if user.id == other.id
-  dist = 0
-  # hard match: repo intersection
-  intersection = user.repositories & other.repositories
-  dist = intersection.size
-  
-  return dist
+  # check for self
+  return 0 if user.id.to_s == other.id.to_s
+  # check for no repos
+  return 0 if (user.repositories.empty? or other.repositories.empty?)
+  # intersection size 
+  return (user.repositories & other.repositories).size
 end
 
 # returns a set of K users in the users neighbourhood
@@ -31,7 +31,6 @@ def calculate_neighbours(user, all_users)
   # score all other users against user of interest
   all_neighbours = Hash.new
   all_users.each do |other| 
-    next if (other.id.to_s == user.id.to_s)
     score = calculate_user_scoring(user, other)
     next if score <= SCORE_CUT_OFF
     all_neighbours[other.id.to_s] = score
@@ -77,6 +76,8 @@ def apply_strategy(model)
   # process all of the test users
   model.all_test_users.each_with_index do |user_id, index|
     user = model.get_user(user_id)
+    # user must have repos
+    next if user.repositories.empty?
     # calculate user neighbours
     neighbours = calculate_neighbours(user, model.all_users)
     # rank repo's missing from user
