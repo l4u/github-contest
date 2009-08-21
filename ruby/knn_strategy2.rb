@@ -25,6 +25,7 @@ def are_repos_related?(r1, r2)
 end
 
 def do_repos_have_similar_composition?(r1, r2)
+  return false if (r1.languages.empty? or r2.languages.empty?)
   # project language composition is >= 50%
   intersection = (r1.languages.keys & r2.languages.keys)
   return true if (intersection.size.to_f/r1.languages.size.to_f) >= 0.50
