@@ -3,16 +3,12 @@
 
 @interface Repository : NSObject {
 @private
-    int repoId;
-	NSString *date;
-	NSString *fullname;
-	int parentId;
+    int repoId, parentId;
+	NSString *date, *fullname;
 }
 
-@property(readonly) int repoId;
-@property(readonly) NSString * date;
-@property(readonly) NSString * fullname;
-@property(readonly) int parentId;
+@property(readonly, nonatomic) int repoId, parentId;
+@property(readonly, copy, nonatomic) NSString *date, *fullname;
 
 -(void)parse:(NSString*)repoDef;
 
