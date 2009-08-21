@@ -14,9 +14,11 @@ h2. Author
 
 h2. Description
 
-This project provides code to generate a solution (results.txt) to the "github contest":http://contest.github.com August 2009.
+This project provides code to generate a solution (results.txt) to the "github contest":http://contest.github.com August 2009. 
 
-<b>Note</b>: This is a project designed for me to learn more about Ruby rather than seriously compete in the competition.
+h2. Code
+
+I started with a Ruby implementation (/ruby) although quickly found that it was simply too slow. I then moved to an Objective-c implementation (/objc). I chose these two languages as I wanted to know more about their capabilities.
 
 h2. Details
 
