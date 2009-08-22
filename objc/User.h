@@ -16,6 +16,8 @@
 
 -(id)initWithId:(int)aId;
 -(void) addRepository:(NSNumber *)aRepoId;
+-(void) addPrediction:(NSNumber *)aRepoId;
 -(NSString *) getPredictionAsString;
+
 
 @end

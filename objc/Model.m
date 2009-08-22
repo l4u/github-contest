@@ -201,4 +201,21 @@
     return testUsers;
 }
 
+-(void) validatePredictions {
+	NSLog(@"Validating prediction model...");
+	for(User *user in testUsers) {
+		if([user.predictions count] > 10) {
+			[NSException raise:@"Invalid Prediction Model" format:@"user %@ contains too many predictions: %i", user.userId, [user.predictions count]];
+		}
+		// ensure all repo id's are valid
+		for(NSNumber *repoId in user.predictions) {
+			if(![repositoryMap objectForKey:repoId]) {
+				[NSException raise:@"Invalid Prediction Model" format:@"user %@ contains unknown or invalid repo id %@", user.userId, repoId];
+			}
+		}
+	}
+	
+	NSLog(@"..Prediction model appears valid");
+}
+
 @end

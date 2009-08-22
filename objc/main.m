@@ -23,6 +23,8 @@ int main(int argc, const char *argv[]) {
 		Strategy *strategy = [[Strategy alloc] initWithModel:model];
 		// execute
 		[strategy calculatePredictions];
+		// validate
+		[model validatePredictions];
 		// output
 		[model outputPredictions];
 	} 

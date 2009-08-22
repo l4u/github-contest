@@ -25,6 +25,7 @@
 -(void) loadRepoUserRelationships;
 -(void) loadTestUsers;
 
+-(void) validatePredictions;
 -(void) outputPredictions;
 
 @end
