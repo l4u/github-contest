@@ -4,12 +4,14 @@
 
 @dynamic userId;
 @dynamic repos;
+@synthesize test;
 
 
 -(id) initWithId:(int)aId {
 	self = [super init];	
 	
 	if(self) {
+		test = NO;
 		userId = aId;
 		repos = [[[NSMutableSet alloc] init] retain];
 	}
@@ -37,5 +39,7 @@
 	}
 	[repos addObject:aRepoId];
 }
+
+
 
 @end

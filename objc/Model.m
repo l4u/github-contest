@@ -30,9 +30,13 @@
 }
 
 -(void) loadModel {
+	// first order data
 	[self loadRepos];
 	[self loadRepoLanguages];
 	[self loadRepoUserRelationships];
+	[self loadTestUsers];
+	// second order pre-calculations
+	// ...
 }
 
 -(void) loadRepos {	
@@ -72,11 +76,19 @@
 			continue;
 		}
 		// get repo
-		
+		NSArray *pieces = [line componentsSeparatedByString:@":"];
+		NSNumber *repoKey = [NSNumber numberWithInteger:[[pieces objectAtIndex:0] integerValue]];
+		Repository *repo = [repositoryMap objectForKey:repoKey];
+		if(repo == nil) {
+			NSLog(@">Repository %@ has language definition, but was not previously defined", repoKey);
+			repo = [[Repository alloc] initWithId:[repoKey intValue]];
+			[repositoryMap setObject:repo forKey:repoKey];
+		}
 		// process language data
+		[repo parseLanguage:[pieces objectAtIndex:1]];
 	}
 	
-	NSLog(@"Finished loading %i repository langauge definitions", [lines count]);
+	NSLog(@"Finished loading %i repository language definitions", [lines count]);
 }
 
 -(void) loadRepoUserRelationships {	
@@ -117,6 +129,31 @@
 	NSLog(@"Finished loading %i user-repositories relationships", [lines count]);
 }
 
+-(void) loadTestUsers {
+	// load file 
+	NSString *fileString = [NSString stringWithContentsOfFile:@"../data/test.txt" encoding:NSASCIIStringEncoding error:NULL]; 
+	// each line, adjust character for line endings
+	NSArray *lines = [fileString componentsSeparatedByString:@"\n"]; 
+
+	// process all lines
+	for(NSString *line in lines) {
+		if([line length]<= 0) {
+			continue;
+		}
+		NSNumber *userKey = [NSNumber numberWithInteger:[line integerValue]];
+		// get user
+		User *user = [userMap objectForKey:userKey];
+		if(!user) {
+			user = [[User alloc] initWithId:[userKey intValue]];
+			[userMap setObject:user forKey:userKey];			
+			NSLog(@">Users %@ is test but was not previously defined", userKey);
+		}
+		// user is test
+		user.test = YES;
+	}
+	
+	NSLog(@"Finished loading %i test users", [lines count]);
+}
 
 -(NSMutableDictionary*)repositoryMap {
     return repositoryMap;

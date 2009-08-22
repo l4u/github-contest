@@ -6,13 +6,17 @@
 @dynamic date;
 @dynamic fullname;
 @dynamic parentId;
-
+@dynamic languageMap;
 
 -(id) init {
 	self = [super init];	
 	
 	if(self) {
-		
+		repoId = 0;
+		date = nil;
+		fullname = nil;
+		parentId = 0;
+		languageMap = nil;
 	}
 	
 	return self;
@@ -22,6 +26,10 @@
 	self = [super init];	
 	
 	if(self) {
+		date = nil;
+		fullname = nil;
+		parentId = 0;
+		languageMap = nil;
 		repoId = aId;
 	}
 	
@@ -31,6 +39,7 @@
 -(void) dealloc {
 	[fullname release];
 	[date release];
+	[languageMap release];
 	
 	[super dealloc]; // always last
 }
@@ -53,6 +62,24 @@
 	} 
 }
 
+// example: JavaScript;148,Ruby;16079
+-(void)parseLanguage:(NSString*)langDef {
+	if(languageMap && [languageMap count]) {
+		[NSException raise:@"Invalid Repository Language" format:@"repository %@ already had language definition", repoId]; 
+	} else {
+		languageMap = [[[NSMutableDictionary alloc] init] retain];
+	}
+	
+	NSArray *languages = [langDef componentsSeparatedByString:@","];
+	
+	for(NSString *lang in languages) {
+		NSArray *pieces = [lang componentsSeparatedByString:@";"];
+		// store
+		NSNumber *numLines = [NSNumber numberWithInteger:[[pieces objectAtIndex:1] integerValue]];
+		[languageMap setObject:numLines forKey:[pieces objectAtIndex:0]];
+	}
+}
+
 -(int)repoId {
     return repoId;
 }
@@ -67,6 +94,10 @@
 
 -(int)parentId {
     return parentId;
+}
+
+-(NSMutableDictionary *)languageMap {
+	return languageMap;
 }
 
 @end
