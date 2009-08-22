@@ -4,9 +4,14 @@
 @interface User : NSObject {
 @private
     int userId;
+	NSMutableSet *repos;
 }
 
 @property(readonly) int userId;
--(id)initWithId:(int)initUserId;
+@property(readonly) NSMutableSet *repos;
+
+
+-(id)initWithId:(int)aId;
+-(void) addRepository:(NSNumber *)aRepoId;
 
 @end

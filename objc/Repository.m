@@ -18,6 +18,16 @@
 	return self;
 }
 
+-(id)initWithId:(int)aId {
+	self = [super init];	
+	
+	if(self) {
+		repoId = aId;
+	}
+	
+	return self;
+}
+
 -(void) dealloc {
 	[fullname release];
 	[date release];

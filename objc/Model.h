@@ -2,9 +2,9 @@
 #import <Foundation/Foundation.h>
 
 #import "Repository.h"
-#import "Model.h"
+#import "User.h"
 
-#define REPOSITORY_FILENAME = "../data/repos.txt"
+
 
 @interface Model : NSObject {
 @private
@@ -16,6 +16,10 @@
 @property(readonly) NSMutableDictionary *userMap;
 
 -(void) printStats;
--(void) loadRepos;
 
+-(void) loadModel;
+-(void) loadRepos;
+-(void) loadRepoLanguages;
+-(void) loadRepoUserRelationships;
+	
 @end

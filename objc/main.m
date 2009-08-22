@@ -11,22 +11,12 @@ Compilation: http://www.cs.indiana.edu/classes/c304/ObjCompile.html
 #import "Model.h"
 
 void runTest() {
-	NSLog(@"Hello world\n");
-
-	// user test
-	User *user = [[User alloc] initWithId:10];
-	NSLog(@"User id=%i\n", [user userId]);
-	[user release];
-
-	// repo test
-	// Repository *repo = [[Repository alloc] init];
-	// [repo parse:@"123338:DylanFM/roro-faces,2009-05-31,13635"];
-	// NSLog(@"Repo id=%i, name=%@, date=%@, parent=%i\n", [repo repoId], [repo fullname], [repo date], [repo parentId]);
-	// [repo release];
 	
 	Model *model = [[Model alloc] init];
-	[model loadRepos];
+	[model loadModel];
 	[model printStats];
+	
+	NSLog(@"Done.");
 }
 
 int main(int argc, const char *argv[]) {
