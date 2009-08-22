@@ -12,7 +12,7 @@
 
 @private
 	Model *model;
-	NSMutableArray *reposByOccurance;
+	NSArray *reposByOccurance;
 }
 
 @property(readonly, nonatomic) Model *model;
@@ -32,6 +32,6 @@
 // general
 -(NSArray *)orderUserReposByWatchOccurance:(NSArray *)userIds;
 -(NSArray *)calculateNeighbours:(User *)user;
--(void)assignRepos:(User *)user repoIds:(NSArray*)repoIds;
+-(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds;
 
 @end

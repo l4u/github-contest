@@ -59,6 +59,7 @@
     return predictions;
 }
 
+// userId:repoId,repoId,repoId,...
 -(NSString *) getPredictionAsString {
 	NSMutableString *buffer = [[[NSMutableString alloc] init] autorelease];
 	[buffer appendString:[NSString stringWithFormat:@"%i:", userId]];

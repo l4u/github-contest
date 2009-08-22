@@ -77,7 +77,7 @@
 		reposByOccurance = [self orderUserReposByWatchOccurance:[model.userMap allKeys]];
 	}
 	// assign
-	[self assignRepos:user :reposByOccurance];
+	[self assignRepos:user repoIds:reposByOccurance];
 }
 
 
@@ -87,6 +87,7 @@
 -(void)top10NeighbourhoodStrategy:(User *)user {
 	// user must have repos
 	if([user.repos count] <= 0) {
+		[self top10Strategy:user]; // assign them the 10 most popular
 		return;
 	}	
 	// calculate neighbours
@@ -96,7 +97,7 @@
 	// order all neighbour repos by occurance
 	NSArray *repos = [self orderUserReposByWatchOccurance:neighbourIds];
 	// assign
-	[self assignRepos:user :repos];
+	[self assignRepos:user repoIds:repos];
 }
 
 
@@ -136,7 +137,7 @@
 	return ordered;
 }
 
--(void)assignRepos:(User *)user repoIds:(NSArray*)repoIds {
+-(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds {
 	for(NSNumber *repoId in repoIds) {
 		// test for watch list
 		if([user.repos containsObject:repoId]) {
