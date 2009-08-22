@@ -12,7 +12,7 @@
 
 @private
 	Model *model;
-	NSMutableArray *top10;
+	NSMutableArray *reposByOccurance;
 }
 
 @property(readonly, nonatomic) Model *model;
@@ -26,11 +26,12 @@
 -(void)top10Strategy:(User *)user;
 -(void)top10NeighbourhoodStrategy:(User *)user;
 
-// general utils
--(NSArray *)orderUserReposByWatchOccurance:(NSArray *)userIds;
--(NSArray *)getTop10Repos;
--(NSArray *)getTop10OrLess:(NSArray *)someArray;
--(NSArray *)calculateNeighbours:(User *)user;
+// array utils
+-(NSArray *)getTopNOrLess:(NSArray *)someArray maximum:(int)maximum;
 -(NSArray *)reversedArray:(NSArray *)other;
+// general
+-(NSArray *)orderUserReposByWatchOccurance:(NSArray *)userIds;
+-(NSArray *)calculateNeighbours:(User *)user;
+-(void)assignRepos:(User *)user repoIds:(NSArray*)repoIds;
 
 @end

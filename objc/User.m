@@ -65,7 +65,7 @@
 	
 	int i = 0;
 	for(NSNumber *num in predictions) {
-		[buffer appendString:[NSString stringWithFormat:@"%i", num]];		
+		[buffer appendString:[NSString stringWithFormat:@"%@", num]];		
 		if(i != [predictions count]-1) {
 			[buffer appendString:@","];
 		}
