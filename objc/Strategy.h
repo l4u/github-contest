@@ -4,6 +4,7 @@
 #import <time.h>
 
 #import "Model.h"
+#import "Counter.h"
 
 #define MAX_REPOS 10
 
@@ -11,14 +12,21 @@
 
 @private
 	Model *model;
+	NSMutableArray *top10;
 }
 
 @property(readonly, nonatomic) Model *model;
 
 -(id)initWithModel:(Model *)aModel;
 
+// prediction entry
 -(void)calculatePredictions;
--(void)randomStraetgy:(User *)user allRepoKeys:(NSArray *)allRepoKeys;
+// prediction types
+-(void)randomStrategy:(User *)user allRepoKeys:(NSArray *)allRepoKeys;
+-(void)top10Strategy:(User *)user allRepoKeys:(NSArray *)allRepoKeys;
+
+
+-(void)calculateTop10Repos;
 
 
 @end
