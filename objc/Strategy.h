@@ -26,7 +26,7 @@
 -(void)top10Strategy:(User *)user allRepoKeys:(NSArray *)allRepoKeys;
 
 
--(void)calculateTop10Repos;
-
+-(NSArray *)orderUserReposByWatchOccurance:(NSArray *)userList;
+-(NSArray *)getTop10Repos;
 
 @end

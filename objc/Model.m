@@ -49,7 +49,7 @@
 	NSLog(@"Writing predictions to file...");
 	
 	// build prediction file in mem
-	NSMutableString *buffer = [[NSMutableString alloc] init];	
+	NSMutableString *buffer = [[[NSMutableString alloc] init] autorelease];	
 	// enumerate test users
 	for(User *user in testUsers) {
 		// get prediction string
@@ -85,7 +85,7 @@
 		if([line length]<= 0) {
 			continue;
 		}
-		Repository *repo = [[Repository alloc] init];
+		Repository *repo = [[[Repository alloc] init] autorelease];
 		[repo parse:line];
 		
 		NSNumber *key = [NSNumber numberWithInteger:repo.repoId];
@@ -116,7 +116,7 @@
 		Repository *repo = [repositoryMap objectForKey:repoKey];
 		if(repo == nil) {
 			NSLog(@">Repository %@ has language definition, but was not previously defined", repoKey);
-			repo = [[Repository alloc] initWithId:[repoKey intValue]];
+			repo = [[[Repository alloc] initWithId:[repoKey intValue]] autorelease];
 			[repositoryMap setObject:repo forKey:repoKey];
 		}
 		// process language data
@@ -145,13 +145,13 @@
 		Repository *repo = [repositoryMap objectForKey:repoKey];
 		if(repo == nil) {
 			NSLog(@">Repository %@ specified in relationship did not exist", repoKey);
-			repo = [[Repository alloc] initWithId:[repoKey intValue]];
+			repo = [[[Repository alloc] initWithId:[repoKey intValue]] autorelease];
 			[repositoryMap setObject:repo forKey:repoKey];
 		}
 		// get user
 		User *user = [userMap objectForKey:userKey];
 		if(!user) {
-			user = [[User alloc] initWithId:[userKey intValue]];
+			user = [[[User alloc] initWithId:[userKey intValue]] autorelease];
 			[userMap setObject:user forKey:userKey];			
 		}
 		// add user to repo
@@ -179,7 +179,7 @@
 		// get user
 		User *user = [userMap objectForKey:userKey];
 		if(!user) {
-			user = [[User alloc] initWithId:[userKey intValue]];
+			user = [[[User alloc] initWithId:[userKey intValue]] autorelease];
 			[userMap setObject:user forKey:userKey];			
 			NSLog(@">Users %@ is test but was not previously defined", userKey);
 		}

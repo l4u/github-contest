@@ -67,7 +67,7 @@
 	if(languageMap && [languageMap count]) {
 		[NSException raise:@"Invalid Repository Language" format:@"repository %@ already had language definition", repoId]; 
 	} else {
-		languageMap = [[[NSMutableDictionary alloc] init] retain];
+		languageMap = [[NSMutableDictionary alloc] init];
 	}
 	
 	NSArray *languages = [langDef componentsSeparatedByString:@","];

@@ -48,22 +48,34 @@
 // assign each user the top 10 most popular repos
 -(void)top10Strategy:(User *)user allRepoKeys:(NSArray *)allRepoKeys {
 	if(!top10) {
-		[self calculateTop10Repos];
+		top10 = [[self getTop10Repos] retain]; 
 	}
 	// assign
 	[user.predictions addObjectsFromArray:top10];
 }
 
--(void)calculateTop10Repos {
+-(NSArray *)getTop10Repos {
+	// order all repos by occurance
+	NSArray *all = [self orderUserReposByWatchOccurance:[model.userMap allValues]];
+	// snip off the top 10 most watched
+	NSMutableArray *array = [[[NSMutableArray alloc] init] autorelease];
+	int i = 0;
+	for(i=0; i<10; i++) {
+		[array addObject:[all objectAtIndex:i]];
+	}
+	return array;
+}
+
+-(NSArray *)orderUserReposByWatchOccurance:(NSArray *)userList {
 	// build an occurance count for all watched repos
-	NSMutableDictionary *dic = [[NSMutableDictionary dictionaryWithCapacity:120872] retain];
+	NSMutableDictionary *dic = [[[NSMutableDictionary alloc] init] autorelease];
 	// process all users
-	for(User *user in [model.userMap allValues]) {
+	for(User *user in userList) {
 		// process all repos
 		for(NSNumber *repoId in user.repos) {
 			Counter *c = [dic objectForKey:repoId];
 			if(!c) {
-				c = [[Counter alloc] init];
+				c = [[[Counter alloc] init] autorelease];
 				[dic setObject:c forKey:repoId];
 			}
 			c.value++;			
@@ -71,14 +83,8 @@
 	}
 	// order by occurance count
 	NSArray *ordered = [dic keysSortedByValueUsingSelector:@selector(compareCounters:)];
-	
-	// prep top 10
-	top10 = [[NSMutableArray arrayWithCapacity:10] retain];
-	int i = 0;
-	for(i=0; i<10; i++) {
-		[top10 addObject:[ordered objectAtIndex:i]];
-		NSLog(@" rank is %i with occurance %i", i, ((Counter *)[dic objectForKey:[ordered objectAtIndex:i]]).value);
-	}
+	// extract 
+	return ordered;
 }
 
 

@@ -13,8 +13,8 @@
 	if(self) {
 		test = NO;
 		userId = aId;
-		repos = [[[NSMutableSet alloc] init] retain];
-		predictions = [[[NSMutableSet alloc] init] retain];
+		repos = [[NSMutableSet alloc] init];
+		predictions = [[NSMutableSet alloc] init];
 	}
 	
 	return self;
@@ -60,7 +60,7 @@
 }
 
 -(NSString *) getPredictionAsString {
-	NSMutableString *buffer = [[NSMutableString alloc] init];
+	NSMutableString *buffer = [[[NSMutableString alloc] init] autorelease];
 	[buffer appendString:[NSString stringWithFormat:@"%i:", userId]];
 	
 	int i = 0;
