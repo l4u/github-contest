@@ -10,10 +10,12 @@
 @private
     NSMutableDictionary *repositoryMap;
 	NSMutableDictionary *userMap;
+	NSMutableArray *testUsers;
 }
 
 @property(readonly) NSMutableDictionary *repositoryMap;
 @property(readonly) NSMutableDictionary *userMap;
+@property(readonly) NSMutableArray *testUsers;
 
 -(void) printStats;
 
@@ -23,5 +25,6 @@
 -(void) loadRepoUserRelationships;
 -(void) loadTestUsers;
 
+-(void) outputPredictions;
 
 @end

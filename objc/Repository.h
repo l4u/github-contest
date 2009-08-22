@@ -5,7 +5,7 @@
 @private
     int repoId, parentId;
 	NSString *date, *fullname;
-	NSMutableDictionary *languageMap;
+	NSMutableDictionary *languageMap;	
 }
 
 @property(readonly, nonatomic) int repoId, parentId;

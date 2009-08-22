@@ -5,13 +5,16 @@
 // properties
 @dynamic repositoryMap;
 @dynamic userMap;
+@dynamic testUsers;
 
 -(id) init {
 	self = [super init];	
 	
 	if(self) {
-		repositoryMap = [[NSMutableDictionary dictionaryWithCapacity:121000] retain];
-		userMap = [[NSMutableDictionary dictionaryWithCapacity:20000] retain];
+		// we know exactly how many we have - provided data is finite
+		repositoryMap = [[NSMutableDictionary dictionaryWithCapacity:120872] retain];
+		userMap = [[NSMutableDictionary dictionaryWithCapacity:56521] retain];
+		testUsers = [[NSMutableArray arrayWithCapacity:4788] retain];
 	}
 	
 	return self;
@@ -20,13 +23,16 @@
 -(void) dealloc {
 	[repositoryMap dealloc];
 	[userMap dealloc];
+	[testUsers dealloc];
 	
 	[super dealloc]; // always last
 }
 
 -(void) printStats {
+	NSLog(@"Statistics: ");
 	NSLog(@"Total Repositories:...%i", [repositoryMap count]);
-	NSLog(@"Total Users:...%i", [userMap count]);
+	NSLog(@"Total Users:..........%i", [userMap count]);
+	NSLog(@"Total Test Users:.....%i", [testUsers count]);
 }
 
 -(void) loadModel {
@@ -37,6 +43,35 @@
 	[self loadTestUsers];
 	// second order pre-calculations
 	// ...
+}
+
+-(void) outputPredictions {
+	NSLog(@"Writing predictions to file...");
+	
+	// build prediction file in mem
+	NSMutableString *buffer = [[NSMutableString alloc] init];	
+	// enumerate test users
+	for(User *user in testUsers) {
+		// get prediction string
+		[buffer appendString:[user getPredictionAsString]];
+		// new line
+		[buffer appendString:@"\n"];
+	}
+
+	// output to backup
+	NSString *filename = [NSString stringWithFormat:@"../backup/results-%i.txt", (int)[NSDate timeIntervalSinceReferenceDate]];
+	if([buffer writeToFile:filename atomically:NO encoding:NSASCIIStringEncoding error:NULL] == NO) {
+		[NSException raise:@"File Write Error" format:@"Unable to write predictions to filename: %@", filename];
+	} else {
+		NSLog(@"Wrote prediction results to %@", filename);
+	}
+	// output to results.txt
+	filename = @"../results.txt";
+	if([buffer writeToFile:filename atomically:NO encoding:NSASCIIStringEncoding error:NULL] == NO) {
+		[NSException raise:@"File Write Error" format:@"Unable to write predictions to filename: %@", filename];
+	} else {
+		NSLog(@"Wrote prediction results to %@", filename);
+	}
 }
 
 -(void) loadRepos {	
@@ -150,6 +185,7 @@
 		}
 		// user is test
 		user.test = YES;
+		[testUsers addObject:user];
 	}
 	
 	NSLog(@"Finished loading %i test users", [lines count]);
@@ -160,6 +196,9 @@
 }
 -(NSMutableDictionary*)userMap {
     return userMap;
+}
+-(NSMutableArray*)testUsers {
+    return testUsers;
 }
 
 @end

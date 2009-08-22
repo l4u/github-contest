@@ -13,8 +13,8 @@
 CC = gcc
 CFLAGS = -g
 LIBS = -lobjc -L /System/Library/Frameworks/Foundation.framework/Foundation
-SRC=main.m User.m Repository.m Model.m
-OBJ=main.o User.o Repository.o Model.o
+SRC=main.m User.m Repository.m Model.m Strategy.m
+OBJ=main.o User.o Repository.o Model.o Strategy.o
 
 
 # Explicit rules
