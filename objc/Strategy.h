@@ -21,12 +21,16 @@
 
 // prediction entry
 -(void)calculatePredictions;
-// prediction types
+// high-level strategies
 -(void)randomStrategy:(User *)user allRepoKeys:(NSArray *)allRepoKeys;
--(void)top10Strategy:(User *)user allRepoKeys:(NSArray *)allRepoKeys;
+-(void)top10Strategy:(User *)user;
+-(void)top10NeighbourhoodStrategy:(User *)user;
 
-
--(NSArray *)orderUserReposByWatchOccurance:(NSArray *)userList;
+// general utils
+-(NSArray *)orderUserReposByWatchOccurance:(NSArray *)userIds;
 -(NSArray *)getTop10Repos;
+-(NSArray *)getTop10OrLess:(NSArray *)someArray;
+-(NSArray *)calculateNeighbours:(User *)user;
+-(NSArray *)reversedArray:(NSArray *)other;
 
 @end

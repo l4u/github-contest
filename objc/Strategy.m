@@ -34,19 +34,84 @@
 
 -(void)calculatePredictions {
 	NSLog(@"calculating predictions...");
-	
-	NSArray *allKeys = [model.repositoryMap allKeys];
-	
+		
 	for(User *user in model.testUsers) {
 		// random strategy 
+		// NSArray *allKeys = [model.repositoryMap allKeys];
 		//[self randomStrategy:user allRepoKeys:allKeys];
+		
 		// top 10 strategy
-		[self top10Strategy:user allRepoKeys:allKeys];
+		//[self top10Strategy:user];
+		
+		// top 10 repos in user's neighbourhood
+		[self top10NeighbourhoodStrategy:user];
 	}
 }
 
+
+-(void)top10NeighbourhoodStrategy:(User *)user {
+	// user must have repos
+	if([user.repos count] <= 0) {
+		return;
+	}	
+	// calculate neighbours
+	NSArray *neighbourIds = [self calculateNeighbours:user];
+	// snip neighbours to K=10
+	neighbourIds = [self getTop10OrLess:neighbourIds];
+	// order all neighbour repos by occurance
+	NSArray *repos = [self orderUserReposByWatchOccurance:neighbourIds];
+	// snip off the top 10 most watched
+	repos = [self getTop10OrLess:repos];
+	// assign
+	[user.predictions addObjectsFromArray:repos];
+}
+
+-(NSArray *) calculateNeighbours:(User *)user {	
+	// build overlap set for all users
+	NSMutableDictionary *dic = [[[NSMutableDictionary alloc] init] autorelease];
+	// process all users
+	for(User *other in [model.userMap allValues]) {
+		// never check against self
+		if(other.userId == user.userId) {
+			continue;
+		}
+		// other must have repos
+		if([other.repos count] <= 0) {
+			continue;
+		}		
+		// calculate intersection count
+		int count = 0;
+		for(Repository *repo_id in user.repos) {
+			// count exact hits
+			if([other.repos containsObject:repo_id]) {
+				count++;
+			}
+			// TODO count fork matches
+			// TODO count language matches >50% same langs
+		}
+		if(count > 0) {
+			[dic setObject:[NSNumber numberWithInt:count] forKey:[NSNumber numberWithInt:other.userId]];
+		}
+	}
+	// order by occurance count (ascending)
+	NSArray *ordered = [dic keysSortedByValueUsingSelector:@selector(compare:)];
+	// reverse (decending)
+	ordered = [self reversedArray:ordered];
+	// extract 
+	return ordered;
+}
+
+- (NSArray *)reversedArray:(NSArray *)other {
+    NSMutableArray *array = [NSMutableArray arrayWithCapacity:[other count]];
+    NSEnumerator *enumerator = [other reverseObjectEnumerator];
+    for (id element in enumerator) {
+        [array addObject:element];
+    }
+    return array;
+}
+
 // assign each user the top 10 most popular repos
--(void)top10Strategy:(User *)user allRepoKeys:(NSArray *)allRepoKeys {
+-(void)top10Strategy:(User *)user {
 	if(!top10) {
 		top10 = [[self getTop10Repos] retain]; 
 	}
@@ -54,23 +119,29 @@
 	[user.predictions addObjectsFromArray:top10];
 }
 
--(NSArray *)getTop10Repos {
-	// order all repos by occurance
-	NSArray *all = [self orderUserReposByWatchOccurance:[model.userMap allValues]];
+-(NSArray *)getTop10OrLess:(NSArray *)someArray {
 	// snip off the top 10 most watched
 	NSMutableArray *array = [[[NSMutableArray alloc] init] autorelease];
 	int i = 0;
-	for(i=0; i<10; i++) {
-		[array addObject:[all objectAtIndex:i]];
+	for(i=0; i<10 && i<[someArray count]; i++) {
+		[array addObject:[someArray objectAtIndex:i]];
 	}
 	return array;
 }
 
--(NSArray *)orderUserReposByWatchOccurance:(NSArray *)userList {
+-(NSArray *)getTop10Repos {
+	// order all repos by occurance
+	NSArray *all = [self orderUserReposByWatchOccurance:[model.userMap allKeys]];
+	// snip off the top 10 most watched
+	return [self getTop10OrLess:all];
+}
+
+-(NSArray *)orderUserReposByWatchOccurance:(NSArray *)userIds {
 	// build an occurance count for all watched repos
 	NSMutableDictionary *dic = [[[NSMutableDictionary alloc] init] autorelease];
 	// process all users
-	for(User *user in userList) {
+	for(NSNumber *userId in userIds) {
+		User *user = [model.userMap objectForKey:userId];
 		// process all repos
 		for(NSNumber *repoId in user.repos) {
 			Counter *c = [dic objectForKey:repoId];
