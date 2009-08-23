@@ -104,11 +104,11 @@
 	double score = 0.0;
 	
 	
-	// preference for root repos
-	// if(repo.parentId == 0) {
-	// 	score += 1.0;	
-	// }
-
+	// preference for forked root repos
+	if(repo.parentId == 0 && repo.forkCount > 0) {
+		score += 0.5;	
+	}
+	
 	// watch global popularity
 	score += (repo.normalizedWatchRank * 0.3);
 	// fork global popularity

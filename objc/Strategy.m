@@ -56,7 +56,7 @@
 		repo.normalizedWatchRank = ((double) (max-i) / (double)max);
 		// store
 		[top20ReposByWatch addObject:repoId];
-		NSLog(@"...Top 20 Watched: name=%@, rank=%i normalized=%f", repo.fullname, i, repo.normalizedWatchRank);
+		// NSLog(@"...Top 20 Watched: name=%@, rank=%i normalized=%f", repo.fullname, i, repo.normalizedWatchRank);
 	}	
 	// top n by fork count
 	tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];
