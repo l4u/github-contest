@@ -12,10 +12,12 @@
 	
 	if(self) {		
 		model = aModel;
-		reposByOccurance = nil;
 		[aModel retain];
 		// random numbers
 		srandom(time(NULL));
+		
+		top20ReposByWatch = nil;		
+		top20ReposByFork = nil;
 	}
 	
 	return self;
@@ -23,7 +25,8 @@
 
 -(void) dealloc {
 	[model release];
-	[reposByOccurance release];
+	[top20ReposByWatch release];
+	[top20ReposByFork release];
 	
 	[super dealloc]; // always last
 }
@@ -33,99 +36,154 @@
 }
 
 -(void)employStrategy {
+	[self initialize];
 	[self calculatePredictions];
-	
-	// [self modelAnalysis];
 }
 
--(void)modelAnalysis {
-	NSLog(@"model analysis...");
+-(void) initialize {
+	int max = 20;
+	
+	// top n by watch count
+	NSArray *tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareWatchCount:)];
+	top20ReposByWatch = [NSMutableArray arrayWithCapacity:max];
 	int i;
-	NSArray *ordered;
-	
-	// repos by forked count
-	NSLog(@"Top 10 repos by FORK count: ");
-	ordered = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];		
-	for(i = 0; i<10; i++) {
-		Repository *repo = [model.repositoryMap objectForKey:[ordered objectAtIndex:i]];
-		NSLog(@"name=%@, id=%i, forkCount=%i", repo.fullname, repo.repoId, repo.forkCount);
-	}
-	
-	// repos by watch count
-	NSLog(@"Top 10 repos by WATCH count: ");
-	ordered = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareWatchCount:)];
-	for(i = 0; i<10; i++) {
-		Repository *repo = [model.repositoryMap objectForKey:[ordered objectAtIndex:i]];
-		NSLog(@"name=%@, id=%i, watchCount=%i", repo.fullname, repo.repoId, repo.watchCount);
-	}
+	for(i=0; i<max; i++) {
+		NSNumber *repoId = [tmp objectAtIndex:i];
+		Repository *repo = [model.repositoryMap objectForKey:repoId];
+		// set rank (decending)
+		repo.normalizedWatchRank = (double) (max-i) / (double)max;
+		// store
+		[top20ReposByWatch addObject:repoId];
+	}	
+	// top n by fork count
+	tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];
+	top20ReposByFork = [NSMutableArray arrayWithCapacity:max];
+	for(i=0; i<max; i++) {
+		NSNumber *repoId = [tmp objectAtIndex:i];
+		Repository *repo = [model.repositoryMap objectForKey:repoId];
+		// set rank (decending)
+		repo.normalizedForkRank = (double) (max-i) / (double)max;
+		// store
+		[top20ReposByFork addObject:repoId];
+	}	
 }
 
 -(void)calculatePredictions {
 	NSLog(@"calculating predictions...");
 	
-	NSAutoreleasePool *pool = nil;
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	int i = 0;
 	
-	for(User *user in model.testUsers) {
-		pool = [[NSAutoreleasePool alloc] init];
-		
-		// random strategy 
-		// NSArray *allKeys = [model.repositoryMap allKeys];
-		// [self randomStrategy:user allRepoKeys:allKeys];
-		
-		// top 10 strategy
-		[self top10Strategy:user];
-		
-		// top 10 repos in user's neighbourhood
-		// [self top10NeighbourhoodStrategy:user];
-		
-		// autorelease
-		[pool drain];		
+	for(User *user in model.testUsers) {				
+		if([user.repos count]<=0) {
+			[self assignRepos:user repoIds:top20ReposByWatch];
+		} else {
+			// generate 
+			NSMutableSet *candidateSet = [self generateCandidates:user];		
+			// fiter
+			[self filterCandidates:candidateSet user:user];
+			// score
+			NSArray *candidateList = [self scoreCandidates:candidateSet user:user];
+			// assign
+			[self assignRepos:user repoIds:candidateList];
+		}		
+		 		
+		// clear mem sometimes
+		if((i % 10)==0) {
+			NSLog(@"[%i/%i]: Finished prediction for user %i with %i repos", (++i), [model.testUsers count], user.userId, [user.predictions count]);
+			[pool drain];
+			pool = [[NSAutoreleasePool alloc] init];			
+		}		
 	}
 	
 	// validate
 	[model validatePredictions];
 	// output
 	[model outputPredictions];
+	
+	[pool drain];
 }
 
-//
-// random strategy (for process testing)
-//
--(void)randomStrategy:(User *)user allRepoKeys:(NSArray *)allRepoKeys {	
-	while([user.predictions count] < MAX_REPOS) {
-		// select a random repo
-		int selection = random() % [allRepoKeys count];
-		NSNumber * repoId = [allRepoKeys objectAtIndex:selection];
-		// test for watch list
-		if([user.repos containsObject:repoId]) {
-			continue;
+
+
+// generate a set of candidates a user may want to watch
+// somewhat inspired by: http://github.com/jeremybarnes/github_contest/tree/master
+-(NSMutableSet *)generateCandidates:(User *)user {
+	NSMutableSet *candidateSet = [[[NSMutableSet alloc] init] autorelease];
+	// top 20 by watch count
+	for(NSNumber *repoId in top20ReposByWatch) {
+		[candidateSet addObject:repoId];
+	}
+	// top 20 by fork count
+	for(NSNumber *repoId in top20ReposByFork) {
+		[candidateSet addObject:repoId];
+	}
+	// tree of parent repos
+
+	// tree of children repos
+
+	// repos with same name and different author
+
+	// repos of authors of watched repos
+
+	// repos in same repo cluster
+	
+	// repos of users in same user cluster (knn)
+	for(User *other in user.neighbours) {
+		for(Repository *repoId in other.repos){
+			[candidateSet addObject:repoId];
 		}
-		// test for prediction list
-		if([user.predictions containsObject:repoId]) {
-			continue;
-		}
-		// add
-		[user addPrediction:repoId];
+	}
+	
+	return candidateSet;
+}
+
+// strip candidates that are already being watched
+-(void)filterCandidates:(NSMutableSet *)candidates user:(User *)user {	
+	for(NSNumber *repoId in user.repos) {
+		[candidates removeObject:repoId];
 	}
 }
 
-//
-// assign each user the top 10 non-conflicting most popular repos
-//
--(void)top10Strategy:(User *)user {
-	if(!reposByOccurance) {
-		//reposByOccurance = [self orderUserReposByWatchOccurance:[model.userMap allKeys]];
-		reposByOccurance = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];
-		[reposByOccurance retain];
+// assign probabilities that predictions are correct
+-(NSArray *)scoreCandidates:(NSSet *)candidates user:(User *)user {
+	NSMutableDictionary *candidateDict = [[NSMutableDictionary alloc] init];
+	
+	for(NSNumber *repoId in candidates) {
+		// get repo
+		Repository *repo = [model.repositoryMap objectForKey:repoId];
+		// ask user to score it
+		repo.score = [user probabilityUserWillWatchRepo:repo];		
+		// add to dict
+		[candidateDict setObject:repo forKey:repoId];
 	}
-	// assign
-	[self assignRepos:user repoIds:reposByOccurance];
+	
+	// order
+	NSArray *candidateList = [candidateDict keysSortedByValueUsingSelector:@selector(compareScore:)];
+	// free mem
+	[candidateDict release];
+	
+	return candidateList;
 }
+
+// -(void) preScoreCalculations:(NSSet *)candidates user:(User *)user {
+// 	int maxCount;
+// 	
+// 	for(NSNumber *repoId in candidates) {
+// 		// get repo
+// 		Repository *repo = [model.repositoryMap objectForKey:repoId];
+// 		// neighbourhood occurance
+// 		NSNumber *occuranceCount = [user neighbourhoodOccurance];
+// 		if()
+// 	}
+// }
+
 
 
 //
 // assign each user the most popular repos in their neighbourhood
 //
+/*
 -(void)top10NeighbourhoodStrategy:(User *)user {
 	// user must have repos
 	if([user.repos count] <= 0) {
@@ -145,7 +203,7 @@
 		}
 	}
 }
-
+*/
 
 // calculates neighbouring users using a watched profile distance metric
 -(NSArray *) calculateNeighbours:(User *)user {	
@@ -169,6 +227,7 @@
 				count++;
 			}
 			// TODO count fork matches
+			
 			// TODO count language matches >50% same langs
 		}
 		if(count > 0) {
@@ -185,14 +244,6 @@
 
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds {
 	for(NSNumber *repoId in repoIds) {
-		// test for watch list
-		if([user.repos containsObject:repoId]) {
-			continue;
-		}
-		// test for prediction list
-		// if([user.predictions containsObject:repoId]) {
-		// 	continue;
-		// }
 		// add
 		[user addPrediction:repoId];
 		// check for finished
@@ -201,6 +252,7 @@
 		}
 	}
 }
+
 - (NSArray *)reversedArray:(NSArray *)other {
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:[other count]];
     NSEnumerator *enumerator = [other reverseObjectEnumerator];
@@ -217,33 +269,6 @@
 		[array addObject:[someArray objectAtIndex:i]];
 	}
 	return array;
-}
-
-// builds an occurance count (histogram) of all repos watched by users in userIds
-// returns repoId set ordered by occurance count
--(NSArray *)orderUserReposByWatchOccurance:(NSArray *)userIds {
-	// build an occurance count for all watched repos
-	NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
-	// process all users
-	for(NSNumber *userId in userIds) {
-		User *user = [model.userMap objectForKey:userId];
-		// process all repos
-		for(NSNumber *repoId in user.repos) {
-			Counter *c = [dic objectForKey:repoId];
-			if(!c) {
-				c = [[Counter alloc] init]; // create
-				[dic setObject:c forKey:repoId]; // store
-				[c release]; // no longer needed at this scope
-			}
-			c.value++;			
-		}
-	}
-	// order by occurance count
-	NSArray *ordered = [dic keysSortedByValueUsingSelector:@selector(compareCounters:)];
-	[dic release]; // no longer needed at this scope
-	
-	// extract 
-	return ordered;
 }
 
 @end

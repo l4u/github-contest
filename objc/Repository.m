@@ -8,20 +8,30 @@
 @dynamic parentId;
 @dynamic languageMap;
 
+@synthesize normalizedForkRank;
 @synthesize forkCount;
+@synthesize normalizedWatchRank;
 @synthesize watchCount;
 
+@synthesize score;
+
+@synthesize normalizedNeighborhoodWatchRank;
+
+@dynamic forks;
+@synthesize parent;
 
 -(id) init {
 	self = [super init];	
 	
 	if(self) {
+		score = 0.0;
 		watchCount = 0;
 		repoId = 0;
 		date = nil;
 		fullname = nil;
 		parentId = 0;
 		languageMap = nil;
+		forks = nil;
 	}
 	
 	return self;
@@ -31,11 +41,13 @@
 	self = [super init];	
 	
 	if(self) {
+		score = 0.0;
 		watchCount = 0;
 		date = nil;
 		fullname = nil;
 		parentId = 0;
 		languageMap = nil;
+		forks = nil;
 		repoId = aId;
 	}
 	
@@ -46,6 +58,8 @@
 	[fullname release];
 	[date release];
 	[languageMap release];
+	[forks release];
+	[parent release];
 	
 	[super dealloc]; // always last
 }
@@ -105,7 +119,17 @@
 	return languageMap;
 }
 
+-(NSMutableArray *)forks {
+	return forks;
+}
 
+-(void)addFork:(Repository *)repo {
+	if(!forks) {
+		forks = [[NSMutableArray alloc] init];
+	}
+	forkCount++;
+	[forks addObject:repo];
+}
 
 -(NSComparisonResult)compareWatchCount: (id) other {
 	// The comparator method should return NSOrderedAscending 
@@ -131,6 +155,21 @@
 	if(forkCount > ((Repository*)other).forkCount) {
 		return NSOrderedAscending;
 	} else if(forkCount < ((Repository*)other).forkCount) {
+		return NSOrderedDescending;
+	}
+	
+	return NSOrderedSame;
+}
+
+-(NSComparisonResult)compareScore: (id) other {
+	// The comparator method should return NSOrderedAscending 
+	// if the receiver is smaller than the argument, NSOrderedDescending 
+	// if the receiver is larger than the argument, and NSOrderedSame if they are equal.
+	
+	// ensure decending
+	if(score > ((Repository*)other).score) {
+		return NSOrderedAscending;
+	} else if(score < ((Repository*)other).score) {
 		return NSOrderedDescending;
 	}
 	

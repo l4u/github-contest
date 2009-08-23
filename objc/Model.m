@@ -46,23 +46,102 @@
 	
 	// second order pre-calculations
 	[self calculateForkCounts];
+	[self prepareUserNeighbours];
 	
 	[pool drain];
 }
 
+-(void) prepareUserNeighbours {
+	
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSString *filename =@"../data/derived_user_neighbours.txt";
+	
+	if([fm fileExistsAtPath:filename] == YES) {
+		// load user distance matrix
+		NSLog(@"Loading user neighbours...");
+		[self loadNeighbours];
+	} else {
+		NSLog(@"User neighbourhood's don't exist, creating...");
+		NSMutableString *buffer = [[NSMutableString alloc] init];
+		// calculate neighbours
+		for(User *user in [userMap allValues]) {
+			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+			// calculate
+			NSArray *neighbours = [self calculateNeighbours:user];
+			if([neighbours count] > 0) {
+				[buffer appendString:[NSString stringWithFormat:@"%i:", user.userId]]; 
+				// store K
+				int i;
+				int K = 10;
+				int max = ([neighbours count] > K) ? K : [neighbours count] ; 			
+				for(i=0; i<max; i++) {
+					NSNumber *neighbourId = [neighbours objectAtIndex:i];
+					[user addNeighbour:[userMap objectForKey:neighbourId]];
+					[buffer appendString:[NSString stringWithFormat:@"%@", neighbourId]];
+					if(i != max-1) {
+						[buffer appendString:@","];
+					}					
+				}
+				[buffer appendString:@"\n"];
+			}
+			[pool drain];
+		}		
+		// save		
+		if([buffer writeToFile:filename atomically:NO encoding:NSASCIIStringEncoding error:NULL] == NO) {
+			[NSException raise:@"File Write Error" format:@"Unable to write user neighbourhoods to filename: %@", filename];
+		} else {
+			NSLog(@"Wrote user neighbourhoods to %@", filename);
+		}
+				
+		[buffer release];
+	} 	
+}
+
+// calculates neighbouring users using user-defined distance metric
+-(NSArray *) calculateNeighbours:(User *)user {	
+	// build overlap set for all users
+	NSMutableDictionary *dic = [[[NSMutableDictionary alloc] init] autorelease];
+	// process all users
+	for(User *other in [userMap allValues]) {
+		// calculate distance
+		double distance = [user calculateUserDistance:other];
+		// only add if useful
+		if(distance > 0) {
+			[dic setObject:[NSNumber numberWithInt:distance] forKey:[NSNumber numberWithInt:other.userId]];
+		}
+	}
+	// order by occurance count (ascending)
+	NSArray *ordered = [dic keysSortedByValueUsingSelector:@selector(compare:)];
+	// reverse (decending)
+	ordered = [self reversedArray:ordered];
+	// extract 
+	return ordered;
+}
+
+- (NSArray *)reversedArray:(NSArray *)other {
+    NSMutableArray *array = [NSMutableArray arrayWithCapacity:[other count]];
+    NSEnumerator *enumerator = [other reverseObjectEnumerator];
+    for (id element in enumerator) {
+        [array addObject:element];
+    }
+    return array;
+}
+
+// evolved into building fork hierarchy
 -(void) calculateForkCounts {
 	for(NSNumber *repoId in repositoryMap.allKeys) {
 		Repository *repo = [repositoryMap objectForKey:repoId];
 		if(repo.parentId) {
 			// get parent
-			Repository *parent = [repositoryMap objectForKey:[NSNumber numberWithInteger:repo.parentId]];
-			// forked
-			parent.forkCount++;
+			NSNumber *parentId = [NSNumber numberWithInteger:repo.parentId];
+			Repository *parent = [repositoryMap objectForKey:parentId];
+			// set parent
+			repo.parent = parent;
+			// set forks in parent
+			[parent addFork:parent];
 		}
 	}
 }
-
-
 
 -(void) outputPredictions {
 	NSLog(@"Writing predictions to file...");
@@ -119,6 +198,8 @@
 	
 	NSLog(@"Finished loading %i repositories", [repositoryMap count]);
 }
+
+
 
 -(void) loadRepoLanguages {
 	// load file 
@@ -243,6 +324,34 @@
 	}
 	
 	NSLog(@"..Prediction model appears valid");
+}
+
+-(void) loadNeighbours {	
+	// load file 
+	NSString *fileString = [NSString stringWithContentsOfFile:@"../data/derived_user_neighbours.txt" encoding:NSASCIIStringEncoding error:NULL]; 
+	// each line, adjust character for line endings
+	NSArray *lines = [fileString componentsSeparatedByString:@"\n"]; 
+
+	// process all lines
+	for(NSString *line in lines) {
+		if([line length]<= 0) {
+			continue;
+		}
+		NSArray *pieces = [line componentsSeparatedByString:@":"];
+		NSNumber *userId = [NSNumber numberWithInteger:[[pieces objectAtIndex:0] integerValue]];	
+		// get user
+		User *user = [userMap objectForKey:userId];
+		if(!user) {
+			[NSException raise:@"Invalid User" format:@"user %@ has neribours but was not previously known %@", userId];
+		}
+		// process neighbours
+		NSArray *neighbours = [[pieces objectAtIndex:1] componentsSeparatedByString:@","];
+		for(NSString *neighbourId in neighbours) {			
+			[user addNeighbour:[userMap objectForKey:[NSNumber numberWithInteger:[neighbourId integerValue]]]];
+		}
+	}
+	
+	NSLog(@"Finished loading %i derived_user_neighbours", [lines count]);
 }
 
 @end

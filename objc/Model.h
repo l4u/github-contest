@@ -25,9 +25,13 @@
 -(void) loadRepoLanguages;
 -(void) loadRepoUserRelationships;
 -(void) loadTestUsers;
+-(void) loadNeighbours;
 
 // indicators
 -(void) calculateForkCounts;
+-(void) prepareUserNeighbours;
+-(NSArray *) calculateNeighbours:(User *)user;
+- (NSArray *)reversedArray:(NSArray *)other;
 
 // output
 -(void) validatePredictions;
