@@ -20,7 +20,9 @@
 -(id)initWithModel:(Model *)aModel;
 
 // prediction entry
+-(void)employStrategy;
 -(void)calculatePredictions;
+-(void)modelAnalysis;
 // high-level strategies
 -(void)randomStrategy:(User *)user allRepoKeys:(NSArray *)allRepoKeys;
 -(void)top10Strategy:(User *)user;

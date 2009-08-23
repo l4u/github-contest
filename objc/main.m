@@ -24,19 +24,16 @@ int main(int argc, const char *argv[]) {
 		// strategy
 		strategy = [[Strategy alloc] initWithModel:model];
 		// execute
-		[strategy calculatePredictions];
-		// validate
-		[model validatePredictions];
-		// output
-		[model outputPredictions];
+		[strategy employStrategy];
 	} 
 	@catch(NSException *e) {
 		NSLog(@">>Caught exception during run: %@", e);
 	}
+	NSLog(@"Finished!");
 	
 	[strategy release];
 	[model release];
-	NSLog(@"Finished!");
+
     [pool drain];
 
     return 0;

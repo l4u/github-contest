@@ -8,10 +8,15 @@
 @dynamic parentId;
 @dynamic languageMap;
 
+@synthesize forkCount;
+@synthesize watchCount;
+
+
 -(id) init {
 	self = [super init];	
 	
 	if(self) {
+		watchCount = 0;
 		repoId = 0;
 		date = nil;
 		fullname = nil;
@@ -26,6 +31,7 @@
 	self = [super init];	
 	
 	if(self) {
+		watchCount = 0;
 		date = nil;
 		fullname = nil;
 		parentId = 0;
@@ -43,7 +49,6 @@
 	
 	[super dealloc]; // always last
 }
-
 
 // example: 123338:DylanFM/roro-faces,2009-05-31,13635
 -(void)parse:(NSString*)repoDef {
@@ -98,6 +103,38 @@
 
 -(NSMutableDictionary *)languageMap {
 	return languageMap;
+}
+
+
+
+-(NSComparisonResult)compareWatchCount: (id) other {
+	// The comparator method should return NSOrderedAscending 
+	// if the receiver is smaller than the argument, NSOrderedDescending 
+	// if the receiver is larger than the argument, and NSOrderedSame if they are equal.
+	
+	// ensure decending
+	if(watchCount > ((Repository*)other).watchCount) {
+		return NSOrderedAscending;
+	} else if(watchCount < ((Repository*)other).watchCount) {
+		return NSOrderedDescending;
+	}
+	
+	return NSOrderedSame;
+}
+
+-(NSComparisonResult)compareForkCount: (id) other {
+	// The comparator method should return NSOrderedAscending 
+	// if the receiver is smaller than the argument, NSOrderedDescending 
+	// if the receiver is larger than the argument, and NSOrderedSame if they are equal.
+	
+	// ensure decending
+	if(forkCount > ((Repository*)other).forkCount) {
+		return NSOrderedAscending;
+	} else if(forkCount < ((Repository*)other).forkCount) {
+		return NSOrderedDescending;
+	}
+	
+	return NSOrderedSame;
 }
 
 @end

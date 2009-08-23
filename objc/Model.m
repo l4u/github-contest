@@ -21,9 +21,9 @@
 }
 
 -(void) dealloc {
-	[repositoryMap dealloc];
-	[userMap dealloc];
-	[testUsers dealloc];
+	[repositoryMap release];
+	[userMap release];
+	[testUsers release];
 	
 	[super dealloc]; // always last
 }
@@ -37,16 +37,32 @@
 
 -(void) loadModel {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
 	// first order data
 	[self loadRepos];
 	[self loadRepoLanguages];
 	[self loadRepoUserRelationships];
 	[self loadTestUsers];
+	
 	// second order pre-calculations
-	// ...
+	[self calculateForkCounts];
+	
 	[pool drain];
-	[pool release];	
 }
+
+-(void) calculateForkCounts {
+	for(NSNumber *repoId in repositoryMap.allKeys) {
+		Repository *repo = [repositoryMap objectForKey:repoId];
+		if(repo.parentId) {
+			// get parent
+			Repository *parent = [repositoryMap objectForKey:[NSNumber numberWithInteger:repo.parentId]];
+			// forked
+			parent.forkCount++;
+		}
+	}
+}
+
+
 
 -(void) outputPredictions {
 	NSLog(@"Writing predictions to file...");
@@ -159,8 +175,8 @@
 			user = [[[User alloc] initWithId:[userKey intValue]] autorelease];
 			[userMap setObject:user forKey:userKey];			
 		}
-		// add user to repo
-			// do we need this?
+		// repo
+		repo.watchCount++;
 		
 		// add repo to user
 		[user addRepository:repoKey];

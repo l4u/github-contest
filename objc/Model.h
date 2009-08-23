@@ -19,13 +19,20 @@
 
 -(void) printStats;
 
+// loading
 -(void) loadModel;
 -(void) loadRepos;
 -(void) loadRepoLanguages;
 -(void) loadRepoUserRelationships;
 -(void) loadTestUsers;
 
+// indicators
+-(void) calculateForkCounts;
+
+// output
 -(void) validatePredictions;
 -(void) outputPredictions;
+
+
 
 @end

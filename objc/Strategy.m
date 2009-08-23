@@ -32,28 +32,60 @@
 	return model;
 }
 
+-(void)employStrategy {
+	[self calculatePredictions];
+	
+	// [self modelAnalysis];
+}
+
+-(void)modelAnalysis {
+	NSLog(@"model analysis...");
+	int i;
+	NSArray *ordered;
+	
+	// repos by forked count
+	NSLog(@"Top 10 repos by FORK count: ");
+	ordered = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];		
+	for(i = 0; i<10; i++) {
+		Repository *repo = [model.repositoryMap objectForKey:[ordered objectAtIndex:i]];
+		NSLog(@"name=%@, id=%i, forkCount=%i", repo.fullname, repo.repoId, repo.forkCount);
+	}
+	
+	// repos by watch count
+	NSLog(@"Top 10 repos by WATCH count: ");
+	ordered = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareWatchCount:)];
+	for(i = 0; i<10; i++) {
+		Repository *repo = [model.repositoryMap objectForKey:[ordered objectAtIndex:i]];
+		NSLog(@"name=%@, id=%i, watchCount=%i", repo.fullname, repo.repoId, repo.watchCount);
+	}
+}
+
 -(void)calculatePredictions {
 	NSLog(@"calculating predictions...");
 	
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool *pool = nil;
 	
 	for(User *user in model.testUsers) {
-		
+		pool = [[NSAutoreleasePool alloc] init];
 		
 		// random strategy 
 		// NSArray *allKeys = [model.repositoryMap allKeys];
 		// [self randomStrategy:user allRepoKeys:allKeys];
 		
 		// top 10 strategy
-		// [self top10Strategy:user];
+		[self top10Strategy:user];
 		
 		// top 10 repos in user's neighbourhood
-		[self top10NeighbourhoodStrategy:user];
+		// [self top10NeighbourhoodStrategy:user];
 		
 		// autorelease
 		[pool drain];		
 	}
-	[pool release];
+	
+	// validate
+	[model validatePredictions];
+	// output
+	[model outputPredictions];
 }
 
 //
@@ -82,7 +114,8 @@
 //
 -(void)top10Strategy:(User *)user {
 	if(!reposByOccurance) {
-		reposByOccurance = [self orderUserReposByWatchOccurance:[model.userMap allKeys]];
+		//reposByOccurance = [self orderUserReposByWatchOccurance:[model.userMap allKeys]];
+		reposByOccurance = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];
 		[reposByOccurance retain];
 	}
 	// assign
@@ -96,17 +129,20 @@
 -(void)top10NeighbourhoodStrategy:(User *)user {
 	// user must have repos
 	if([user.repos count] <= 0) {
-		[self top10Strategy:user]; // assign them the 10 most popular
-		
+		[self top10Strategy:user]; // assign them the 10 most popular		
 	} else {
 		// calculate neighbours
 		NSArray *neighbourIds = [self calculateNeighbours:user];
-		// snip neighbours to K=10
-		neighbourIds = [self getTopNOrLess:neighbourIds maximum:10];
-		// order all neighbour repos by occurance
-		NSArray *repos = [self orderUserReposByWatchOccurance:neighbourIds];
-		// assign
-		[self assignRepos:user repoIds:repos];
+		if([neighbourIds count] <= 0) {
+			[self top10Strategy:user]; // assign them the 10 most popular
+		} else {
+			// snip neighbours to K=10
+			neighbourIds = [self getTopNOrLess:neighbourIds maximum:10];
+			// order all neighbour repos by occurance
+			NSArray *repos = [self orderUserReposByWatchOccurance:neighbourIds];
+			// assign
+			[self assignRepos:user repoIds:repos];
+		}
 	}
 }
 
