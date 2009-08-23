@@ -7,6 +7,7 @@
 @synthesize test;
 @dynamic predictions;
 @dynamic neighbours;
+@dynamic neighbourhoodRepos;
 
 -(id) initWithId:(int)aId {
 	self = [super init];	
@@ -73,6 +74,10 @@
 }
 -(NSMutableSet *)neighbours {
     return neighbours;
+}
+
+-(NSCountedSet *)neighbourhoodRepos {
+    return neighbourhoodRepos;
 }
 
 // userId:repoId,repoId,repoId,...

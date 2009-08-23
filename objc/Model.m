@@ -344,6 +344,11 @@
 		if(!user) {
 			[NSException raise:@"Invalid User" format:@"user %@ has neribours but was not previously known %@", userId];
 		}
+		// only process test users for now
+		if(user.test == NO) {
+			continue;
+		}
+		
 		// process neighbours
 		NSArray *neighbours = [[pieces objectAtIndex:1] componentsSeparatedByString:@","];
 		for(NSString *neighbourId in neighbours) {			

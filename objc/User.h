@@ -18,6 +18,7 @@
 @property(nonatomic) BOOL test;
 @property(readonly, nonatomic) NSMutableSet *predictions;
 @property(readonly, nonatomic) NSMutableSet *neighbours;
+@property(readonly, nonatomic) NSCountedSet *neighbourhoodRepos;
 
 -(id)initWithId:(int)aId;
 -(void) addRepository:(NSNumber *)aRepoId;
