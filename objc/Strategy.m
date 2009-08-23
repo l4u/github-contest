@@ -24,10 +24,10 @@
 }
 
 -(void) dealloc {
-	[model release];
 	[top20ReposByWatch release];
 	[top20ReposByFork release];
-	
+	[model release];
+
 	[super dealloc]; // always last
 }
 
@@ -91,11 +91,11 @@
 			// assign
 			[self assignRepos:user repoIds:candidateList];
 		}		
-		i++;
-		
+				
 		// clear mem sometimes
+		i++;
 		if((i % 500)==0) {
-			NSLog(@"[%i/%i]: Finished prediction for user %i with %i repos", (i+1), [model.testUsers count], user.userId, [user.predictions count]);
+			NSLog(@"Prediction status: [%i/%i]", i, [model.testUsers count]);
 			[pool drain];
 			pool = [[NSAutoreleasePool alloc] init];			
 		}		
@@ -157,6 +157,9 @@
 -(NSArray *)scoreCandidates:(NSSet *)candidates user:(User *)user {
 	//NSLog(@"Scoring candidates for user %i...", user.userId);
 	
+	// do some pre-calculation on the neighbourhood set
+	[self preScoreCalculations:candidates user:user];
+	
 	NSMutableDictionary *candidateDict = [[NSMutableDictionary alloc] init];	
 	for(NSNumber *repoId in candidates) {
 		// get repo
@@ -174,6 +177,25 @@
 	
 	return candidateList;
 }
+
+-(void)preScoreCalculations:(NSSet *)candidates user:(User *)user {
+	
+	// find best neighbourhood score
+	int max = 0;
+	for(NSNumber *repoId in user.neighbourhoodRepos) {
+		int score = [user neighbourhoodOccurance:repoId];
+		if(score > max) {
+			max = score;
+		}
+	}
+	// calculate neighbourhood ranking
+	for(NSNumber *repoId in user.neighbourhoodRepos) {
+		Repository *repo = [model.repositoryMap objectForKey:repoId];
+		// set rank (decending)
+		repo.normalizedNeighborhoodWatchRank = ((double) [user neighbourhoodOccurance:repoId] / (double)max);
+	}
+}
+
 
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds {
 	for(NSNumber *repoId in repoIds) {

@@ -24,14 +24,7 @@
 	self = [super init];	
 	
 	if(self) {
-		score = 0.0;
-		watchCount = 0;
-		repoId = 0;
-		date = nil;
-		fullname = nil;
-		parentId = 0;
-		languageMap = nil;
-		forks = nil;
+		// nothing as of yet
 	}
 	
 	return self;
@@ -41,13 +34,6 @@
 	self = [super init];	
 	
 	if(self) {
-		score = 0.0;
-		watchCount = 0;
-		date = nil;
-		fullname = nil;
-		parentId = 0;
-		languageMap = nil;
-		forks = nil;
 		repoId = aId;
 	}
 	

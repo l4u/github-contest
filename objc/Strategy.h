@@ -30,14 +30,13 @@
 -(void)filterCandidates:(NSMutableSet *)candidates user:(User *)user;
 -(NSArray *)scoreCandidates:(NSSet *)candidates user:(User *)user;
 
-
+-(void)preScoreCalculations:(NSSet *)candidates user:(User *)user;
+-(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds;
 
 // array utils
 -(NSArray *)getTopNOrLess:(NSArray *)someArray maximum:(int)maximum;
 -(NSArray *)reversedArray:(NSArray *)other;
-// general
 
--(NSArray *)calculateNeighbours:(User *)user;
--(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds;
+
 
 @end

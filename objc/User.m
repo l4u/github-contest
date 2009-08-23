@@ -109,16 +109,17 @@
 	}
 
 	// watch global popularity
-	score += (repo.normalizedWatchRank * 1.0);
+	score += (repo.normalizedWatchRank * 0.5);
 	// fork global popularity
-	score += (repo.normalizedForkRank * 0.5);
+	score += (repo.normalizedForkRank * 0.3);
 	
 	// exists in neighbourhood
 	if([neighbourhoodRepos containsObject:[NSNumber numberWithInt:repo.repoId]]) {
 		score += 1.0;
 	}
 	
-	// neighbourhood popularity (occurance rank?)	
+	// neighbourhood popularity (occurance rank?)
+	score += (repo.normalizedNeighborhoodWatchRank * 1.0);
 	
 	// consider: candidate set popularity (rank from duplicate recommendations from sources)
 	
