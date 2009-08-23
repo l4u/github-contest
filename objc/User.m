@@ -103,6 +103,7 @@
 	
 	double score = 0.0;
 	
+	/*
 	// preference for root repos
 	if(repo.parentId == 0) {
 		score += 1.0;	
@@ -117,6 +118,7 @@
 	if([neighbourhoodRepos containsObject:[NSNumber numberWithInt:repo.repoId]]) {
 		score += 1.0;
 	}
+	*/ 
 	
 	// neighbourhood popularity (occurance rank?)
 	score += (repo.normalizedNeighborhoodWatchRank * 1.0);
