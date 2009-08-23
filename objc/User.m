@@ -63,7 +63,7 @@
 -(void) addNeighbour:(User *)other {	
 	[neighbours addObject:[NSNumber numberWithInteger:other.userId]];
 	// add neighbourhood repos
-	for(NSNumber *repoId in user.repos) {
+	for(NSNumber *repoId in other.repos) {
 		[neighbourhoodRepos addObject:repoId];
 	}
 }
@@ -152,7 +152,7 @@
 	return dist;
 }
 
--(NSNumber *)neighbourhoodOccurance(NSNumber *repoId) {
+-(int)neighbourhoodOccurance:(NSNumber *)repoId {
 	return [neighbourhoodRepos countForObject:repoId];
 }
 

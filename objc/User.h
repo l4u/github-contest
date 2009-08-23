@@ -23,8 +23,8 @@
 -(void) addRepository:(NSNumber *)aRepoId;
 -(void) addPrediction:(NSNumber *)aRepoId;
 -(NSString *) getPredictionAsString;
--(void) addNeighbour:(NSNumber *)aUserId;
--(NSNumber *)neighbourhoodOccurance(NSNumber *repoId);
+-(void) addNeighbour:(User *)aUserId;
+-(int)neighbourhoodOccurance:(NSNumber *)repoId;
 
 -(double)probabilityUserWillWatchRepo:(Repository *)repo;
 -(double)calculateUserDistance:(User*)other;
