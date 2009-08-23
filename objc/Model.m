@@ -36,6 +36,7 @@
 }
 
 -(void) loadModel {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	// first order data
 	[self loadRepos];
 	[self loadRepoLanguages];
@@ -43,13 +44,15 @@
 	[self loadTestUsers];
 	// second order pre-calculations
 	// ...
+	[pool drain];
+	[pool release];	
 }
 
 -(void) outputPredictions {
 	NSLog(@"Writing predictions to file...");
 	
 	// build prediction file in mem
-	NSMutableString *buffer = [[[NSMutableString alloc] init] autorelease];	
+	NSMutableString *buffer = [[NSMutableString alloc] init];	
 	// enumerate test users
 	for(User *user in testUsers) {
 		// get prediction string
@@ -72,6 +75,8 @@
 	} else {
 		NSLog(@"Wrote prediction results to %@", filename);
 	}
+	
+	[buffer release];
 }
 
 -(void) loadRepos {	
@@ -204,13 +209,19 @@
 -(void) validatePredictions {
 	NSLog(@"Validating prediction model...");
 	for(User *user in testUsers) {
+		// correct size
 		if([user.predictions count] > 10) {
 			[NSException raise:@"Invalid Prediction Model" format:@"user %@ contains too many predictions: %i", user.userId, [user.predictions count]];
-		}
-		// ensure all repo id's are valid
+		}		
+		// check all predictions
 		for(NSNumber *repoId in user.predictions) {
+			// valid repo
 			if(![repositoryMap objectForKey:repoId]) {
 				[NSException raise:@"Invalid Prediction Model" format:@"user %@ contains unknown or invalid repo id %@", user.userId, repoId];
+			}
+			// not being watched
+			if([user.repos containsObject:repoId]) {
+				[NSException raise:@"Invalid Prediction Model" format:@"user %@ has prediction of a watched repo id %@", user.userId, repoId];
 			}
 		}
 	}

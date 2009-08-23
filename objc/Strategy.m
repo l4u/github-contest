@@ -34,18 +34,26 @@
 
 -(void)calculatePredictions {
 	NSLog(@"calculating predictions...");
-		
+	
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
 	for(User *user in model.testUsers) {
+		
+		
 		// random strategy 
 		// NSArray *allKeys = [model.repositoryMap allKeys];
 		// [self randomStrategy:user allRepoKeys:allKeys];
 		
 		// top 10 strategy
-		[self top10Strategy:user];
+		// [self top10Strategy:user];
 		
 		// top 10 repos in user's neighbourhood
-		// [self top10NeighbourhoodStrategy:user];
+		[self top10NeighbourhoodStrategy:user];
+		
+		// autorelease
+		[pool drain];		
 	}
+	[pool release];
 }
 
 //
@@ -75,6 +83,7 @@
 -(void)top10Strategy:(User *)user {
 	if(!reposByOccurance) {
 		reposByOccurance = [self orderUserReposByWatchOccurance:[model.userMap allKeys]];
+		[reposByOccurance retain];
 	}
 	// assign
 	[self assignRepos:user repoIds:reposByOccurance];
@@ -88,16 +97,17 @@
 	// user must have repos
 	if([user.repos count] <= 0) {
 		[self top10Strategy:user]; // assign them the 10 most popular
-		return;
-	}	
-	// calculate neighbours
-	NSArray *neighbourIds = [self calculateNeighbours:user];
-	// snip neighbours to K=10
-	neighbourIds = [self getTopNOrLess:neighbourIds maximum:10];
-	// order all neighbour repos by occurance
-	NSArray *repos = [self orderUserReposByWatchOccurance:neighbourIds];
-	// assign
-	[self assignRepos:user repoIds:repos];
+		
+	} else {
+		// calculate neighbours
+		NSArray *neighbourIds = [self calculateNeighbours:user];
+		// snip neighbours to K=10
+		neighbourIds = [self getTopNOrLess:neighbourIds maximum:10];
+		// order all neighbour repos by occurance
+		NSArray *repos = [self orderUserReposByWatchOccurance:neighbourIds];
+		// assign
+		[self assignRepos:user repoIds:repos];
+	}
 }
 
 
@@ -144,9 +154,9 @@
 			continue;
 		}
 		// test for prediction list
-		if([user.predictions containsObject:repoId]) {
-			continue;
-		}
+		// if([user.predictions containsObject:repoId]) {
+		// 	continue;
+		// }
 		// add
 		[user addPrediction:repoId];
 		// check for finished
@@ -177,7 +187,7 @@
 // returns repoId set ordered by occurance count
 -(NSArray *)orderUserReposByWatchOccurance:(NSArray *)userIds {
 	// build an occurance count for all watched repos
-	NSMutableDictionary *dic = [[[NSMutableDictionary alloc] init] autorelease];
+	NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
 	// process all users
 	for(NSNumber *userId in userIds) {
 		User *user = [model.userMap objectForKey:userId];
@@ -185,14 +195,17 @@
 		for(NSNumber *repoId in user.repos) {
 			Counter *c = [dic objectForKey:repoId];
 			if(!c) {
-				c = [[[Counter alloc] init] autorelease];
-				[dic setObject:c forKey:repoId];
+				c = [[Counter alloc] init]; // create
+				[dic setObject:c forKey:repoId]; // store
+				[c release]; // no longer needed at this scope
 			}
 			c.value++;			
 		}
 	}
 	// order by occurance count
 	NSArray *ordered = [dic keysSortedByValueUsingSelector:@selector(compareCounters:)];
+	[dic release]; // no longer needed at this scope
+	
 	// extract 
 	return ordered;
 }

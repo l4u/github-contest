@@ -14,13 +14,15 @@ Compilation: http://www.cs.indiana.edu/classes/c304/ObjCompile.html
 int main(int argc, const char *argv[]) {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
+	Model *model = nil;
+	Strategy *strategy = nil;
 	@try {
 		// model
-		Model *model = [[Model alloc] init];
+		model = [[Model alloc] init];
 		[model loadModel];
 		[model printStats];
 		// strategy
-		Strategy *strategy = [[Strategy alloc] initWithModel:model];
+		strategy = [[Strategy alloc] initWithModel:model];
 		// execute
 		[strategy calculatePredictions];
 		// validate
@@ -32,9 +34,11 @@ int main(int argc, const char *argv[]) {
 		NSLog(@">>Caught exception during run: %@", e);
 	}
 	
+	[strategy release];
+	[model release];
 	NSLog(@"Finished!");
-
     [pool drain];
+
     return 0;
 }
 

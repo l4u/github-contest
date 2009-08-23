@@ -36,21 +36,21 @@
 }
 
 -(void) addRepository:(NSNumber *)aRepoId {
-	if([repos containsObject:aRepoId]) {
-		[NSException raise:@"Invalid Repository Id" format:@"repository %@ already used by user %i", aRepoId, userId]; 
-	}
+	// if([repos containsObject:aRepoId]) {
+	// 	[NSException raise:@"Invalid Repository Id" format:@"repository %@ already used by user %i", aRepoId, userId]; 
+	// }
 	[repos addObject:aRepoId];
 }
 
 -(void) addPrediction:(NSNumber *)aRepoId {
 	// cannot be used or predicted
-	if([repos containsObject:aRepoId]) {
-		[NSException raise:@"Invalid Predicted Repository Id" format:@"repository %@ cannot be predicted, already used by user %i", aRepoId, userId]; 
-	} else if([predictions containsObject:aRepoId]) {
-		[NSException raise:@"Invalid Predicted Repository Id" format:@"repository %@ already predicted for user %i", aRepoId, userId]; 
-	} else if([predictions count] > 10) {
-		[NSException raise:@"Invalid Predicted Repository Id" format:@"user %i already has %i predictions.", userId, [predictions count]]; 		
-	}
+	// if([repos containsObject:aRepoId]) {
+	// 	[NSException raise:@"Invalid Predicted Repository Id" format:@"repository %@ cannot be predicted, already used by user %i", aRepoId, userId]; 
+	// } else if([predictions containsObject:aRepoId]) {
+	// 	[NSException raise:@"Invalid Predicted Repository Id" format:@"repository %@ already predicted for user %i", aRepoId, userId]; 
+	// } else if([predictions count] > 10) {
+	// 	[NSException raise:@"Invalid Predicted Repository Id" format:@"user %i already has %i predictions.", userId, [predictions count]]; 		
+	// }
 	
 	[predictions addObject:aRepoId];
 }
