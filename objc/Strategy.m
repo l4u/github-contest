@@ -53,9 +53,10 @@
 		NSNumber *repoId = [tmp objectAtIndex:i];
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		// set rank (decending)
-		repo.normalizedWatchRank = (double) (max-i) / (double)max;
+		repo.normalizedWatchRank = ((double) (max-i) / (double)max);
 		// store
 		[top20ReposByWatch addObject:repoId];
+		NSLog(@"...Top 20 Watched: name=%@, rank=%i normalized=%f", repo.fullname, i, repo.normalizedWatchRank);
 	}	
 	// top n by fork count
 	tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];
@@ -179,7 +180,7 @@
 }
 
 -(void)preScoreCalculations:(NSSet *)candidates user:(User *)user {
-	
+		
 	// find best neighbourhood score
 	int max = 0;
 	for(NSNumber *repoId in user.neighbourhoodRepos) {

@@ -105,9 +105,9 @@
 	
 	
 	// preference for root repos
-	if(repo.parentId == 0) {
-		score += 1.0;	
-	}
+	// if(repo.parentId == 0) {
+	// 	score += 1.0;	
+	// }
 
 	// watch global popularity
 	score += (repo.normalizedWatchRank * 0.3);
