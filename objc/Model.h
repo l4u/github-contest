@@ -11,11 +11,23 @@
     NSMutableDictionary *repositoryMap;
 	NSMutableDictionary *userMap;
 	NSMutableArray *testUsers;
+	
+	int totalWatches;
+	int totalForked;
+	int totalWatchedForked;
+	int totalRoot;
+	int totalWatchedRoot;
 }
 
-@property(readonly) NSMutableDictionary *repositoryMap;
-@property(readonly) NSMutableDictionary *userMap;
-@property(readonly) NSMutableArray *testUsers;
+@property(readonly, nonatomic) NSMutableDictionary *repositoryMap;
+@property(readonly, nonatomic) NSMutableDictionary *userMap;
+@property(readonly, nonatomic) NSMutableArray *testUsers;
+
+@property(readonly, nonatomic) int totalWatches;
+@property(readonly, nonatomic) int totalForked;
+@property(readonly, nonatomic) int totalWatchedForked;
+@property(readonly, nonatomic) int totalRoot;
+@property(readonly, nonatomic) int totalWatchedRoot;
 
 -(void) printStats;
 

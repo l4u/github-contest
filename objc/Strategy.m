@@ -50,14 +50,14 @@
 	NSArray *tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareWatchCount:)];
 	top20ReposByWatch = [NSMutableArray arrayWithCapacity:max];
 	int i = 0;
-	int total = [tmp count];
+	//int total = [tmp count];
 	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
-		repo.normalizedWatchRank = ((double) (max-i) / (double)total);
+		//repo.normalizedWatchRank = ((double) (max-i) / (double)total);
 		if(i<20) {
 			[top20ReposByWatch addObject:repoId];
-			NSLog(@"...Top 20 Watched: name=%@, rank=%i normalized=%f", repo.fullname, i, repo.normalizedWatchRank);
+			// NSLog(@"...Top 20 Watched: name=%@, rank=%i normalized=%f", repo.fullname, i, repo.normalizedWatchRank);
 		}
 		i++;
 	}	
@@ -65,15 +65,15 @@
 	tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];
 	top20ReposByFork = [NSMutableArray arrayWithCapacity:max];
 	i = 0;
-	total = [tmp count];
+	//total = [tmp count];
 	NSLog(@"Top 20 Forked:");
 	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
-		repo.normalizedForkRank = ((double) (max-i) / (double)total);
+		//repo.normalizedForkRank = ((double) (max-i) / (double)total);
 		if(i<20) {
 			[top20ReposByFork addObject:repoId];
-			NSLog(@"...Top 20 Forked: name=%@, rank=%i normalized=%f", repo.fullname, i, repo.normalizedForkRank);
+			// NSLog(@"...Top 20 Forked: name=%@, rank=%i normalized=%f", repo.fullname, i, repo.normalizedForkRank);
 		}
 		i++;
 	}	
@@ -86,21 +86,15 @@
 	int i = 0;
 	
 	for(User *user in model.testUsers) {
-		//NSLog(@"Processing user %i...", user.userId);
-						
-		if([user.repos count]<=0) {
-			[self assignRepos:user repoIds:top20ReposByWatch];
-		} else {
-			// generate 
-			NSMutableSet *candidateSet = [self generateCandidates:user];		
-			// fiter
-			[self filterCandidates:candidateSet user:user];
-			// score
-			NSArray *candidateList = [self scoreCandidates:candidateSet user:user];
-			// assign
-			[self assignRepos:user repoIds:candidateList];
-		}		
-				
+		//NSLog(@"Processing user %i...", user.userId);		
+		// generate 
+		NSMutableSet *candidateSet = [self generateCandidates:user];		
+		// fiter
+		[self filterCandidates:candidateSet user:user];
+		// score
+		NSArray *candidateList = [self scoreCandidates:candidateSet user:user];
+		// assign
+		[self assignRepos:user repoIds:candidateList];
 		// clear mem sometimes
 		i++;
 		if((i % 500)==0) {
@@ -150,18 +144,13 @@
 			[candidateSet addObject:repoId];
 		}
 	}
-	// clear indicators
-	for(NSNumber *repoId in candidateSet) {
-		[[model.repositoryMap objectForKey:repoId] clearIndicators];
-	}
 	
 	return candidateSet;
 }
 
 // strip candidates that are already being watched
 -(void)filterCandidates:(NSMutableSet *)candidates user:(User *)user {	
-	//NSLog(@"Filtering candidates for user %i...", user.userId);
-	
+	//NSLog(@"Filtering candidates for user %i...", user.userId);	
 	for(NSNumber *repoId in user.repos) {
 		[candidates removeObject:repoId];
 	}
@@ -169,17 +158,14 @@
 
 // assign probabilities that predictions are correct
 -(NSArray *)scoreCandidates:(NSSet *)candidates user:(User *)user {
-	//NSLog(@"Scoring candidates for user %i...", user.userId);
-	
-	// do some pre-calculation on the neighbourhood set
-	[self preScoreCalculations:candidates user:user];
-	
+	//NSLog(@"Scoring candidates for user %i...", user.userId);	
+		
 	NSMutableDictionary *candidateDict = [[NSMutableDictionary alloc] init];	
 	for(NSNumber *repoId in candidates) {
 		// get repo
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		// ask user to score it
-		repo.score = [user probabilityUserWillWatchRepo:repo];		
+		repo.score = [self userScoreToWatchRepo:user repo:repo];		
 		// add to dict
 		[candidateDict setObject:repo forKey:repoId];
 	}
@@ -192,37 +178,91 @@
 	return candidateList;
 }
 
--(void)preScoreCalculations:(NSSet *)candidates user:(User *)user {
+
+#define GLOBAL_WEIGHT 	1.0
+#define LOCAL_WEIGHT 	1.0
+#define USER_WEIGHT 	1.0
+
+
+// linear weighted sum of independent probablistic predictors
+// TODO: calcluate optimum independent weights
+-(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
+	double score = 0.0;
+	NSNumber *repoId = [NSNumber numberWithInteger:repo.repoId];
+	
+	//
+	// global indicators
+	// ------------------------------------------
+	{
+		int totalRepos = [model.repositoryMap count];
 		
-	// find best neighbourhood score
-	int max = 0;
-	for(NSNumber *repoId in user.neighbourhoodRepos) {
-		int score = [user neighbourhoodOccurance:repoId];
-		if(score > max) {
-			max = score;
+		// prob of a user watching this repo
+		score += GLOBAL_WEIGHT * ((double)repo.watchCount / (double)model.totalWatches);
+		// forked repos		
+		if(repo.forkCount > 0) {
+			// prob of a user watching a forked repo
+			score += GLOBAL_WEIGHT * ((double)model.totalWatchedForked / (double)model.totalForked);
+			// fork tree size (one or all levels)
+			// TODO
+		} else {
+			// prob of a user watching a non-forked repo
+			score += GLOBAL_WEIGHT * ((double)(model.totalWatches-model.totalWatchedForked) / (double)(totalRepos-model.totalForked));
 		}
+		// root repos
+		if(repo.parentId == 0) {
+			// prob of a user watching a root repo
+			score += GLOBAL_WEIGHT * ((double)model.totalWatchedRoot / (double)model.totalRoot);
+		} else {
+			// prob of a user watching a non-root repo
+			score += GLOBAL_WEIGHT * ((double)(model.totalWatches-model.totalWatchedRoot) / (double)(totalRepos-model.totalRoot));
+		}
+		// prob of a user watching a repo with this repo's owner's name
+		// TODO
+		// prob of a user watching a repo with this repo's dominant language
+		if([repo.languageMap count] > 0) {
+			// TODO
+		}
+		// prob of a user watching a repo of this size (order)
+		// TODO
+	}	
+	//
+	// group indicators
+	// ------------------------------------------	
+	if([user.neighbours count] > 0) {
+		// prob of a user in the neighbourhood watching this repo
+		score += LOCAL_WEIGHT * ((double)[user neighbourhoodOccurance:repoId] / (double)[user neighbourhoodTotalWatches]);
+		
+		
 	}
-	// calculate neighbourhood ranking
-	for(NSNumber *repoId in user.neighbourhoodRepos) {
-		Repository *repo = [model.repositoryMap objectForKey:repoId];
-		// set rank (decending)
-		repo.normalizedNeighborhoodWatchRank = ((double) [user neighbourhoodOccurance:repoId] / (double)max);
+	//
+	// individual indicators
+	// ------------------------------------------
+	if([user.repos count] > 0) {
+		// prob of this user watching a forked repo
+		// TODO
+		// prob of this user watching a root repo
+		// TODO
+		// prob of user watching with owner name
+		// TODO
+		// prob of user watching with dominant language
+		// TODO
 	}
+		
+	return score;
 }
 
+#define MAX_REPOS 	10
 
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds {
 	for(NSNumber *repoId in repoIds) {
 		// add
 		[user addPrediction:repoId];
 		// check for finished
-		if([user.predictions count] >= 10) {
+		if([user.predictions count] >= MAX_REPOS) {
 			break;
 		}
 	}
 }
-
-
 
 - (NSArray *)reversedArray:(NSArray *)other {
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:[other count]];

@@ -26,8 +26,7 @@
 -(NSString *) getPredictionAsString;
 -(void) addNeighbour:(User *)aUserId;
 -(int)neighbourhoodOccurance:(NSNumber *)repoId;
-
--(double)probabilityUserWillWatchRepo:(Repository *)repo;
+-(int) neighbourhoodTotalWatches;
 -(double)calculateUserDistance:(User*)other;
 
 @end

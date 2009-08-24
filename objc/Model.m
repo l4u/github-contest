@@ -7,6 +7,12 @@
 @dynamic userMap;
 @dynamic testUsers;
 
+@synthesize totalWatches;
+@synthesize totalForked;
+@synthesize totalWatchedForked;
+@synthesize totalRoot;
+@synthesize totalWatchedRoot;
+
 -(id) init {
 	self = [super init];	
 	
@@ -29,10 +35,18 @@
 }
 
 -(void) printStats {
+	NSLog(@"");
 	NSLog(@"Statistics: ");
-	NSLog(@"Total Repositories:...%i", [repositoryMap count]);
-	NSLog(@"Total Users:..........%i", [userMap count]);
-	NSLog(@"Total Test Users:.....%i", [testUsers count]);
+	NSLog(@"Total Repositories:.....%i", [repositoryMap count]);
+	NSLog(@"Total Users:............%i", [userMap count]);
+	NSLog(@"Total Test Users:.......%i", [testUsers count]);
+	NSLog(@"Total Watches:..........%i", totalWatches);
+	NSLog(@"Total Forked:...........%i", totalForked);
+	NSLog(@"Total Watched Forked:...%i", totalWatchedForked);
+	NSLog(@"Total Root:.............%i", totalRoot);
+	NSLog(@"Total Watched Root:.....%i", totalWatchedRoot);
+	
+	NSLog(@"");
 }
 
 -(void) loadModel {
@@ -47,6 +61,7 @@
 	// second order pre-calculations
 	[self calculateForkCounts];
 	[self prepareUserNeighbours];
+	
 	
 	[pool drain];
 }
@@ -129,6 +144,7 @@
 
 // evolved into building fork hierarchy
 -(void) calculateForkCounts {
+	// build hierarchy
 	for(NSNumber *repoId in repositoryMap.allKeys) {
 		Repository *repo = [repositoryMap objectForKey:repoId];
 		if(repo.parentId) {
@@ -141,6 +157,25 @@
 			[parent addFork:parent];
 		}
 	}
+	
+	// count forked
+	for(NSNumber *repoId in repositoryMap.allKeys) { 
+		Repository *repo = [repositoryMap objectForKey:repoId];
+		if(repo.forkCount > 0) {
+			totalForked++; // all
+			// check watched
+			if(repo.watchCount > 0) {
+				totalWatchedForked++;
+			}
+		}
+		if(repo.parentId==0) {
+			totalRoot++;
+			if(repo.watchCount > 0) {
+				totalWatchedRoot++;
+			}
+		}
+	}
+	
 }
 
 -(void) outputPredictions {
@@ -257,10 +292,11 @@
 			[userMap setObject:user forKey:userKey];			
 		}
 		// repo
-		repo.watchCount++;
-		
+		[repo addWatcher:userKey];
 		// add repo to user
 		[user addRepository:repoKey];
+		// count 
+		totalWatches++;
 	}
 	
 	NSLog(@"Finished loading %i user-repositories relationships", [lines count]);
@@ -358,5 +394,6 @@
 	
 	NSLog(@"Finished loading %i derived_user_neighbours", [lines count]);
 }
+
 
 @end

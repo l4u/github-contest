@@ -97,41 +97,6 @@
 	return buffer;
 }
 
-// linear model for now
-// ideally, this would be a pre-learned classifier for the cluster or even user
--(double)probabilityUserWillWatchRepo:(Repository *)repo {
-	
-	double score = 0.0;
-	
-	
-	// preference for forked root repos
-	// if(repo.parentId == 0 && repo.forkCount > 0) {
-	// 	score += 0.5;	
-	// }
-
-	
-	// watch global popularity
-	score += (repo.normalizedWatchRank * 0.25);
-	// fork global popularity
-	score += (repo.normalizedForkRank * 0.25);
-	
-	// neighbourhood popularity (occurance rank?)
-	//if([neighbourhoodRepos containsObject:[NSNumber numberWithInt:repo.repoId]]) {
-	score += (repo.normalizedNeighborhoodWatchRank * 1.0);
-	
-	
-	
-	// consider: candidate set popularity (rank from duplicate recommendations from sources)
-	
-	// watching other things with  by this author?
-	
-	// watch other things with this name?
-	
-	// 
-	
-	return score;
-}
-
 // bigger is better (maximizing)
 -(double)calculateUserDistance:(User*)other {
 	// never self
@@ -164,6 +129,14 @@
 
 -(int)neighbourhoodOccurance:(NSNumber *)repoId {
 	return [neighbourhoodRepos countForObject:repoId];
+}
+
+-(int) neighbourhoodTotalWatches {
+	int total = 0;
+	for(NSNumber *repoId in neighbourhoodRepos) {
+		total += [neighbourhoodRepos countForObject:repoId];
+	}
+	return total;
 }
 
 @end

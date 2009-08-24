@@ -8,28 +8,26 @@
 @dynamic parentId;
 @dynamic languageMap;
 
-@synthesize normalizedForkRank;
-@synthesize forkCount;
-@synthesize normalizedWatchRank;
-@synthesize watchCount;
-
-@synthesize score;
-
-@synthesize normalizedNeighborhoodWatchRank;
-
 @dynamic forks;
+@synthesize watches;
 @synthesize parent;
 
--(void) clearIndicators {
-	normalizedNeighborhoodWatchRank = 0;
-	score = 0;
-}
+@synthesize forkCount;
+@synthesize watchCount;
+@synthesize score;
+
+// @synthesize normalizedWatchRank;
+// @synthesize normalizedForkRank;
+// @synthesize normalizedNeighborhoodWatchRank;
+
+
 
 -(id) init {
 	self = [super init];	
 	
 	if(self) {
 		// nothing as of yet
+		watches = [[NSMutableSet alloc] init];
 	}
 	
 	return self;
@@ -38,7 +36,8 @@
 -(id)initWithId:(int)aId {
 	self = [super init];	
 	
-	if(self) {
+	if(self) {		
+		watches = [[NSMutableSet alloc] init];
 		repoId = aId;
 	}
 	
@@ -51,6 +50,7 @@
 	[languageMap release];
 	[forks release];
 	[parent release];
+	[watches release];
 	
 	[super dealloc]; // always last
 }
@@ -120,6 +120,11 @@
 	}
 	forkCount++;
 	[forks addObject:repo];
+}
+
+-(void) addWatcher:(NSNumber *)userId {
+	[watches addObject:userId];
+	watchCount++;
 }
 
 -(NSComparisonResult)compareWatchCount: (id) other {
