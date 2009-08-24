@@ -97,7 +97,7 @@
 		[self assignRepos:user repoIds:candidateList];
 		// clear mem sometimes
 		i++;
-		if((i % 500)==0) {
+		if((i % i)==0) {
 			NSLog(@"Prediction status: [%i/%i]", i, [model.testUsers count]);
 			[pool drain];
 			pool = [[NSAutoreleasePool alloc] init];			

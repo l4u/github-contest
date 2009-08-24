@@ -2,24 +2,21 @@
 
 @implementation Repository
 
-@dynamic repoId;
-@dynamic date;
-@dynamic fullname;
-@dynamic parentId;
-@dynamic languageMap;
+@synthesize repoId;
+@synthesize date;
+@synthesize fullname;
+@synthesize parentId;
+@synthesize languageMap;
+@synthesize name;
+@synthesize owner;
 
-@dynamic forks;
+@synthesize forks;
 @synthesize watches;
 @synthesize parent;
 
 @synthesize forkCount;
 @synthesize watchCount;
 @synthesize score;
-
-// @synthesize normalizedWatchRank;
-// @synthesize normalizedForkRank;
-// @synthesize normalizedNeighborhoodWatchRank;
-
 
 
 -(id) init {
@@ -67,6 +64,11 @@
 	fullname = [[[NSString stringWithString:[items objectAtIndex:0]] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] retain];
 	date = [[[NSString stringWithString:[items objectAtIndex:1]] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] retain];
 	
+	// extract names
+	NSArray *names = [fullname componentsSeparatedByString:@"/"];	
+	owner = [[items objectAtIndex:0] retain];
+	name = [[items objectAtIndex:1] retain];
+	
 	if([items count] == 3) {
 		parentId = [[items objectAtIndex:2] integerValue];
 	} 
@@ -88,30 +90,6 @@
 		NSNumber *numLines = [NSNumber numberWithInteger:[[pieces objectAtIndex:1] integerValue]];
 		[languageMap setObject:numLines forKey:[pieces objectAtIndex:0]];
 	}
-}
-
--(int)repoId {
-    return repoId;
-}
-
--(NSString*)date {
-    return date;
-}
-
--(NSString*)fullname {
-    return fullname;
-}
-
--(int)parentId {
-    return parentId;
-}
-
--(NSMutableDictionary *)languageMap {
-	return languageMap;
-}
-
--(NSMutableArray *)forks {
-	return forks;
 }
 
 -(void)addFork:(Repository *)repo {

@@ -11,6 +11,7 @@
     NSMutableDictionary *repositoryMap;
 	NSMutableDictionary *userMap;
 	NSMutableArray *testUsers;
+	NSCountedSet *ownerSet;
 	
 	int totalWatches;
 	int totalForked;
@@ -22,6 +23,7 @@
 @property(readonly, nonatomic) NSMutableDictionary *repositoryMap;
 @property(readonly, nonatomic) NSMutableDictionary *userMap;
 @property(readonly, nonatomic) NSMutableArray *testUsers;
+@property(readonly, nonatomic) NSCountedSet *ownerSet;
 
 @property(readonly, nonatomic) int totalWatches;
 @property(readonly, nonatomic) int totalForked;

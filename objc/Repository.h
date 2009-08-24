@@ -8,6 +8,8 @@
 	int parentId;
 	NSString *date;
 	NSString *fullname;
+	NSString *name;
+	NSString *owner;
 	NSMutableDictionary *languageMap;	
 	
 	
@@ -30,6 +32,7 @@
 // data
 @property(readonly, nonatomic) int repoId, parentId;
 @property(readonly, nonatomic) NSString *date, *fullname;
+@property(readonly, nonatomic) NSString *name, *owner;
 @property(readonly, nonatomic) NSMutableDictionary *languageMap;
 @property(readonly, nonatomic) NSSet *watches;
 // indicators

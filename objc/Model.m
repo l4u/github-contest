@@ -3,9 +3,10 @@
 @implementation Model
 
 // properties
-@dynamic repositoryMap;
-@dynamic userMap;
-@dynamic testUsers;
+@synthesize repositoryMap;
+@synthesize userMap;
+@synthesize testUsers;
+@synthesize ownerSet;
 
 @synthesize totalWatches;
 @synthesize totalForked;
@@ -21,6 +22,7 @@
 		repositoryMap = [[NSMutableDictionary dictionaryWithCapacity:120872] retain];
 		userMap = [[NSMutableDictionary dictionaryWithCapacity:56521] retain];
 		testUsers = [[NSMutableArray arrayWithCapacity:4788] retain];
+		ownerSet = [[[NSMutableArray alloc] init] retain];
 	}
 	
 	return self;
@@ -30,6 +32,7 @@
 	[repositoryMap release];
 	[userMap release];
 	[testUsers release];
+	[ownerSet release];
 	
 	[super dealloc]; // always last
 }
@@ -38,6 +41,7 @@
 	NSLog(@"");
 	NSLog(@"Statistics: ");
 	NSLog(@"Total Repositories:.....%i", [repositoryMap count]);
+	NSLog(@"Total Repo Owners:......%i", [ownerSet count]);
 	NSLog(@"Total Users:............%i", [userMap count]);
 	NSLog(@"Total Test Users:.......%i", [testUsers count]);
 	NSLog(@"Total Watches:..........%i", totalWatches);
@@ -223,6 +227,8 @@
 		Repository *repo = [[[Repository alloc] init] autorelease];
 		[repo parse:line];
 		
+		[ownerSet addObject:repo.owner];
+		
 		NSNumber *key = [NSNumber numberWithInteger:repo.repoId];
 		if([repositoryMap objectForKey:key]) {
 			NSLog(@" > Duplicate repository with key: %@", key);
@@ -327,16 +333,6 @@
 	}
 	
 	NSLog(@"Finished loading %i test users", [lines count]);
-}
-
--(NSMutableDictionary*)repositoryMap {
-    return repositoryMap;
-}
--(NSMutableDictionary*)userMap {
-    return userMap;
-}
--(NSMutableArray*)testUsers {
-    return testUsers;
 }
 
 -(void) validatePredictions {
