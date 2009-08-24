@@ -109,6 +109,9 @@
 	// 	score += 0.5;	
 	// }
 	
+	// forked repos are useful right?
+	if(repo.forkCount > 0) {
+	
 	// watch global popularity
 	score += (repo.normalizedWatchRank * 0.3);
 	// fork global popularity
@@ -118,6 +121,7 @@
 	//if([neighbourhoodRepos containsObject:[NSNumber numberWithInt:repo.repoId]]) {
 		score += (repo.normalizedNeighborhoodWatchRank * 1.0);
 	//}
+	}
 	
 	// consider: candidate set popularity (rank from duplicate recommendations from sources)
 	
@@ -148,11 +152,15 @@
 		if([other.repos containsObject:repo_id]) {
 			dist += 1.0;
 		}
-		// count soft repo matches
+		// count soft repo matches (ansestor, sibling, or child)
 	
-		// count vauge repo matches
+		// count vauge repo matches (project compsition)
 		
 	}	
+	
+	// consider user watched set size
+		
+	
 	return dist;
 }
 
