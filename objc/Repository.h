@@ -44,6 +44,7 @@
 -(void)parseLanguage:(NSString*)langDef;
 
 -(void)addFork:(Repository *)repoId;
+-(void) clearIndicators;
 
 // compare indicators
 -(NSComparisonResult)compareForkCount: (id) other;

@@ -105,19 +105,19 @@
 	
 	
 	// preference for forked root repos
-	if(repo.parentId == 0 && repo.forkCount > 0) {
-		score += 0.5;	
-	}
+	// if(repo.parentId == 0 && repo.forkCount > 0) {
+	// 	score += 0.5;	
+	// }
 	
 	// watch global popularity
 	score += (repo.normalizedWatchRank * 0.3);
 	// fork global popularity
-	// score += (repo.normalizedForkRank * 0.1);
+	//score += (repo.normalizedForkRank * 0.1);
 	
 	// neighbourhood popularity (occurance rank?)
-	if([neighbourhoodRepos containsObject:[NSNumber numberWithInt:repo.repoId]]) {
+	//if([neighbourhoodRepos containsObject:[NSNumber numberWithInt:repo.repoId]]) {
 		score += (repo.normalizedNeighborhoodWatchRank * 1.0);
-	}
+	//}
 	
 	// consider: candidate set popularity (rank from duplicate recommendations from sources)
 	

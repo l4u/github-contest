@@ -20,6 +20,11 @@
 @dynamic forks;
 @synthesize parent;
 
+-(void) clearIndicators {
+	normalizedNeighborhoodWatchRank = 0;
+	score = 0;
+}
+
 -(id) init {
 	self = [super init];	
 	

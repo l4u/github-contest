@@ -142,6 +142,11 @@
 			[candidateSet addObject:repoId];
 		}
 	}
+	// clear indicators
+	for(NSNumber *repoId in candidateSet) {
+		[[model.repositoryMap objectForKey:repoId] clearIndicators];
+	}
+	
 	return candidateSet;
 }
 
