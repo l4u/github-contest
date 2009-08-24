@@ -190,7 +190,7 @@
 		
 		NSNumber *key = [NSNumber numberWithInteger:repo.repoId];
 		if([repositoryMap objectForKey:key]) {
-			NSLog(@">Duplicate repository with key: %@", key);
+			NSLog(@" > Duplicate repository with key: %@", key);
 			continue;
 		}
 		[repositoryMap setObject:repo forKey:key];		
@@ -217,7 +217,7 @@
 		NSNumber *repoKey = [NSNumber numberWithInteger:[[pieces objectAtIndex:0] integerValue]];
 		Repository *repo = [repositoryMap objectForKey:repoKey];
 		if(repo == nil) {
-			NSLog(@">Repository %@ has language definition, but was not previously defined", repoKey);
+			NSLog(@" > Repository %@ has language definition, but was not previously defined", repoKey);
 			repo = [[[Repository alloc] initWithId:[repoKey intValue]] autorelease];
 			[repositoryMap setObject:repo forKey:repoKey];
 		}
@@ -246,7 +246,7 @@
 		// get repo
 		Repository *repo = [repositoryMap objectForKey:repoKey];
 		if(repo == nil) {
-			NSLog(@">Repository %@ specified in relationship did not exist", repoKey);
+			NSLog(@" > Repository %@ specified in relationship did not exist", repoKey);
 			repo = [[[Repository alloc] initWithId:[repoKey intValue]] autorelease];
 			[repositoryMap setObject:repo forKey:repoKey];
 		}
@@ -283,7 +283,7 @@
 		if(!user) {
 			user = [[[User alloc] initWithId:[userKey intValue]] autorelease];
 			[userMap setObject:user forKey:userKey];			
-			NSLog(@">Users %@ is test but was not previously defined", userKey);
+			NSLog(@" > Users %@ is test but was not previously defined", userKey);
 		}
 		// user is test
 		user.test = YES;

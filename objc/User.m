@@ -111,9 +111,9 @@
 
 	
 	// watch global popularity
-	score += (repo.normalizedWatchRank * 1.0);
+	score += (repo.normalizedWatchRank * 0.25);
 	// fork global popularity
-	score += (repo.normalizedForkRank * 1.0);
+	score += (repo.normalizedForkRank * 0.25);
 	
 	// neighbourhood popularity (occurance rank?)
 	//if([neighbourhoodRepos containsObject:[NSNumber numberWithInt:repo.repoId]]) {
