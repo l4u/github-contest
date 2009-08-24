@@ -1,6 +1,6 @@
 h1. GitHub Contest: August 2009
 
-"github-contest":http://github.com/jbrownlee/github-contest submission by jbrownlee.
+github-contest submission by jbrownlee.
 
 h2. Quick Links
 
@@ -38,25 +38,19 @@ Observations
 * There are 5 repo language definitions for repos that are not in main repo set
 * All but 2 of the test users are in the main user set (2 are unknown or new users)
 
-Some indicators that may be exploited include
-* language correlation
-* repository size correlation
-* repository hierarchy size or type correlation
 
 h3. Strategies
 
-* Random: This is my base line strategy. It provides proof of concept for data parsing, internal testing and submission. For each user id a random set between 0 and 10 of existing repositories are recommended.
-* kNN: Nearest Neighbour
+Generate as many useful indicators as possible and use indicators to guess whether the a repo may be watched by a user. Start by generating a set of candidates, filter the candidates, score them, sort by the scoring and suggest.
 
 h3. Validation Testing
 
 ...still a work in progress
 
-h3. Open Questions
+h2. Inspirations
 
-# How exactly does the online scoring work? 
-## Are incorrect recommendations punished?
-## Is recommendation order important (list or user set of recommendations)?
+* "jeremybarnes' readme":http://github.com/jeremybarnes/github_contest/tree/master
+* "danielharan's readme - suggest forked repos":http://github.com/danielharan/github_resys/tree/master
 
 h2. License 
 
