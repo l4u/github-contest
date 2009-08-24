@@ -48,26 +48,31 @@
 	// top n by watch count
 	NSArray *tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareWatchCount:)];
 	top20ReposByWatch = [NSMutableArray arrayWithCapacity:max];
-	int i;
-	for(i=0; i<max; i++) {
-		NSNumber *repoId = [tmp objectAtIndex:i];
-		Repository *repo = [model.repositoryMap objectForKey:repoId];
+	int i = 0;
+	int total = [tmp count];
+	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
-		repo.normalizedWatchRank = ((double) (max-i) / (double)max);
-		// store
-		[top20ReposByWatch addObject:repoId];
-		// NSLog(@"...Top 20 Watched: name=%@, rank=%i normalized=%f", repo.fullname, i, repo.normalizedWatchRank);
+		Repository *repo = [model.repositoryMap objectForKey:repoId];
+		repo.normalizedWatchRank = ((double) (max-i) / (double)total);
+		if(i<20) {
+			[top20ReposByWatch addObject:repoId];
+			// NSLog(@"...Top 20 Watched: name=%@, rank=%i normalized=%f", repo.fullname, i, repo.normalizedWatchRank);
+		}
+		i++;
 	}	
 	// top n by fork count
 	tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];
 	top20ReposByFork = [NSMutableArray arrayWithCapacity:max];
-	for(i=0; i<max; i++) {
-		NSNumber *repoId = [tmp objectAtIndex:i];
-		Repository *repo = [model.repositoryMap objectForKey:repoId];
+	i = 0;
+	total = [tmp count];
+	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
-		repo.normalizedForkRank = (double) (max-i) / (double)max;
-		// store
-		[top20ReposByFork addObject:repoId];
+		Repository *repo = [model.repositoryMap objectForKey:repoId];
+		repo.normalizedForkRank = ((double) (max-i) / (double)total);
+		if(i<20) {
+			[top20ReposByFork addObject:repoId];
+		}
+		i++;
 	}	
 }
 
