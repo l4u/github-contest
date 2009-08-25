@@ -1,6 +1,6 @@
 h1. GitHub Contest: August 2009
 
-github-contest submission by jbrownlee.
+A recommendation system for the github-contest by jbrownlee.
 
 h2. Quick Links
 
@@ -35,13 +35,22 @@ The following is a summary of the data provided in the competition, see /data/re
 
 Observations
 * All repos with parents have those parents in the dataset
-* There are 5 repo language definitions for repos that are not in main repo set
-* All but 2 of the test users are in the main user set (2 are unknown or new users)
+* There are 5 repo language definitions for repos that are not in main repo set (and therefore not currently watched by any users - maybe they were removed in prep of the test set)
+* All but 2 of the test users are in the main user set (2 are unknown or new users, maybe all of their repos were stripped in the prep of the test set)
 
+h3. Strategy
 
-h3. Strategies
+The prediction strategy is as follows:
+# Generate lots of predictor indicators 
+# Build models for applying the indicators toward prediction (indicator weights)
+# Generate a candidate set of repos for each test user
+# Score candidate repos using weighted indicators (weighted sum)
+# Sort scored candidate repos and select the top 10 as user repo predictions
 
-Generate as many useful indicators as possible and use indicators to guess whether the a repo may be watched by a user. Start by generating a set of candidates, filter the candidates, score them, sort by the scoring and suggest.
+Indicators are at one of three levels:
+# <b>Global</b>: probabilistic indicators across all user repo watching 
+# <b>Group</b>: users grouped (knn or clustered using kmeans) then probabilistic indicators from this smaller user group
+# <b>User</b>: probabilistic indicators across the repos a user watches
 
 h3. Validation Testing
 

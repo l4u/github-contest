@@ -22,6 +22,7 @@
 	NSMutableSet *watches;
 	NSMutableArray *forks;
 	Repository *parent;
+	NSString *dominantLanguage;
 }
 
 // data
@@ -40,14 +41,14 @@
 // calculated
 @property(readonly, nonatomic) NSMutableArray *forks;
 @property(retain, readwrite, nonatomic) Repository *parent;
-
+@property(readonly, nonatomic) NSString *dominantLanguage;
 
 -(id)initWithId:(NSNumber *)aId;
 -(void)parse:(NSString*)repoDef;
 -(void)parseLanguage:(NSString*)langDef;
 
 -(void)addFork:(Repository *)repoId;
--(void) addWatcher:(NSNumber *)userId;
+-(void)addWatcher:(NSNumber *)userId;
 
 // compare indicators
 -(NSComparisonResult)compareForkCount: (id) other;

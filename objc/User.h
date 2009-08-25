@@ -12,14 +12,39 @@
 	NSMutableSet *predictions;
 	NSMutableSet *neighbours;
 	NSCountedSet *neighbourhoodRepos;
+	
+	// stats
+	int numForked;
+	int numRoot;
+	int numWatched;
+	int numNeighbourhoodWatched;
+	int numWithLanguage;
+	
+	NSCountedSet *ownerSet;
+	NSCountedSet *nameSet;
+	NSCountedSet *languageSet;
 }
 
-@property(readonly, nonatomic) NSNumber * userId;
+// data
+@property(readonly, nonatomic) NSNumber *userId;
 @property(readonly, nonatomic) NSMutableSet *repos;
-@property(nonatomic) BOOL test;
 @property(readonly, nonatomic) NSMutableSet *predictions;
+@property(nonatomic) BOOL test;
+
+// derived
 @property(readonly, nonatomic) NSMutableSet *neighbours;
 @property(readonly, nonatomic) NSCountedSet *neighbourhoodRepos;
+@property(readonly, nonatomic) NSCountedSet *ownerSet;
+@property(readonly, nonatomic) NSCountedSet *nameSet;
+@property(readonly, nonatomic) NSCountedSet *languageSet;
+
+// stats
+@property(nonatomic) int numWatched;
+@property(nonatomic) int numForked;
+@property(nonatomic) int numRoot;
+@property(nonatomic) int numNeighbourhoodWatched;
+@property(nonatomic) int numWithLanguage;
+
 
 -(id)initWithId:(NSNumber *)aId;
 -(void) addRepository:(NSNumber *)aRepoId;
@@ -33,6 +58,6 @@
 -(int)neighbourhoodTotalWatchesForOwner:(NSString *)owner repositoryMap:(NSMutableDictionary *)repositoryMap;
 
 -(double)calculateUserDistance:(User*)other;
-
+-(void) calculateStats:(NSDictionary *)repositoryMap;
 
 @end

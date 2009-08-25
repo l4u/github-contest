@@ -13,6 +13,7 @@
 @synthesize forks;
 @synthesize watches;
 @synthesize parent;
+@synthesize dominantLanguage;
 
 @synthesize forkCount;
 @synthesize watchCount;
@@ -50,6 +51,7 @@
 	[forks release];
 	[parent release];
 	[watches release];
+	[dominantLanguage release];
 	
 	[super dealloc]; // always last
 }
@@ -84,11 +86,18 @@
 	
 	NSArray *languages = [langDef componentsSeparatedByString:@","];
 	
+	int maxLines = 0;
 	for(NSString *lang in languages) {
 		NSArray *pieces = [lang componentsSeparatedByString:@";"];
 		// store
-		NSNumber *numLines = [NSNumber numberWithInteger:[[pieces objectAtIndex:1] integerValue]];
+		int lines = [[pieces objectAtIndex:1] integerValue];
+		NSNumber *numLines = [NSNumber numberWithInteger:lines];
 		[languageMap setObject:numLines forKey:[pieces objectAtIndex:0]];
+		
+		if(lines > maxLines) {
+			[dominantLanguage release];
+			dominantLanguage = [[pieces objectAtIndex:0] retain];
+		}
 	}
 }
 

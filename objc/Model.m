@@ -9,6 +9,7 @@
 @synthesize ownerSet;
 @synthesize nameSet;
 
+@synthesize totalWatchedRepos;
 @synthesize totalWatches;
 @synthesize totalForked;
 @synthesize totalWatchedForked;
@@ -49,6 +50,7 @@
 	NSLog(@"Total Users:............%i", [userMap count]);
 	NSLog(@"Total Test Users:.......%i", [testUsers count]);
 	
+	NSLog(@"Total Watched Repos:....%i", totalWatchedRepos);
 	NSLog(@"Total Watches:..........%i", totalWatches);
 	NSLog(@"Total Forked:...........%i", totalForked);
 	NSLog(@"Total Watched Forked:...%i", totalWatchedForked);
@@ -181,6 +183,10 @@
 			if(repo.watchCount > 0) {
 				totalWatchedRoot++;
 			}
+		}
+		// while we are here, check watched repos
+		if(repo.watchCount > 0) {
+			totalWatchedRepos++;
 		}
 	}
 	

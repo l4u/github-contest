@@ -8,17 +8,21 @@
 @synthesize predictions;
 @synthesize neighbours;
 @synthesize neighbourhoodRepos;
+@synthesize numWithLanguage;
+
+@synthesize numForked;
+@synthesize numRoot;
+@synthesize numWatched;
+@synthesize numNeighbourhoodWatched;
+@synthesize ownerSet;
+@synthesize nameSet;
+@synthesize languageSet;
 
 -(id) initWithId:(NSNumber *)aId {
 	self = [super init];	
 	
 	if(self) {
-		test = NO;
 		userId = [aId retain];
-		repos = [[NSMutableSet alloc] init];
-		predictions = [[NSMutableSet alloc] init];
-		neighbours = [[NSMutableSet alloc] init];
-		neighbourhoodRepos = [[NSCountedSet alloc] init];
 	}
 	
 	return self;
@@ -30,31 +34,34 @@
 	[predictions release];
 	[neighbours release];
 	[neighbourhoodRepos release];
+	[languageSet release];
 	
 	[super dealloc]; // always last
 }
 
 -(void) addRepository:(NSNumber *)aRepoId {
-	// if([repos containsObject:aRepoId]) {
-	// 	[NSException raise:@"Invalid Repository Id" format:@"repository %@ already used by user %i", aRepoId, userId]; 
-	// }
+	// lazy create
+	if(!repos) {
+		repos = [[NSMutableSet alloc] init];
+	}
 	[repos addObject:aRepoId];
 }
 
 -(void) addPrediction:(NSNumber *)aRepoId {
-	// cannot be used or predicted
-	// if([repos containsObject:aRepoId]) {
-	// 	[NSException raise:@"Invalid Predicted Repository Id" format:@"repository %@ cannot be predicted, already used by user %i", aRepoId, userId]; 
-	// } else if([predictions containsObject:aRepoId]) {
-	// 	[NSException raise:@"Invalid Predicted Repository Id" format:@"repository %@ already predicted for user %i", aRepoId, userId]; 
-	// } else if([predictions count] > 10) {
-	// 	[NSException raise:@"Invalid Predicted Repository Id" format:@"user %i already has %i predictions.", userId, [predictions count]]; 		
-	// }
-	
+	// lazy create
+	if(!predictions) {
+		predictions = [[NSMutableSet alloc] init];
+	}
 	[predictions addObject:aRepoId];
 }
 
 -(void) addNeighbour:(User *)other {	
+	// lazy create 
+	if(!neighbours){
+		neighbours = [[NSMutableSet alloc] init];
+		neighbourhoodRepos = [[NSCountedSet alloc] init];
+	}
+	
 	[neighbours addObject:other.userId];
 	// add neighbourhood repos
 	for(NSNumber *repoId in other.repos) {
@@ -104,9 +111,39 @@
 	}	
 	
 	// consider user watched set size
-		
-	
+			
 	return dist;
+}
+
+
+-(void) calculateStats:(NSDictionary *)repositoryMap {
+	numWatched = [repos count];
+	ownerSet = [[NSCountedSet alloc] init];
+	nameSet = [[NSCountedSet alloc] init];	
+	languageSet = [[NSCountedSet alloc] init];
+	
+	// process repos
+	for(NSNumber *repoId in repos) {
+		Repository *repo = [repositoryMap objectForKey:repoId];
+		// forked
+		if(repo.forks > 0) {
+			numForked++;			
+		}
+		// root
+		if(!repo.parentId) {
+			numRoot++;
+		}
+		// language
+		if(repo.languageMap) {
+			numWithLanguage++;
+			[languageSet addObject:repo.dominantLanguage];
+		}
+		[ownerSet addObject:repo.owner];
+		[nameSet addObject:repo.name];
+	}
+	
+	// process neighbour repos
+	numNeighbourhoodWatched = [self neighbourhoodTotalWatches];
 }
 
 -(int)neighbourhoodOccurance:(NSNumber *)repoId {

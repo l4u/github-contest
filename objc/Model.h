@@ -19,6 +19,7 @@
 	int totalWatchedForked;
 	int totalRoot;
 	int totalWatchedRoot;
+	int totalWatchedRepos;
 }
 
 @property(readonly, nonatomic) NSMutableDictionary *repositoryMap;
@@ -27,6 +28,7 @@
 @property(readonly, nonatomic) NSCountedSet *ownerSet;
 @property(readonly, nonatomic) NSCountedSet *nameSet;
 
+@property(readonly, nonatomic) int totalWatchedRepos;
 @property(readonly, nonatomic) int totalWatches;
 @property(readonly, nonatomic) int totalForked;
 @property(readonly, nonatomic) int totalWatchedForked;

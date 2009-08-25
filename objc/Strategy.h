@@ -31,7 +31,8 @@
 -(NSArray *)scoreCandidates:(NSSet *)candidates user:(User *)user;
 
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo;
-//-(void)preScoreCalculations:(NSSet *)candidates user:(User *)user;
+-(NSDictionary *)indicatorWeights:(User *)user repo:(Repository *)repo;
+
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds;
 
 // array utils
