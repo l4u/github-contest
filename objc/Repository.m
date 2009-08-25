@@ -86,19 +86,24 @@
 	
 	NSArray *languages = [langDef componentsSeparatedByString:@","];
 	
-	int maxLines = 0;
+	int maxLines = -1;
 	for(NSString *lang in languages) {
 		NSArray *pieces = [lang componentsSeparatedByString:@";"];
-		// store
+		// extract
+		NSString *langName = [pieces objectAtIndex:0];
 		int lines = [[pieces objectAtIndex:1] integerValue];
+		// store		
 		NSNumber *numLines = [NSNumber numberWithInteger:lines];
-		[languageMap setObject:numLines forKey:[pieces objectAtIndex:0]];
+		[languageMap setObject:numLines forKey:langName];
 		
 		if(lines > maxLines) {
 			[dominantLanguage release];
-			dominantLanguage = [[pieces objectAtIndex:0] retain];
+			dominantLanguage = langName;
+			[dominantLanguage retain];
+			maxLines = lines;
 		}
 	}
+	// NSLog(@"%@ is dominant with %i lines", dominantLanguage, maxLines);
 }
 
 -(void)addFork:(Repository *)repo {

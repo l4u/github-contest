@@ -97,15 +97,15 @@
 		[self assignRepos:user repoIds:candidateList];
 		// clear mem sometimes
 		i++;
-		if((i % 5)==0) {
+		if((i % 500)==0) {
 			NSLog(@"Prediction status: [%i/%i]", i, [model.testUsers count]);
 			[pool drain];
 			pool = [[NSAutoreleasePool alloc] init];			
 		}			
 		// testing
-		if(i > 50) {
-			break;
-		}	
+		// if(i > 50) {
+		// 	break;
+		// }	
 	}
 	
 	// validate
@@ -143,7 +143,7 @@
 	// repos in same repo cluster
 	
 	// repos of users in same user cluster (knn)
-	if([user.neighbourhoodRepos count] > 0) {
+	if(user.numNeighbours > 0) {
 		for(Repository *repoId in user.neighbourhoodRepos){
 			[candidateSet addObject:repoId];
 		}
@@ -195,6 +195,11 @@
 #define DEFAULT_WEIGHT 1.0
 
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
+	// testing
+	return ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
+	
+/*
+
 	double score = 0.0;
 	
 	// calculate indicators
@@ -216,6 +221,7 @@
 	} 
 	
 	return score;
+*/	
 }
 
 -(NSDictionary *)indicatorWeights:(User *)user repo:(Repository *)repo {
@@ -224,8 +230,7 @@
 	
 	//
 	// global indicators
-	// ------------------------------------------
-	if([user.neighbours count] <= 0)
+	// ------------------------------------------	
 	{
 		int totalRepos = [model.repositoryMap count];
 		
@@ -271,7 +276,7 @@
 	//
 	// group indicators
 	// ------------------------------------------	
-	if([user.neighbours count] > 0) {
+	if(user.numNeighbours > 0) {
 		
 		// prob of a user in the group watching this repo
 		tmp = ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);

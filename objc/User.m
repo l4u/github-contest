@@ -10,6 +10,7 @@
 @synthesize neighbourhoodRepos;
 @synthesize numWithLanguage;
 
+@synthesize numNeighbours;
 @synthesize numForked;
 @synthesize numRoot;
 @synthesize numWatched;
@@ -58,11 +59,13 @@
 -(void) addNeighbour:(User *)other {	
 	// lazy create 
 	if(!neighbours){
-		neighbours = [[NSMutableSet alloc] init];
+		neighbours = [[NSMutableSet alloc] init];		
 		neighbourhoodRepos = [[NSCountedSet alloc] init];
 	}
 	
 	[neighbours addObject:other.userId];
+	numNeighbours++;
+	
 	// add neighbourhood repos
 	for(NSNumber *repoId in other.repos) {
 		[neighbourhoodRepos addObject:repoId];
@@ -134,7 +137,7 @@
 			numRoot++;
 		}
 		// language
-		if(repo.languageMap) {
+		if(repo.languageMap != nil) {
 			numWithLanguage++;
 			[languageSet addObject:repo.dominantLanguage];
 		}
@@ -143,26 +146,37 @@
 	}
 	
 	// process neighbour repos
-	numNeighbourhoodWatched = [self neighbourhoodTotalWatches];
+	if(numNeighbours > 0){
+		numNeighbourhoodWatched = [self neighbourhoodTotalWatches];	
+	}	
 }
 
 -(int)neighbourhoodOccurance:(NSNumber *)repoId {
-	return [neighbourhoodRepos countForObject:repoId];
+	if(numNeighbours > 0) {
+		return [neighbourhoodRepos countForObject:repoId];
+	}
+	
+	return 0;
 }
 
 -(int) neighbourhoodTotalWatches {
 	int total = 0;
-	for(NSNumber *repoId in neighbourhoodRepos) {
-		total += [neighbourhoodRepos countForObject:repoId];
+	if(numNeighbours > 0) {		
+		for(NSNumber *repoId in neighbourhoodRepos) {
+			total += [neighbourhoodRepos countForObject:repoId];
+		}
 	}
+
 	return total;
 }
 
 -(int) neighbourhoodTotalWatchesForOwner:(NSString *)owner repositoryMap:(NSMutableDictionary *)repositoryMap {
 	int total = 0;
-	for(NSNumber *repoId in neighbourhoodRepos) {
-		if([((Repository *)[repositoryMap objectForKey:repoId]).owner isEqualToString:owner]==YES){
-			total += [neighbourhoodRepos countForObject:repoId];
+	if(numNeighbours > 0) {
+		for(NSNumber *repoId in neighbourhoodRepos) {
+			if([((Repository *)[repositoryMap objectForKey:repoId]).owner isEqualToString:owner]==YES){
+				total += [neighbourhoodRepos countForObject:repoId];
+			}
 		}
 	}
 	return total;
@@ -170,9 +184,11 @@
 
 -(int) neighbourhoodTotalWatchesForName:(NSString *)name repositoryMap:(NSMutableDictionary *)repositoryMap {
 	int total = 0;
-	for(NSNumber *repoId in neighbourhoodRepos) {
-		if([((Repository *)[repositoryMap objectForKey:repoId]).name isEqualToString:name]==YES){
-			total += [neighbourhoodRepos countForObject:repoId];
+	if(numNeighbours > 0) {
+		for(NSNumber *repoId in neighbourhoodRepos) {
+			if([((Repository *)[repositoryMap objectForKey:repoId]).name isEqualToString:name]==YES){
+				total += [neighbourhoodRepos countForObject:repoId];
+			}
 		}
 	}
 	return total;

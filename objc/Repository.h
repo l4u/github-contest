@@ -35,13 +35,13 @@
 @property(readonly, nonatomic) NSMutableDictionary *languageMap;
 @property(readonly, nonatomic) NSSet *watches;
 // indicators
-@property(readwrite, nonatomic) int watchCount;
-@property(readwrite, nonatomic) int forkCount;
-@property(readwrite, nonatomic) double score;
+@property(nonatomic) int watchCount;
+@property(nonatomic) int forkCount;
+@property(nonatomic) double score;
 // calculated
 @property(readonly, nonatomic) NSMutableArray *forks;
-@property(retain, readwrite, nonatomic) Repository *parent;
 @property(readonly, nonatomic) NSString *dominantLanguage;
+@property(retain, readwrite, nonatomic) Repository *parent;
 
 -(id)initWithId:(NSNumber *)aId;
 -(void)parse:(NSString*)repoDef;

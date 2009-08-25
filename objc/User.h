@@ -14,6 +14,7 @@
 	NSCountedSet *neighbourhoodRepos;
 	
 	// stats
+	int numNeighbours;
 	int numForked;
 	int numRoot;
 	int numWatched;
@@ -39,6 +40,7 @@
 @property(readonly, nonatomic) NSCountedSet *languageSet;
 
 // stats
+@property(nonatomic) int numNeighbours;
 @property(nonatomic) int numWatched;
 @property(nonatomic) int numForked;
 @property(nonatomic) int numRoot;

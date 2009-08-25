@@ -24,8 +24,8 @@
 		repositoryMap = [[NSMutableDictionary dictionaryWithCapacity:120872] retain];
 		userMap = [[NSMutableDictionary dictionaryWithCapacity:56521] retain];
 		testUsers = [[NSMutableArray arrayWithCapacity:4788] retain];
-		ownerSet = [[[NSCountedSet alloc] init] retain];
-		nameSet = [[[NSCountedSet alloc] init] retain];
+		ownerSet = [[NSCountedSet alloc] init];
+		nameSet = [[NSCountedSet alloc] init];
 	}
 	
 	return self;
