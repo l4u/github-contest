@@ -211,20 +211,20 @@
 		// forked repos		
 		if(repo.forkCount > 0) {
 			// prob of a user watching a forked repo
-			score += GLOBAL_WEIGHT * ((double)model.totalWatchedForked / (double)model.totalForked);
+			// score += GLOBAL_WEIGHT * ((double)model.totalWatchedForked / (double)model.totalForked);
 			// fork tree size (one or all levels)
 			// TODO
 		} else {
 			// prob of a user watching a non-forked repo
-			score += GLOBAL_WEIGHT * ((double)(model.totalWatches-model.totalWatchedForked) / (double)(totalRepos-model.totalForked));
+			// score += GLOBAL_WEIGHT * ((double)(model.totalWatches-model.totalWatchedForked) / (double)(totalRepos-model.totalForked));
 		}
 		// root repos
 		if(repo.parentId == 0) {
 			// prob of a user watching a root repo
-			score += GLOBAL_WEIGHT * ((double)model.totalWatchedRoot / (double)model.totalRoot);
+			// score += GLOBAL_WEIGHT * ((double)model.totalWatchedRoot / (double)model.totalRoot);
 		} else {
 			// prob of a user watching a non-root repo
-			score += GLOBAL_WEIGHT * ((double)(model.totalWatches-model.totalWatchedRoot) / (double)(totalRepos-model.totalRoot));
+			// score += GLOBAL_WEIGHT * ((double)(model.totalWatches-model.totalWatchedRoot) / (double)(totalRepos-model.totalRoot));
 		}
 		// prob of a user watching a repo with this repo's owner's name
 		// TODO
@@ -244,9 +244,9 @@
 		// prob of a user in the group watching this repo
 		score += LOCAL_WEIGHT * ((double)[user neighbourhoodOccurance:repo.repoId] / (double)totalNeighbourhoodWatches);
 		// prob of a user in the group watching a repo with this name
-		score += LOCAL_WEIGHT * ((double)[user neighbourhoodTotalWatchesForName:repo.name repositoryMap:model.repositoryMap] / (double)totalNeighbourhoodWatches);
+		//score += LOCAL_WEIGHT * ((double)[user neighbourhoodTotalWatchesForName:repo.name repositoryMap:model.repositoryMap] / (double)totalNeighbourhoodWatches);
 		// prob of a user in the group watching a repo with this owner
-		score += LOCAL_WEIGHT * ((double)[user neighbourhoodTotalWatchesForOwner:repo.owner repositoryMap:model.repositoryMap] / (double)totalNeighbourhoodWatches);
+		//score += LOCAL_WEIGHT * ((double)[user neighbourhoodTotalWatchesForOwner:repo.owner repositoryMap:model.repositoryMap] / (double)totalNeighbourhoodWatches);
 		// prob of a user in the group watching a repo with thid dominant language
 		
 

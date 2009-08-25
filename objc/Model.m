@@ -389,10 +389,18 @@
 			continue;
 		}
 		
+		int K = 5;
+		
 		// process neighbours
 		NSArray *neighbours = [[pieces objectAtIndex:1] componentsSeparatedByString:@","];
+		int i=0;
 		for(NSString *neighbourId in neighbours) {			
+			// we can bound on load, get the K best neighbours
+			if(i >= K) {
+				break;
+			}
 			[user addNeighbour:[userMap objectForKey:[NSNumber numberWithInteger:[neighbourId integerValue]]]];
+			i++;
 		}
 	}
 	
