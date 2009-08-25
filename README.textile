@@ -51,7 +51,7 @@ h2. Inspirations
 
 * "jeremybarnes' readme":http://github.com/jeremybarnes/github_contest/tree/master
 * "danielharan's readme - suggest forked repos":http://github.com/danielharan/github_resys/tree/master
-* "cardmagic's strategy overview":http://github.com/cardmagic/github-contest/tree/master
+* "cardmagic's strategy overview (and ruby code)":http://github.com/cardmagic/github-contest/tree/master
 
 h2. License 
 

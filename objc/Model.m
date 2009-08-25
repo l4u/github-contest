@@ -7,6 +7,7 @@
 @synthesize userMap;
 @synthesize testUsers;
 @synthesize ownerSet;
+@synthesize nameSet;
 
 @synthesize totalWatches;
 @synthesize totalForked;
@@ -22,7 +23,8 @@
 		repositoryMap = [[NSMutableDictionary dictionaryWithCapacity:120872] retain];
 		userMap = [[NSMutableDictionary dictionaryWithCapacity:56521] retain];
 		testUsers = [[NSMutableArray arrayWithCapacity:4788] retain];
-		ownerSet = [[[NSMutableArray alloc] init] retain];
+		ownerSet = [[[NSCountedSet alloc] init] retain];
+		nameSet = [[[NSCountedSet alloc] init] retain];
 	}
 	
 	return self;
@@ -33,6 +35,7 @@
 	[userMap release];
 	[testUsers release];
 	[ownerSet release];
+	[nameSet release];
 	
 	[super dealloc]; // always last
 }
@@ -42,8 +45,10 @@
 	NSLog(@"Statistics: ");
 	NSLog(@"Total Repositories:.....%i", [repositoryMap count]);
 	NSLog(@"Total Repo Owners:......%i", [ownerSet count]);
+	NSLog(@"Total Repo Names:.......%i", [nameSet count]);
 	NSLog(@"Total Users:............%i", [userMap count]);
 	NSLog(@"Total Test Users:.......%i", [testUsers count]);
+	
 	NSLog(@"Total Watches:..........%i", totalWatches);
 	NSLog(@"Total Forked:...........%i", totalForked);
 	NSLog(@"Total Watched Forked:...%i", totalWatchedForked);
@@ -88,7 +93,7 @@
 			// calculate
 			NSArray *neighbours = [self calculateNeighbours:user];
 			if([neighbours count] > 0) {
-				[buffer appendString:[NSString stringWithFormat:@"%i:", user.userId]]; 
+				[buffer appendString:[NSString stringWithFormat:@"%@:", user.userId]]; 
 				// store K
 				int i;
 				int K = 10;
@@ -126,7 +131,7 @@
 		double distance = [user calculateUserDistance:other];
 		// only add if useful
 		if(distance > 0) {
-			[dic setObject:[NSNumber numberWithInt:distance] forKey:[NSNumber numberWithInt:other.userId]];
+			[dic setObject:[NSNumber numberWithInt:distance] forKey:other.userId];
 		}
 	}
 	// order by occurance count (ascending)
@@ -153,12 +158,11 @@
 		Repository *repo = [repositoryMap objectForKey:repoId];
 		if(repo.parentId) {
 			// get parent
-			NSNumber *parentId = [NSNumber numberWithInteger:repo.parentId];
-			Repository *parent = [repositoryMap objectForKey:parentId];
+			Repository *parent = [repositoryMap objectForKey:repo.parentId];
 			// set parent
 			repo.parent = parent;
-			// set forks in parent
-			[parent addFork:parent];
+			// set forks of parent
+			[parent addFork:repo];
 		}
 	}
 	
@@ -224,17 +228,21 @@
 		if([line length]<= 0) {
 			continue;
 		}
+		// create
 		Repository *repo = [[[Repository alloc] init] autorelease];
+		// parse
 		[repo parse:line];
-		
+		// owners
 		[ownerSet addObject:repo.owner];
-		
-		NSNumber *key = [NSNumber numberWithInteger:repo.repoId];
-		if([repositoryMap objectForKey:key]) {
-			NSLog(@" > Duplicate repository with key: %@", key);
+		// names
+		[nameSet addObject:repo.name];
+		// test
+		if([repositoryMap objectForKey:repo.repoId]) {
+			NSLog(@" > Duplicate repository with key: %@", repo.repoId);
 			continue;
 		}
-		[repositoryMap setObject:repo forKey:key];		
+		// store
+		[repositoryMap setObject:repo forKey:repo.repoId];		
 	}
 	
 	NSLog(@"Finished loading %i repositories", [repositoryMap count]);
@@ -259,7 +267,7 @@
 		Repository *repo = [repositoryMap objectForKey:repoKey];
 		if(repo == nil) {
 			NSLog(@" > Repository %@ has language definition, but was not previously defined", repoKey);
-			repo = [[[Repository alloc] initWithId:[repoKey intValue]] autorelease];
+			repo = [[[Repository alloc] initWithId:repoKey] autorelease];
 			[repositoryMap setObject:repo forKey:repoKey];
 		}
 		// process language data
@@ -288,13 +296,13 @@
 		Repository *repo = [repositoryMap objectForKey:repoKey];
 		if(repo == nil) {
 			NSLog(@" > Repository %@ specified in relationship did not exist", repoKey);
-			repo = [[[Repository alloc] initWithId:[repoKey intValue]] autorelease];
+			repo = [[[Repository alloc] initWithId:repoKey] autorelease];
 			[repositoryMap setObject:repo forKey:repoKey];
 		}
 		// get user
 		User *user = [userMap objectForKey:userKey];
 		if(!user) {
-			user = [[[User alloc] initWithId:[userKey intValue]] autorelease];
+			user = [[[User alloc] initWithId:userKey] autorelease];
 			[userMap setObject:user forKey:userKey];			
 		}
 		// repo
@@ -323,7 +331,7 @@
 		// get user
 		User *user = [userMap objectForKey:userKey];
 		if(!user) {
-			user = [[[User alloc] initWithId:[userKey intValue]] autorelease];
+			user = [[[User alloc] initWithId:userKey] autorelease];
 			[userMap setObject:user forKey:userKey];			
 			NSLog(@" > Users %@ is test but was not previously defined", userKey);
 		}

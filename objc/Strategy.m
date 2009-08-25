@@ -46,7 +46,7 @@
 	int max = 20;
 	
 	// top n by watch count
-	NSLog(@"Top 20 Watched:");
+	//NSLog(@"Top 20 Watched:");
 	NSArray *tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareWatchCount:)];
 	top20ReposByWatch = [NSMutableArray arrayWithCapacity:max];
 	int i = 0;
@@ -66,12 +66,12 @@
 	top20ReposByFork = [NSMutableArray arrayWithCapacity:max];
 	i = 0;
 	//total = [tmp count];
-	NSLog(@"Top 20 Forked:");
+	//NSLog(@"Top 20 Forked:");
 	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		//repo.normalizedForkRank = ((double) (max-i) / (double)total);
-		if(i<20) {
+		if(i<5) {
 			[top20ReposByFork addObject:repoId];
 			// NSLog(@"...Top 20 Forked: name=%@, rank=%i normalized=%f", repo.fullname, i, repo.normalizedForkRank);
 		}
@@ -97,11 +97,15 @@
 		[self assignRepos:user repoIds:candidateList];
 		// clear mem sometimes
 		i++;
-		if((i % i)==0) {
+		if((i % 5)==0) {
 			NSLog(@"Prediction status: [%i/%i]", i, [model.testUsers count]);
 			[pool drain];
 			pool = [[NSAutoreleasePool alloc] init];			
-		}		
+		}			
+		// testing
+		if(i > 50) {
+			break;
+		}	
 	}
 	
 	// validate
@@ -151,6 +155,12 @@
 // strip candidates that are already being watched
 -(void)filterCandidates:(NSMutableSet *)candidates user:(User *)user {	
 	//NSLog(@"Filtering candidates for user %i...", user.userId);	
+	
+	// nothing to strip
+	if([user.repos count] <= 0) {
+		return;
+	}
+	
 	for(NSNumber *repoId in user.repos) {
 		[candidates removeObject:repoId];
 	}
@@ -188,11 +198,11 @@
 // TODO: calcluate optimum independent weights
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	double score = 0.0;
-	NSNumber *repoId = [NSNumber numberWithInteger:repo.repoId];
 	
 	//
 	// global indicators
 	// ------------------------------------------
+	if([user.neighbours count] <= 0)
 	{
 		int totalRepos = [model.repositoryMap count];
 		
@@ -229,10 +239,17 @@
 	// group indicators
 	// ------------------------------------------	
 	if([user.neighbours count] > 0) {
-		// prob of a user in the neighbourhood watching this repo
-		score += LOCAL_WEIGHT * ((double)[user neighbourhoodOccurance:repoId] / (double)[user neighbourhoodTotalWatches]);
+		int totalNeighbourhoodWatches = [user neighbourhoodTotalWatches];
 		
+		// prob of a user in the group watching this repo
+		score += LOCAL_WEIGHT * ((double)[user neighbourhoodOccurance:repo.repoId] / (double)totalNeighbourhoodWatches);
+		// prob of a user in the group watching a repo with this name
+		score += LOCAL_WEIGHT * ((double)[user neighbourhoodTotalWatchesForName:repo.name repositoryMap:model.repositoryMap] / (double)totalNeighbourhoodWatches);
+		// prob of a user in the group watching a repo with this owner
+		score += LOCAL_WEIGHT * ((double)[user neighbourhoodTotalWatchesForOwner:repo.owner repositoryMap:model.repositoryMap] / (double)totalNeighbourhoodWatches);
+		// prob of a user in the group watching a repo with thid dominant language
 		
+
 	}
 	//
 	// individual indicators

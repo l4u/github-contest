@@ -4,22 +4,17 @@
 @interface Repository : NSObject {
 @private
 	// data
-	int repoId;
-	int parentId;
+	NSNumber *repoId;
+	NSNumber *parentId;
 	NSString *date;
 	NSString *fullname;
 	NSString *name;
 	NSString *owner;
 	NSMutableDictionary *languageMap;	
-	
-	
-	
+
 	// indicators
 	int watchCount;
-	// double normalizedWatchRank;
 	int forkCount;
-	// double normalizedForkRank;	
-	// double normalizedNeighborhoodWatchRank;
 	
 	double score;
 	
@@ -30,9 +25,12 @@
 }
 
 // data
-@property(readonly, nonatomic) int repoId, parentId;
-@property(readonly, nonatomic) NSString *date, *fullname;
-@property(readonly, nonatomic) NSString *name, *owner;
+@property(readonly, nonatomic) NSNumber *repoId;
+@property(readonly, nonatomic) NSNumber *parentId;
+@property(readonly, nonatomic) NSString *date;
+@property(readonly, nonatomic) NSString *fullname;
+@property(readonly, nonatomic) NSString *name;
+@property(readonly, nonatomic) NSString *owner;
 @property(readonly, nonatomic) NSMutableDictionary *languageMap;
 @property(readonly, nonatomic) NSSet *watches;
 // indicators
@@ -44,7 +42,7 @@
 @property(retain, readwrite, nonatomic) Repository *parent;
 
 
--(id)initWithId:(int)aId;
+-(id)initWithId:(NSNumber *)aId;
 -(void)parse:(NSString*)repoDef;
 -(void)parseLanguage:(NSString*)langDef;
 

@@ -2,19 +2,19 @@
 
 @implementation User
 
-@dynamic userId;
-@dynamic repos;
+@synthesize userId;
+@synthesize repos;
 @synthesize test;
-@dynamic predictions;
-@dynamic neighbours;
-@dynamic neighbourhoodRepos;
+@synthesize predictions;
+@synthesize neighbours;
+@synthesize neighbourhoodRepos;
 
--(id) initWithId:(int)aId {
+-(id) initWithId:(NSNumber *)aId {
 	self = [super init];	
 	
 	if(self) {
 		test = NO;
-		userId = aId;
+		userId = [aId retain];
 		repos = [[NSMutableSet alloc] init];
 		predictions = [[NSMutableSet alloc] init];
 		neighbours = [[NSMutableSet alloc] init];
@@ -25,20 +25,13 @@
 }
 
 -(void) dealloc {
+	[userId release];
 	[repos release];
 	[predictions release];
 	[neighbours release];
 	[neighbourhoodRepos release];
 	
 	[super dealloc]; // always last
-}
-
--(int)userId {
-    return userId;
-}
-
--(NSMutableSet *)repos {
-    return repos;
 }
 
 -(void) addRepository:(NSNumber *)aRepoId {
@@ -62,28 +55,17 @@
 }
 
 -(void) addNeighbour:(User *)other {	
-	[neighbours addObject:[NSNumber numberWithInteger:other.userId]];
+	[neighbours addObject:other.userId];
 	// add neighbourhood repos
 	for(NSNumber *repoId in other.repos) {
 		[neighbourhoodRepos addObject:repoId];
 	}
 }
 
--(NSMutableSet *)predictions {
-    return predictions;
-}
--(NSMutableSet *)neighbours {
-    return neighbours;
-}
-
--(NSCountedSet *)neighbourhoodRepos {
-    return neighbourhoodRepos;
-}
-
 // userId:repoId,repoId,repoId,...
 -(NSString *) getPredictionAsString {
 	NSMutableString *buffer = [[[NSMutableString alloc] init] autorelease];
-	[buffer appendString:[NSString stringWithFormat:@"%i:", userId]];
+	[buffer appendString:[NSString stringWithFormat:@"%@:", userId]];
 	
 	int i = 0;
 	for(NSNumber *num in predictions) {
@@ -100,7 +82,7 @@
 // bigger is better (maximizing)
 -(double)calculateUserDistance:(User*)other {
 	// never self
-	if(other.userId == userId) {
+	if([other.userId intValue] == [userId intValue]) {
 		return 0.0;
 	}
 	// check for useless comparison
@@ -135,6 +117,26 @@
 	int total = 0;
 	for(NSNumber *repoId in neighbourhoodRepos) {
 		total += [neighbourhoodRepos countForObject:repoId];
+	}
+	return total;
+}
+
+-(int) neighbourhoodTotalWatchesForOwner:(NSString *)owner repositoryMap:(NSMutableDictionary *)repositoryMap {
+	int total = 0;
+	for(NSNumber *repoId in neighbourhoodRepos) {
+		if([((Repository *)[repositoryMap objectForKey:repoId]).owner isEqualToString:owner]==YES){
+			total += [neighbourhoodRepos countForObject:repoId];
+		}
+	}
+	return total;
+}
+
+-(int) neighbourhoodTotalWatchesForName:(NSString *)name repositoryMap:(NSMutableDictionary *)repositoryMap {
+	int total = 0;
+	for(NSNumber *repoId in neighbourhoodRepos) {
+		if([((Repository *)[repositoryMap objectForKey:repoId]).name isEqualToString:name]==YES){
+			total += [neighbourhoodRepos countForObject:repoId];
+		}
 	}
 	return total;
 }

@@ -3,9 +3,10 @@
 
 #import "Repository.h"
 
+
 @interface User : NSObject {
 @private
-    int userId;
+    NSNumber *userId;
 	NSMutableSet *repos;
 	BOOL test;
 	NSMutableSet *predictions;
@@ -13,20 +14,25 @@
 	NSCountedSet *neighbourhoodRepos;
 }
 
-@property(readonly, nonatomic) int userId;
+@property(readonly, nonatomic) NSNumber * userId;
 @property(readonly, nonatomic) NSMutableSet *repos;
 @property(nonatomic) BOOL test;
 @property(readonly, nonatomic) NSMutableSet *predictions;
 @property(readonly, nonatomic) NSMutableSet *neighbours;
 @property(readonly, nonatomic) NSCountedSet *neighbourhoodRepos;
 
--(id)initWithId:(int)aId;
+-(id)initWithId:(NSNumber *)aId;
 -(void) addRepository:(NSNumber *)aRepoId;
 -(void) addPrediction:(NSNumber *)aRepoId;
 -(NSString *) getPredictionAsString;
 -(void) addNeighbour:(User *)aUserId;
+
 -(int)neighbourhoodOccurance:(NSNumber *)repoId;
--(int) neighbourhoodTotalWatches;
+-(int)neighbourhoodTotalWatches;
+-(int)neighbourhoodTotalWatchesForName:(NSString *)name repositoryMap:(NSMutableDictionary *)repositoryMap;
+-(int)neighbourhoodTotalWatchesForOwner:(NSString *)owner repositoryMap:(NSMutableDictionary *)repositoryMap;
+
 -(double)calculateUserDistance:(User*)other;
+
 
 @end

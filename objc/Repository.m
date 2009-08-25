@@ -30,18 +30,20 @@
 	return self;
 }
 
--(id)initWithId:(int)aId {
+-(id)initWithId:(NSNumber *)aId {
 	self = [super init];	
 	
 	if(self) {		
 		watches = [[NSMutableSet alloc] init];
-		repoId = aId;
+		repoId = [aId retain];
 	}
 	
 	return self;
 }
 
 -(void) dealloc {
+	[repoId release];
+	[parentId release];
 	[fullname release];
 	[date release];
 	[languageMap release];
@@ -54,23 +56,21 @@
 
 // example: 123338:DylanFM/roro-faces,2009-05-31,13635
 -(void)parse:(NSString*)repoDef {
-	
-	// must be a better way to process strings?
-
+	// main split
 	NSArray *bigBits = [repoDef componentsSeparatedByString:@":"];
-	repoId = [[bigBits objectAtIndex:0] integerValue];
-	
+	// repo id
+	repoId = [[NSNumber numberWithInteger:[[bigBits objectAtIndex:0] integerValue]] retain];
+	// split remaining data
 	NSArray *items = [[bigBits objectAtIndex:1] componentsSeparatedByString:@","];	
-	fullname = [[[NSString stringWithString:[items objectAtIndex:0]] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] retain];
-	date = [[[NSString stringWithString:[items objectAtIndex:1]] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] retain];
-	
+	fullname = [[items objectAtIndex:0] retain];
+	date = [[[items objectAtIndex:1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] retain];	
 	// extract names
 	NSArray *names = [fullname componentsSeparatedByString:@"/"];	
-	owner = [[items objectAtIndex:0] retain];
-	name = [[items objectAtIndex:1] retain];
-	
+	owner = [[names objectAtIndex:0] retain];
+	name = [[names objectAtIndex:1] retain];
+	// parent
 	if([items count] == 3) {
-		parentId = [[items objectAtIndex:2] integerValue];
+		parentId = [[NSNumber numberWithInteger:[[items objectAtIndex:2] integerValue]] retain];
 	} 
 }
 

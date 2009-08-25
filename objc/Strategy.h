@@ -4,7 +4,7 @@
 #import <time.h>
 
 #import "Model.h"
-#import "Counter.h"
+
 
 #define MAX_REPOS 10
 
