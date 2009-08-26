@@ -291,7 +291,7 @@
 	// group indicators
 	// ------------------------------------------	
 	
-	// TEST K=5, local_prob_watch, local_prob_watch_name, local_prob_watch_language
+	// TEST K=5, local_prob_watch, local_prob_watch_name, local_prob_watch_language (639  	13.34%)
 
 	if(user.numNeighbours) {
 		
@@ -301,11 +301,11 @@
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch"];
 		// prob of a user in the group watching a repo with this name
 		// TEST: K=5  (1093  	22.82%)
-		tmp = ((double)[[user neighbourhoodWatchName] countForObject:repo.name] / (double)user.numNeighbourhoodWatched);
+		tmp = ((double)[[user neighbourhoodWatchName] countForObject:repo.name] / (double) [[user neighbourhoodWatchName] count]);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch_name"];
 		// prob of a user in the group watching a repo with this owner
 		// TEST: K=5  (1038  	21.67%)
-		tmp = ((double)[[user neighbourhoodWatchOwner] countForObject:repo.owner] / (double)user.numNeighbourhoodWatched);
+		tmp = ((double)[[user neighbourhoodWatchOwner] countForObject:repo.owner] / (double) [[user neighbourhoodWatchOwner] count]);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch_language"];
 		// prob of a user in the group watching a repo with this dominant language
 		// TODO
@@ -314,7 +314,8 @@
 	//
 	// individual indicators
 	// ------------------------------------------
-	
+
+	// TEST: K=5, user_prob_watch_owner, user_prob_watch_name (1673  	34.94%)
 	// TEST K=5, user_prob_watch_forked, user_prob_watch_root, user_prob_watch_owner, user_prob_watch_name, user_prob_watch_language (1623  	33.89%)
 
 /*	
@@ -336,12 +337,7 @@
 		} else {
 			tmp = ((double)(user.numWatched-user.numRoot) / (double)user.numWatched);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_nonroot"];
-		}
-
-		//
-		// TEST: K=5, user_prob_watch_owner, user_prob_watch_name (1673  	34.94%)
-		// 
-		
+		}		
 		// prob of user watching with owner 
 		// TEST: K=5  (1061  	22.15%)
 		tmp = ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
