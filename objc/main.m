@@ -22,11 +22,9 @@ int main(int argc, const char *argv[]) {
 		[model loadModel];
 		[model printStats];
 		// strategy
-		strategy = [[Strategy alloc] initWithModel:model];
-		
+		strategy = [[Strategy alloc] initWithModel:model];		
 		// prep training data
-		strategy.generateTrainingData = YES;
-		
+		strategy.generateTrainingData = NO;		
 		// execute
 		[strategy employStrategy];
 	} 

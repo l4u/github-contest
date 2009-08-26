@@ -312,7 +312,7 @@
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_forked"];i++;
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonforked"];
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_root"];i++;
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_root"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonroot"];
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_owner"];i++;
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_name"];i++;
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_language"];
@@ -452,13 +452,13 @@
 		// prob of a user watching a repo with this size (order)
 		// TODO
 	} else {
-		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_forked"];
-		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonforked"];
-		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_root"];
-		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonroot"];
-		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_owner"];
-		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_name"];
-		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_language"];
+		// [indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_forked"];
+		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonforked"];
+		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_root"];
+		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonroot"];
+		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_owner"];
+		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_name"];
+		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_language"];
 	}
 		
 	return indicators;
