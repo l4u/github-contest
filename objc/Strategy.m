@@ -204,10 +204,8 @@
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	
 	// testing
-	if(true){
-		if(user.numNeighbours){
-			return ((double)[[user neighbourhoodWatchOwner] countForObject:repo.owner] / (double)user.numNeighbourhoodWatched);
-		}
+	if(false){
+		// put indicators here
 	}	
 
 	double score = 0.0;
@@ -245,7 +243,7 @@
 	//
 	// global indicators
 	// ------------------------------------------	
-	
+/*	
 	if(!user.numNeighbours) {
 		int totalRepos = [model.repositoryMap count];
 				
@@ -253,7 +251,7 @@
 		// TEST: K=5 (873  	18.23%)
 		tmp = ((double)repo.watchCount / (double)model.totalWatches);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch"];
-/*		
+		
 		// forked repos	
 		// TEST: K=5  (487  	10.17%)	
 		if(repo.forkCount > 0) {
@@ -285,13 +283,15 @@
 		}
 		// prob of a user watching a repo of this size (order)
 		// TODO
-*/		
 	}
+*/			
 
 		
 	//
 	// group indicators
 	// ------------------------------------------	
+	
+	// TEST K=5, local_prob_watch, local_prob_watch_name, local_prob_watch_language
 
 	if(user.numNeighbours) {
 		
@@ -299,16 +299,14 @@
 		// TEST: K=5  (996  	20.80%)
 		tmp = ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch"];
-///*
 		// prob of a user in the group watching a repo with this name
 		// TEST: K=5  (1093  	22.82%)
 		tmp = ((double)[[user neighbourhoodWatchName] countForObject:repo.name] / (double)user.numNeighbourhoodWatched);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch_name"];
 		// prob of a user in the group watching a repo with this owner
-		// TEST: K=5  ()
+		// TEST: K=5  (1038  	21.67%)
 		tmp = ((double)[[user neighbourhoodWatchOwner] countForObject:repo.owner] / (double)user.numNeighbourhoodWatched);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch_language"];
-//*/
 		// prob of a user in the group watching a repo with this dominant language
 		// TODO
 	}
@@ -319,9 +317,8 @@
 	
 	// TEST K=5, user_prob_watch_forked, user_prob_watch_root, user_prob_watch_owner, user_prob_watch_name, user_prob_watch_language (1623  	33.89%)
 
-	
+/*	
 	if([user.repos count]) {
-/*
 		// prob of this user watching a forked repo
 		// TEST: K=5  (461  	9.628%)
 		if(repo.forkCount) {
@@ -340,7 +337,7 @@
 			tmp = ((double)(user.numWatched-user.numRoot) / (double)user.numWatched);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_nonroot"];
 		}
-*/
+
 		//
 		// TEST: K=5, user_prob_watch_owner, user_prob_watch_name (1673  	34.94%)
 		// 
@@ -353,17 +350,17 @@
 		// TEST: K=5  (1030  	21.51%)
 		tmp = ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_name"];
-/*
+
 		// prob of user watching with dominant language
 		// TEST: K=5  (614  	12.82%)
 		if(repo.languageMap && user.numWithLanguage > 0) {
 			tmp = ((double)[user.languageSet countForObject:repo.dominantLanguage] / (double) user.numWithLanguage);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_language"];
 		}
-*/
 		// prob of a user watching a repo with this size (order)
 		// TODO
 	}
+*/	
 		
 	return indicators;
 }
