@@ -23,6 +23,10 @@ int main(int argc, const char *argv[]) {
 		[model printStats];
 		// strategy
 		strategy = [[Strategy alloc] initWithModel:model];
+		
+		// prep training data
+		strategy.generateTrainingData = YES;
+		
 		// execute
 		[strategy employStrategy];
 	} 

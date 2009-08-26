@@ -1,3 +1,4 @@
+data/training_data_2000.txt
 objc/*.o
 objc/main
 ruby/*.bin

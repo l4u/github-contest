@@ -11,13 +11,19 @@
 @interface Strategy : NSObject {
 
 @private
+	// cfg
+	BOOL generateTrainingData;
+
+	// internal
 	Model *model;
 	NSMutableArray *top20ReposByFork;
 	NSMutableArray *top20ReposByWatch;
 	NSMutableDictionary *testGlobalWeights;
+	NSFileHandle *file;
 }
 
-@property(readonly, nonatomic) Model *model;
+
+@property(nonatomic) BOOL generateTrainingData;
 
 -(id)initWithModel:(Model *)aModel;
 
@@ -37,6 +43,7 @@
 
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds;
 
+-(void) generateTestCasesForUser:(User*)user candidates:(NSMutableSet*)candidates;
 
 
 @end

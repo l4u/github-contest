@@ -5,14 +5,16 @@
 
 @implementation Strategy
 
-@dynamic model;
+@synthesize generateTrainingData;
+
+
 
 -(id)initWithModel:(Model *)aModel {
 	self = [super init];	
 	
 	if(self) {		
 		model = aModel;
-		[aModel retain];
+		[aModel retain];		
 		// random numbers
 		srandom(time(NULL));
 	}
@@ -25,13 +27,11 @@
 	[top20ReposByFork release];
 	[testGlobalWeights release];
 	[model release];
+	[file release];
 
 	[super dealloc]; // always last
 }
 
--(Model *)model {
-	return model;
-}
 
 -(void)employStrategy {
 	[self initialize];
@@ -81,16 +81,27 @@
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	int i = 0;
 	
+	if(generateTrainingData == YES) {
+		NSString *filename = @"../data/training_data.txt";
+		[[NSFileManager defaultManager] createFileAtPath:filename contents:nil attributes:nil];		
+		file = [NSFileHandle fileHandleForWritingAtPath:filename];		
+	}
+	
 	for(User *user in model.testUsers) {
 		//NSLog(@"Processing user %i...", user.userId);		
 		// generate 
 		NSMutableSet *candidateSet = [self generateCandidates:user];		
 		// fiter
 		[self filterCandidates:candidateSet user:user];
-		// score
-		NSArray *candidateList = [self scoreCandidates:candidateSet user:user];
-		// assign
-		[self assignRepos:user repoIds:candidateList];
+		if(generateTrainingData == YES) {
+			[self generateTestCasesForUser:user candidates:candidateSet];
+		} else {
+			// score
+			NSArray *candidateList = [self scoreCandidates:candidateSet user:user];
+			// assign
+			[self assignRepos:user repoIds:candidateList];			
+		}
+
 		// clear mem sometimes
 		i++;
 		if((i % 100)==0) {
@@ -100,16 +111,21 @@
 		}
 	}
 	
-	// validate
-	[model validatePredictions];
-	// output
-	[model outputPredictions];
+	if(generateTrainingData == YES) {
+		// close		
+		[file closeFile];
+	}else{
+		// validate
+		[model validatePredictions];
+		// output
+		[model outputPredictions];
+	}
 	
 	[pool drain];
 }
 
 
-
+ 
 // generate a set of candidates a user may want to watch
 // somewhat inspired by: http://github.com/jeremybarnes/github_contest/tree/master
 -(NSMutableSet *)generateCandidates:(User *)user {
@@ -163,8 +179,16 @@
 	if(![user.repos count]) {
 		return;
 	}	
-	for(NSNumber *repoId in user.repos) {
-		[candidates removeObject:repoId];
+	if(generateTrainingData == YES) {
+		// add repos
+		for(NSNumber *repoId in user.repos) {
+			[candidates addObject:repoId];
+		}
+	} else {
+		// remove repos
+		for(NSNumber *repoId in user.repos) {
+			[candidates removeObject:repoId];
+		}		
 	}
 }
 
@@ -174,11 +198,11 @@
 	[user calculateStats:model.repositoryMap];
 		
 	NSMutableDictionary *candidateDict = [[NSMutableDictionary alloc] init];	
-	for(NSNumber *repoId in candidates) {
+	for(NSNumber *repoId in candidates) {		
 		// get repo
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		// ask user to score it
-		repo.score = [self userScoreToWatchRepo:user repo:repo];		
+		repo.score = [self userScoreToWatchRepo:user repo:repo];
 		// add to dict
 		[candidateDict setObject:repo forKey:repoId];
 	}
@@ -189,6 +213,48 @@
 	[candidateDict release];
 	
 	return candidateList;
+}
+
+
+-(void) generateTestCasesForUser:(User*)user candidates:(NSMutableSet*)candidates {
+	// stats
+	[user calculateStats:model.repositoryMap];
+	NSMutableString *buffer = [[NSMutableString alloc] init];
+		
+	NSMutableDictionary *candidateDict = [[NSMutableDictionary alloc] init];	
+	for(NSNumber *repoId in candidates) {		
+		// get repo
+		Repository *repo = [model.repositoryMap objectForKey:repoId];
+		// get indicators
+		NSDictionary *indicators = [self indicatorWeights:user repo:repo]; 
+		// fixed known format
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_forked"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_nonforked"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_root"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_nonroot"]]];
+		
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"local_prob_watch"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"local_prob_watch_name"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"local_prob_watch_owner"]]];
+		
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_forked"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_nonforked"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_root"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_nonroot"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_owner"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_name"]]];
+		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_language"]]];
+		
+		// class
+		[buffer appendString:[NSString stringWithFormat:@"%f", (([user.repos containsObject:repoId]) ? 1.0 : 0.0)]];				
+		[buffer appendString:@"\n"];
+	}
+	
+	// flush buffer
+	NSData *strData = [buffer dataUsingEncoding: NSASCIIStringEncoding];	
+	[file writeData:strData];
+	[buffer release];
 }
 
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
@@ -224,9 +290,9 @@
 	}
 	
 	// some human annealing
-	//double w[11] = {1, 0, 0,    1, 0, 0,   0, 0, 1, 1, 0}; // K=5 (1857  	38.78%)
+	double w[11] = {1, 0, 0,    1, 0, 0,   0, 0, 1, 1, 0}; // K=5 (1857  	38.78%)
 	//double w[11] = {0.3, 0.05, 0.05,    0.8, 0.1, 0.1,   0.05, 0.05, 0.8, 0.8, 0.05}; // K=5 (1854  	38.72%)
-	double w[11] = {0.8, 0.05, 0.05,    0.9, 0.1, 0.1,   0.05, 0.05, 1, 1, 0.05}; // K=5 
+	// double w[11] = {0.8, 0.05, 0.05,    0.9, 0.1, 0.1,   0.05, 0.05, 1, 1, 0.05}; // K=5 (1852  	38.68%)
 	
 	int i = 0;
 	
@@ -235,14 +301,18 @@
 	// global
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch"];i++;
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_forked"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.0] forKey:@"global_prob_watch_nonforked"];
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_root"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.0] forKey:@"global_prob_watch_nonroot"];
 	// neighbourhood
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch"];i++;
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch_name"];i++;
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch_owner"];i++;
 	// user
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_forked"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonforked"];
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_root"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_root"];
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_owner"];i++;
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_name"];i++;
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_language"];
@@ -261,7 +331,7 @@
 	//
 	// global indicators
 	// ------------------------------------------	
-	if(!user.numNeighbours) {
+	if(true) {
 		int totalRepos = [model.repositoryMap count];
 				
 		// prob of a user watching this repo 
@@ -275,10 +345,12 @@
 			// prob of a user watching a forked repo
 			tmp = ((double)model.totalWatchedForked / (double)model.totalForked);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch_forked"];
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"global_prob_watch_nonforked"];
 		} else {
 			// prob of a user watching a non-forked repo
 			tmp = ((double)(model.totalWatches-model.totalWatchedForked) / (double)(totalRepos-model.totalForked));
-			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch_forked"];
+			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch_nonforked"];
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"global_prob_watch_forked"];
 		}
 		// root repos 
 		// TEST: K=5  (359  	7.497%)
@@ -286,10 +358,12 @@
 			// prob of a user watching a root repo
 			tmp = ((double)model.totalWatchedRoot / (double)model.totalRoot);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch_root"];
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"global_prob_watch_nonroot"];
 		} else {
 			// prob of a user watching a non-root repo
 			tmp = ((double)(model.totalWatches-model.totalWatchedRoot) / (double)(totalRepos-model.totalRoot));
-			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch_root"];
+			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch_nonroot"];
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"global_prob_watch_root"];
 		}
 		
 		// prob of a user watching a repo with this repo's dominant language
@@ -322,6 +396,10 @@
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch_owner"];
 		// prob of a user in the group watching a repo with this dominant language
 		// TODO
+	} else {
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"local_prob_watch"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"local_prob_watch_name"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"local_prob_watch_owner"];
 	}
 	
 	//
@@ -337,18 +415,22 @@
 		if(repo.forkCount) {
 			tmp = ((double)user.numForked / (double) user.numWatched);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_forked"];
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonforked"];
 		} else {
 			tmp = ((double)(user.numWatched-user.numForked) / (double) user.numWatched);
-			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_forked"];
+			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_nonforked"];
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_forked"];
 		}
 		// prob of this user watching a root repo
 		// TEST: K=5  (349  	7.289%)
 		if(!repo.parentId) {
 			tmp = ((double)user.numRoot / (double) user.numWatched);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_root"];
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonroot"];
 		} else {
 			tmp = ((double)(user.numWatched-user.numRoot) / (double)user.numWatched);
-			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_root"];
+			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_nonroot"];
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_root"];
 		}		
 		// prob of user watching with owner 
 		// TEST: K=5  (1061  	22.15%)
@@ -364,9 +446,19 @@
 		if(repo.languageMap && user.numWithLanguage) {
 			tmp = ((double)[user.languageSet countForObject:repo.dominantLanguage] / (double) user.numWithLanguage);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_language"];
+		} else {
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_language"];
 		}
 		// prob of a user watching a repo with this size (order)
 		// TODO
+	} else {
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_forked"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonforked"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_root"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonroot"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_owner"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_name"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_language"];
 	}
 		
 	return indicators;
