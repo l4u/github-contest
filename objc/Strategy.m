@@ -209,7 +209,7 @@
 		NSNumber *weight = [weights objectForKey:key];
 
 		// linear weighted sum of independent probablistic predictors		
-		score += ([weight doubleValue] * [indicator doubleValue]);
+		score += (([weight doubleValue] * [indicator doubleValue]));
 		
 	} 
 	
@@ -222,8 +222,8 @@
 	}
 	
 	// some human annealing
-	double w[11] = {1.0, 0, 0,    1.0, 0, 0,   0, 0, 1.0, 1.0, 0}; // K=5 (1857  	38.78%)
-	// double w[11] = {0.3, 0.05, 0.05,    0.8, 0.1, 0.1,   0.05, 0.05, 0.8, 0.8, 0.05}; // K=5 (1854  	38.72%)
+	//double w[11] = {1, 0, 0,    1, 0, 0,   0, 0, 1, 1, 0}; // K=5 (1857  	38.78%)
+	double w[11] = {0.3, 0.05, 0.05,    0.8, 0.1, 0.1,   0.05, 0.05, 0.8, 0.8, 0.05}; // K=5 (1854  	38.72%)
 
 	
 	int i = 0;
@@ -291,9 +291,7 @@
 		}
 		
 		// prob of a user watching a repo with this repo's dominant language
-		if([repo.languageMap count]) {
-			// TODO
-		}
+		// TODO
 		// prob of a user watching a repo of this size (order)
 		// TODO
 	}
