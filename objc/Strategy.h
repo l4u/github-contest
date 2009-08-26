@@ -8,7 +8,7 @@
 
 #define TOP_RANKED_REPOS 20
 #define MAX_REPOS 	10
-#define NUM_TRAINING_USERS 50
+#define NUM_TRAINING_USERS 100
 
 
 @interface Strategy : NSObject {
@@ -37,7 +37,7 @@
 -(void)calculatePredictions;
 
 // main prediction pipeline
--(NSMutableSet *)generateCandidates:(User *)user;
+-(void)generateCandidates:(User *)user candidateSet:(NSMutableSet *)candidateSet;
 -(void)filterCandidates:(NSMutableSet *)candidates user:(User *)user;
 -(NSArray *)scoreCandidates:(NSSet *)candidates user:(User *)user;
 

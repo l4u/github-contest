@@ -27,7 +27,7 @@
 	[top20ReposByFork release];
 	[testGlobalWeights release];
 	[model release];
-	[file release];
+	// [file release];
 	[testSet release];
 
 	[super dealloc]; // always last
@@ -80,7 +80,7 @@
 	if(generateTrainingData == YES) {
 		NSString *filename = @"../data/training_data.txt";
 		[[NSFileManager defaultManager] createFileAtPath:filename contents:nil attributes:nil];		
-		file = [NSFileHandle fileHandleForWritingAtPath:filename];	
+		file = [[NSFileHandle fileHandleForWritingAtPath:filename] retain];	
 		testSet = [[NSMutableSet alloc] init];	
 		// select test set
 		while([testSet count] < NUM_TRAINING_USERS) {
@@ -101,8 +101,10 @@
 			}
 		}
 		
+		
+		NSMutableSet *candidateSet = [[NSMutableSet alloc] init];
 		// generate 
-		NSMutableSet *candidateSet = [self generateCandidates:user];		
+		[self generateCandidates:user candidateSet:candidateSet];		
 		// fiter
 		[self filterCandidates:candidateSet user:user];
 		if(generateTrainingData == YES) {
@@ -119,7 +121,7 @@
 
 		// clear mem sometimes
 		i++;
-		if((i % 100)==0) {
+		if((i % 50)==0) {
 			NSLog(@"Prediction status: [%i/%i]", i, [model.testUsers count]);
 			[pool drain];
 			pool = [[NSAutoreleasePool alloc] init];			
@@ -129,6 +131,8 @@
 	if(generateTrainingData == YES) {
 		// close		
 		[file closeFile];
+		[file release];
+		file = nil;
 	}else{
 		// validate
 		[model validatePredictions];
@@ -143,12 +147,12 @@
  
 // generate a set of candidates a user may want to watch
 // somewhat inspired by: http://github.com/jeremybarnes/github_contest/tree/master
--(NSMutableSet *)generateCandidates:(User *)user {
+-(void)generateCandidates:(User *)user candidateSet:(NSMutableSet *)candidateSet {
 	
 	//
 	// build a big list of **REPO ID's**
 	//
-	NSMutableSet *candidateSet = [[[NSMutableSet alloc] init] autorelease];
+	
 	
 	// top 20 by watch count
 	[candidateSet addObjectsFromArray:top20ReposByWatch];
@@ -174,7 +178,6 @@
 		// repos in same repo cluster
 		// TODO
 	}
-	
 		
 	// repos of users in same user cluster (knn)
 	if(user.numNeighbours) {
@@ -183,8 +186,6 @@
 			[candidateSet addObject:repoId];
 		}		
 	}
-	
-	return candidateSet;
 }
 
 
@@ -262,19 +263,18 @@
 		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_language"]]];
 		
 		// class
-		[buffer appendString:[NSString stringWithFormat:@"%f", (([user.repos containsObject:repoId]) ? 1.0 : 0.0)]];				
+		[buffer appendString:(([user.repos containsObject:repoId]) ? @"1.0" : @"0.0")];				
 		[buffer appendString:@"\n"];
 	}
 	
 	// flush buffer
-	NSData *strData = [buffer dataUsingEncoding: NSASCIIStringEncoding];	
-	[file writeData:strData];
+	[file writeData:[buffer dataUsingEncoding: NSASCIIStringEncoding]];
 	[buffer release];
 }
 
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	double score = 0.0;
-	
+
 	// calculate indicators
 	NSDictionary *indicators = [self indicatorWeights:user repo:repo]; 	
 	// get weights
@@ -293,7 +293,7 @@
 		// linear weighted sum of independent probablistic predictors		
 		score += (([weight doubleValue] * [indicator doubleValue]));		
 	} 
-	
+
 	return score;
 }
 
@@ -312,24 +312,28 @@
 	int i = 0;
 	
 	testGlobalWeights = [[NSMutableDictionary alloc] init];
+	
+	//
+	// NOTE: putting i++ inside the w[] does not result in expected behaviour. broken gcc?
+	//
 		
 	// global
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"global_prob_watch"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"global_prob_watch_forked"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.0] forKey:@"global_prob_watch_nonforked"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"global_prob_watch_root"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.0] forKey:@"global_prob_watch_nonroot"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_forked"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_nonforked"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_root"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_nonroot"];
 	// neighbourhood
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"local_prob_watch"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"local_prob_watch_name"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"local_prob_watch_owner"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch_name"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch_owner"];i++;
 	// user
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_forked"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonforked"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_root"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonroot"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_owner"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_name"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_forked"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_nonforked"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_root"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_nonroot"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_owner"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_name"];i++;
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_language"];
 	
 	return testGlobalWeights;
