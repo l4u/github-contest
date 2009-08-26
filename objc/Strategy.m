@@ -199,6 +199,8 @@
 
 #define DEFAULT_WEIGHT 1.0
 
+// accidential good result: if neighbourhood - do prob in neighbourhood, otherwise do all of remainder.
+
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	
 	// testing
@@ -206,6 +208,8 @@
 		if(user.numNeighbours) {
 			return ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
 		}
+		
+		return 0.0;
 	}
 	
 	double score = 0.0;
@@ -285,8 +289,9 @@
 	if(user.numNeighbours) {
 		
 		// prob of a user in the group watching this repo
+		
 		tmp = ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
-		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch"];		
+		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch"];
 		// prob of a user in the group watching a repo with this name
 		tmp = ((double)[user neighbourhoodTotalWatchesForName:repo.name repositoryMap:model.repositoryMap] / (double)user.numNeighbourhoodWatched);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch_name"];
