@@ -124,7 +124,7 @@
 		if((i % 50)==0) {
 			NSLog(@"Prediction status: [%i/%i]", i, [model.testUsers count]);
 			[pool drain];
-			pool = [[NSAutoreleasePool alloc] init];			
+			pool = [[NSAutoreleasePool alloc] init];
 		}
 	}
 	
