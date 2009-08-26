@@ -206,7 +206,9 @@
 	// testing
 	if(true) {
 		if([user.repos count]) {
-			return ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
+			if(repo.languageMap && user.numWithLanguage) {
+				return ((double)[user.languageSet countForObject:repo.dominantLanguage] / (double) user.numWithLanguage);
+			}
 		}
 		
 		return 0.0;
@@ -331,7 +333,7 @@
 		tmp = ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_owner"];
 		// prob of user watching with name
-		// ()
+		// (1030  	21.51%)
 		tmp = ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_name"];
 		// prob of user watching with dominant language
