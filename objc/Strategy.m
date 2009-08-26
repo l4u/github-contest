@@ -44,7 +44,7 @@
 	NSLog(@"Initializing...");
 	
 	NSArray *tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareWatchCount:)];
-	top20ReposByWatch = [NSMutableArray arrayWithCapacity:TOP_RANKED_REPOS];
+	top20ReposByWatch = [[NSMutableArray arrayWithCapacity:TOP_RANKED_REPOS] retain];
 	int i = 0;
 	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
@@ -56,7 +56,7 @@
 	}	
 	// top n by fork count
 	tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];
-	top20ReposByFork = [NSMutableArray arrayWithCapacity:TOP_RANKED_REPOS];
+	top20ReposByFork = [[NSMutableArray arrayWithCapacity:TOP_RANKED_REPOS] retain];
 	i = 0;
 	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
@@ -101,7 +101,6 @@
 			}
 		}
 		
-		//NSLog(@"Processing user %i...", user.userId);		
 		// generate 
 		NSMutableSet *candidateSet = [self generateCandidates:user];		
 		// fiter
@@ -114,6 +113,9 @@
 			// assign
 			[self assignRepos:user repoIds:candidateList];			
 		}
+		
+		// explicit release
+		[candidateSet release];
 
 		// clear mem sometimes
 		i++;
