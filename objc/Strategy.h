@@ -6,7 +6,10 @@
 #import "Model.h"
 
 
-#define MAX_REPOS 10
+#define TOP_RANKED_REPOS 20
+#define MAX_REPOS 	10
+#define NUM_TRAINING_USERS 50
+
 
 @interface Strategy : NSObject {
 
@@ -20,6 +23,7 @@
 	NSMutableArray *top20ReposByWatch;
 	NSMutableDictionary *testGlobalWeights;
 	NSFileHandle *file;
+	NSMutableSet *testSet;
 }
 
 
