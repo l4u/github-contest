@@ -12,6 +12,8 @@
 	NSMutableSet *predictions;
 	NSMutableSet *neighbours;
 	NSCountedSet *neighbourhoodRepos;
+	NSCountedSet *neighbourhoodWatchName;
+	NSCountedSet *neighbourhoodWatchOwner;
 	
 	// stats
 	int numNeighbours;
@@ -38,6 +40,8 @@
 @property(readonly, nonatomic) NSCountedSet *ownerSet;
 @property(readonly, nonatomic) NSCountedSet *nameSet;
 @property(readonly, nonatomic) NSCountedSet *languageSet;
+@property(readonly, nonatomic) NSCountedSet *neighbourhoodWatchName;
+@property(readonly, nonatomic) NSCountedSet *neighbourhoodWatchOwner;
 
 // stats
 @property(nonatomic) int numNeighbours;
@@ -55,9 +59,7 @@
 -(void) addNeighbour:(User *)aUserId;
 
 -(int)neighbourhoodOccurance:(NSNumber *)repoId;
--(int)neighbourhoodTotalWatches;
--(int)neighbourhoodTotalWatchesForName:(NSString *)name repositoryMap:(NSMutableDictionary *)repositoryMap;
--(int)neighbourhoodTotalWatchesForOwner:(NSString *)owner repositoryMap:(NSMutableDictionary *)repositoryMap;
+
 
 -(double)calculateUserDistance:(User*)other;
 -(void) calculateStats:(NSDictionary *)repositoryMap;

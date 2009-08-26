@@ -9,6 +9,8 @@
 @synthesize neighbours;
 @synthesize neighbourhoodRepos;
 @synthesize numWithLanguage;
+@synthesize neighbourhoodWatchName;
+@synthesize neighbourhoodWatchOwner;
 
 @synthesize numNeighbours;
 @synthesize numForked;
@@ -36,6 +38,8 @@
 	[neighbours release];
 	[neighbourhoodRepos release];
 	[languageSet release];
+	[neighbourhoodWatchOwner release];
+	[neighbourhoodWatchName release];
 	
 	[super dealloc]; // always last
 }
@@ -146,52 +150,32 @@
 	}
 	
 	// process neighbour repos
-	if(numNeighbours > 0){
-		numNeighbourhoodWatched = [self neighbourhoodTotalWatches];	
+	if(numNeighbours){
+		
+		numNeighbourhoodWatched = 0;
+		neighbourhoodWatchName = [[NSCountedSet alloc] init];
+		neighbourhoodWatchOwner = [[NSCountedSet alloc] init];
+
+		for(NSNumber *repoId in neighbourhoodRepos) {	
+			Repository *repo = [repositoryMap objectForKey:repoId];		
+			// model of name watches
+			[neighbourhoodWatchName addObject:repo.name];			
+			// model of owner watches
+			[neighbourhoodWatchOwner addObject:repo.owner];
+			// total neighbourhood watches
+			numNeighbourhoodWatched += [neighbourhoodRepos countForObject:repoId];
+		}
 	}	
 }
 
 -(int)neighbourhoodOccurance:(NSNumber *)repoId {
-	if(numNeighbours > 0) {
+	if(numNeighbours) {
 		return [neighbourhoodRepos countForObject:repoId];
 	}
 	
 	return 0;
 }
 
--(int) neighbourhoodTotalWatches {
-	int total = 0;
-	if(numNeighbours > 0) {		
-		for(NSNumber *repoId in neighbourhoodRepos) {
-			total += [neighbourhoodRepos countForObject:repoId];
-		}
-	}
 
-	return total;
-}
-
--(int) neighbourhoodTotalWatchesForOwner:(NSString *)owner repositoryMap:(NSMutableDictionary *)repositoryMap {
-	int total = 0;
-	if(numNeighbours > 0) {
-		for(NSNumber *repoId in neighbourhoodRepos) {
-			if([((Repository *)[repositoryMap objectForKey:repoId]).owner isEqualToString:owner]==YES){
-				total += [neighbourhoodRepos countForObject:repoId];
-			}
-		}
-	}
-	return total;
-}
-
--(int) neighbourhoodTotalWatchesForName:(NSString *)name repositoryMap:(NSMutableDictionary *)repositoryMap {
-	int total = 0;
-	if(numNeighbours > 0) {
-		for(NSNumber *repoId in neighbourhoodRepos) {
-			if([((Repository *)[repositoryMap objectForKey:repoId]).name isEqualToString:name]==YES){
-				total += [neighbourhoodRepos countForObject:repoId];
-			}
-		}
-	}
-	return total;
-}
 
 @end
