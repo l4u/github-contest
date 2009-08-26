@@ -205,8 +205,6 @@
 	if(true) {
 		int totalRepos = [model.repositoryMap count];
 		
-		return ((double)repo.watchCount / (double)model.totalWatches);
-		
 		// forked repos		
 		if(repo.forkCount > 0) {
 			// prob of a user watching a forked repo
