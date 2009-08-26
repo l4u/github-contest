@@ -411,7 +411,7 @@
 			continue;
 		}
 		
-		int K = 10;
+		int K = 3;
 		
 		// process neighbours
 		NSArray *neighbours = [[pieces objectAtIndex:1] componentsSeparatedByString:@","];

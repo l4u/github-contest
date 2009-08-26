@@ -234,7 +234,7 @@
 	double tmp;
 	
 	// Test: K=5, global_prob_watch, local_prob_watch, user_prob_watch_owner, user_prob_watch_name: (1857  	38.78%)
-	// Test: K=5, global_prob_watch, local_prob_watch, user_prob_watch_owner, user_prob_watch_name: (1857  	38.78%)
+	// Test: K=10, global_prob_watch, local_prob_watch, user_prob_watch_owner, user_prob_watch_name: (1867  38.99%)
 	
 	
 	//
