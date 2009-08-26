@@ -231,19 +231,19 @@
 	testGlobalWeights = [[[NSMutableDictionary alloc] init] autorelease];
 		
 	// global
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"global_prob_watch"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"global_prob_watch_forked"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"global_prob_watch_root"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_forked"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_root"];i++;
 	// neighbourhood
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"local_prob_watch"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"local_prob_watch_name"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"local_prob_watch_owner"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch_name"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch_owner"];i++;
 	// user
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_forked"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_root"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_owner"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_name"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_language"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_forked"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_root"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_owner"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_name"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_language"];
 	
 	return testGlobalWeights;
 }
@@ -381,24 +381,6 @@
 			break;
 		}
 	}
-}
-
-- (NSArray *)reversedArray:(NSArray *)other {
-    NSMutableArray *array = [NSMutableArray arrayWithCapacity:[other count]];
-    NSEnumerator *enumerator = [other reverseObjectEnumerator];
-    for (id element in enumerator) {
-        [array addObject:element];
-    }
-    return array;
-}
-
--(NSArray *)getTopNOrLess:(NSArray *)someArray maximum:(int)maximum {
-	NSMutableArray *array = [[[NSMutableArray alloc] init] autorelease];
-	int i = 0;
-	for(i=0; i<maximum && i<[someArray count]; i++) {
-		[array addObject:[someArray objectAtIndex:i]];
-	}
-	return array;
 }
 
 @end

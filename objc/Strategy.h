@@ -37,10 +37,6 @@
 
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds;
 
-// array utils
--(NSArray *)getTopNOrLess:(NSArray *)someArray maximum:(int)maximum;
--(NSArray *)reversedArray:(NSArray *)other;
-
 
 
 @end
