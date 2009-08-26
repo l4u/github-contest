@@ -191,10 +191,6 @@
 	return candidateList;
 }
 
-
-
-// TODO optimize weights (graident decent)
-// TODO: get pre-learned weights from user/neighbourhood
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	double score = 0.0;
 	
@@ -208,14 +204,20 @@
 		NSNumber *indicator = [indicators objectForKey:key];
 		NSNumber *weight = [weights objectForKey:key];
 
+		// safety
+		if(!weight) {
+			[NSException raise:@"Invalid Indicator Key" format:@"we do not have a weight defined for indicator: %@", key];
+		}
+				
 		// linear weighted sum of independent probablistic predictors		
-		score += (([weight doubleValue] * [indicator doubleValue]));
-		
+		score += (([weight doubleValue] * [indicator doubleValue]));		
 	} 
 	
 	return score;
 }
 
+// TODO optimize weights (graident decent)
+// TODO: get pre-learned weights from user/neighbourhood
 -(NSDictionary *)getTestWeights {
 	if(testGlobalWeights){
 		return testGlobalWeights;
@@ -223,12 +225,12 @@
 	
 	// some human annealing
 	//double w[11] = {1, 0, 0,    1, 0, 0,   0, 0, 1, 1, 0}; // K=5 (1857  	38.78%)
-	double w[11] = {0.3, 0.05, 0.05,    0.8, 0.1, 0.1,   0.05, 0.05, 0.8, 0.8, 0.05}; // K=5 (1854  	38.72%)
-
+	//double w[11] = {0.3, 0.05, 0.05,    0.8, 0.1, 0.1,   0.05, 0.05, 0.8, 0.8, 0.05}; // K=5 (1854  	38.72%)
+	double w[11] = {0.8, 0.05, 0.05,    0.9, 0.1, 0.1,   0.05, 0.05, 1, 1, 0.05}; // K=5 
 	
 	int i = 0;
 	
-	testGlobalWeights = [[[NSMutableDictionary alloc] init] autorelease];
+	testGlobalWeights = [[NSMutableDictionary alloc] init];
 		
 	// global
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch"];i++;
@@ -268,7 +270,7 @@
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch"];
 		
 		// forked repos	
-		// TEST: K=5  (487  	10.17%)	
+		// TEST: K=5  (487  	10.17%)
 		if(repo.forkCount > 0) {
 			// prob of a user watching a forked repo
 			tmp = ((double)model.totalWatchedForked / (double)model.totalForked);
@@ -373,13 +375,16 @@
 #define MAX_REPOS 	10
 
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds {
+	int i = 0;
 	for(NSNumber *repoId in repoIds) {
-		// add
-		[user addPrediction:repoId];
 		// check for finished
-		if([user.predictions count] >= MAX_REPOS) {
+		if(i >= MAX_REPOS) {
 			break;
 		}
+
+		// add
+		[user addPrediction:repoId];
+		i++;
 	}
 }
 
