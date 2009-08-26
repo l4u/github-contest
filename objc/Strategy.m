@@ -201,8 +201,20 @@
 
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	
+	// testing
 	if(true) {
+		int totalRepos = [model.repositoryMap count];
+		
 		return ((double)repo.watchCount / (double)model.totalWatches);
+		
+		// forked repos		
+		if(repo.forkCount > 0) {
+			// prob of a user watching a forked repo
+			return ((double)model.totalWatchedForked / (double)model.totalForked);
+		} else {
+			// prob of a user watching a non-forked repo
+			return ((double)(model.totalWatches-model.totalWatchedForked) / (double)(totalRepos-model.totalForked));
+		}
 	}
 	
 	double score = 0.0;
@@ -238,9 +250,8 @@
 	// ------------------------------------------	
 	{
 		int totalRepos = [model.repositoryMap count];
-		
-		
-		// prob of a user watching this repo
+				
+		// prob of a user watching this repo (873  	18.23%)
 		tmp = ((double)repo.watchCount / (double)model.totalWatches);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch"];
 		

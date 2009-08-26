@@ -249,13 +249,13 @@
 			[ownerSet setObject:list forKey:repo.owner]; // store
 		}
 		// name
-		list = [ownerSet objectForKey:repo.name];
+		list = [nameSet objectForKey:repo.name];
 		if(list) {
 			[list addObject:repo.repoId]; // add repoId
 		} else {
 			list = [[[NSMutableArray alloc] init] autorelease]; // create
 			[list addObject:repo.repoId]; // add repoId
-			[ownerSet setObject:list forKey:repo.name]; // store
+			[nameSet setObject:list forKey:repo.name]; // store
 		}
 		
 		// test
