@@ -225,22 +225,26 @@
 		return testGlobalWeights;
 	}
 	
+	double w[11] = {0.3, 0.05, 0.05,    0.8, 0.1, 0.1,   0.05, 0.05, 0.8, 0.8, 0.05}; // 1854  	38.72%
+	
+	int i = 0;
+	
 	testGlobalWeights = [[[NSMutableDictionary alloc] init] autorelease];
 		
 	// global
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.3] forKey:@"global_prob_watch"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.05] forKey:@"global_prob_watch_forked"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.05] forKey:@"global_prob_watch_root"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"global_prob_watch"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"global_prob_watch_forked"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"global_prob_watch_root"];
 	// neighbourhood
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.8] forKey:@"local_prob_watch"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.1] forKey:@"local_prob_watch_name"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.1] forKey:@"local_prob_watch_owner"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"local_prob_watch"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"local_prob_watch_name"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"local_prob_watch_owner"];
 	// user
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.05] forKey:@"user_prob_watch_forked"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.05] forKey:@"user_prob_watch_root"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.8] forKey:@"user_prob_watch_owner"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.8] forKey:@"user_prob_watch_name"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:0.05] forKey:@"user_prob_watch_language"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_forked"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_root"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_owner"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_name"];
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i++]] forKey:@"user_prob_watch_language"];
 	
 	return testGlobalWeights;
 }
@@ -270,8 +274,6 @@
 			// prob of a user watching a forked repo
 			tmp = ((double)model.totalWatchedForked / (double)model.totalForked);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch_forked"];
-			// fork tree size (one or all levels)
-			// TODO
 		} else {
 			// prob of a user watching a non-forked repo
 			tmp = ((double)(model.totalWatches-model.totalWatchedForked) / (double)(totalRepos-model.totalForked));
