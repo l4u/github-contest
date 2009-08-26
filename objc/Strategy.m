@@ -15,9 +15,6 @@
 		[aModel retain];
 		// random numbers
 		srandom(time(NULL));
-		
-		top20ReposByWatch = nil;		
-		top20ReposByFork = nil;
 	}
 	
 	return self;
@@ -121,55 +118,63 @@
 // generate a set of candidates a user may want to watch
 // somewhat inspired by: http://github.com/jeremybarnes/github_contest/tree/master
 -(NSMutableSet *)generateCandidates:(User *)user {
-	//NSLog(@"Generating candidates for user %i...", user.userId);
 	
+	//
+	// build a big list of **REPO ID's**
+	//
 	NSMutableSet *candidateSet = [[[NSMutableSet alloc] init] autorelease];
-	// top 20 by watch count
-	for(NSNumber *repoId in top20ReposByWatch) {
-		[candidateSet addObject:repoId];
-	}
-	// top 20 by fork count
-	for(NSNumber *repoId in top20ReposByFork) {
-		[candidateSet addObject:repoId];
-	}
-	// tree of parent repos
-
-	// tree of children repos
-
-	// repos with same name and different author
-
-	// repos of authors of watched repos
-
-	// repos in same repo cluster
 	
-	// repos of users in same user cluster (knn)
-	if(user.numNeighbours > 0) {
-		for(Repository *repoId in user.neighbourhoodRepos){
-			[candidateSet addObject:repoId];
+	// top 20 by watch count
+	[candidateSet addObjectsFromArray:top20ReposByWatch];
+	// top 20 by fork count
+	[candidateSet addObjectsFromArray:top20ReposByFork];
+	// repos related to current repos
+	for(NSNumber *repoId in user.repos) {
+		Repository *repo = [model.repositoryMap objectForKey:repoId];
+		// add list of parents
+		if(repo.parentId) {
+			[candidateSet addObjectsFromArray:[repo getParentTree]];
 		}
+		// add list of forks
+		if(repo.forkCount) {
+			[candidateSet addObjectsFromArray:[repo getChildTree]];
+		}
+		// add list of siblings
+		// TODO
+		// repos with the same name
+		[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.name]];
+		// repos with the same owner
+		[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.owner]];
+		// repos in same repo cluster
+		// TODO
+	}
+	
+		
+	// repos of users in same user cluster (knn)
+	if(user.numNeighbours) {
+		// have to enumerate
+		for(NSNumber *repoId in user.neighbourhoodRepos) {
+			[candidateSet addObject:repoId];
+		}		
 	}
 	
 	return candidateSet;
 }
 
+
 // strip candidates that are already being watched
 -(void)filterCandidates:(NSMutableSet *)candidates user:(User *)user {	
-	//NSLog(@"Filtering candidates for user %i...", user.userId);	
-	
 	// nothing to strip
-	if([user.repos count] <= 0) {
+	if(![user.repos count]) {
 		return;
-	}
-	
+	}	
 	for(NSNumber *repoId in user.repos) {
 		[candidates removeObject:repoId];
 	}
 }
 
 // assign probabilities that predictions are correct
--(NSArray *)scoreCandidates:(NSSet *)candidates user:(User *)user {
-	//NSLog(@"Scoring candidates for user %i...", user.userId);	
-	
+-(NSArray *)scoreCandidates:(NSSet *)candidates user:(User *)user {	
 	// stats
 	[user calculateStats:model.repositoryMap];
 		
@@ -195,11 +200,11 @@
 #define DEFAULT_WEIGHT 1.0
 
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
-	// testing
-	return ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
 	
-/*
-
+	if(true) {
+		return ((double)repo.watchCount / (double)model.totalWatches);
+	}
+	
 	double score = 0.0;
 	
 	// calculate indicators
@@ -211,17 +216,17 @@
 	for(NSString *key in indicators.allKeys) {
 		NSNumber *indicator = [indicators objectForKey:key];
 		NSNumber *weight = [weights objectForKey:key];
-		
+
 		// linear weighted sum of independent probablistic predictors
 		if(weight) {
 			score += ([weight doubleValue] * [indicator doubleValue]);
 		} else {
 			score += (DEFAULT_WEIGHT * [indicator doubleValue]);
 		}
+		
 	} 
 	
 	return score;
-*/	
 }
 
 -(NSDictionary *)indicatorWeights:(User *)user repo:(Repository *)repo {
@@ -261,10 +266,6 @@
 			tmp = ((double)(model.totalWatches-model.totalWatchedRoot) / (double)(totalRepos-model.totalRoot));
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch_nonroot"];
 		}
-		// prob of a user watching a repo with this repo's owner 
-		// wrong! prob of occurance of name rather than watching of this name
-		//tmp = ((double)[model.ownerSet countForObject:repo.owner] / (double)model.totalWatches);
-		//[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch_owner"];
 		
 		// prob of a user watching a repo with this repo's dominant language
 		if([repo.languageMap count] > 0) {

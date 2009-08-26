@@ -55,4 +55,8 @@
 -(NSComparisonResult)compareWatchCount: (id) other;
 -(NSComparisonResult)compareScore: (id) other;
 
+
+-(NSArray *)getChildTree;
+-(NSArray *)getParentTree;
+
 @end

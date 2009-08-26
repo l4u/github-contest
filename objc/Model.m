@@ -24,8 +24,8 @@
 		repositoryMap = [[NSMutableDictionary dictionaryWithCapacity:120872] retain];
 		userMap = [[NSMutableDictionary dictionaryWithCapacity:56521] retain];
 		testUsers = [[NSMutableArray arrayWithCapacity:4788] retain];
-		ownerSet = [[NSCountedSet alloc] init];
-		nameSet = [[NSCountedSet alloc] init];
+		ownerSet = [[NSMutableDictionary alloc] init];
+		nameSet = [[NSMutableDictionary alloc] init];
 	}
 	
 	return self;
@@ -238,10 +238,26 @@
 		Repository *repo = [[[Repository alloc] init] autorelease];
 		// parse
 		[repo parse:line];
+		
 		// owners
-		[ownerSet addObject:repo.owner];
-		// names
-		[nameSet addObject:repo.name];
+		NSMutableArray *list = [ownerSet objectForKey:repo.owner];
+		if(list) {
+			[list addObject:repo.repoId]; // add repoId
+		} else {
+			list = [[[NSMutableArray alloc] init] autorelease]; // create
+			[list addObject:repo.repoId]; // add repoId
+			[ownerSet setObject:list forKey:repo.owner]; // store
+		}
+		// name
+		list = [ownerSet objectForKey:repo.name];
+		if(list) {
+			[list addObject:repo.repoId]; // add repoId
+		} else {
+			list = [[[NSMutableArray alloc] init] autorelease]; // create
+			[list addObject:repo.repoId]; // add repoId
+			[ownerSet setObject:list forKey:repo.name]; // store
+		}
+		
 		// test
 		if([repositoryMap objectForKey:repo.repoId]) {
 			NSLog(@" > Duplicate repository with key: %@", repo.repoId);

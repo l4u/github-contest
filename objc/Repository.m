@@ -164,4 +164,50 @@
 	return NSOrderedSame;
 }
 
+-(NSArray *)getParentTree {
+	if(!parentId) {
+		return nil;
+	}
+	
+	NSMutableArray *parentTree = [[[NSMutableArray alloc] init] autorelease];
+	
+	Repository *current = self;
+	while(current.parent) {
+		[parentTree addObject:current.parent.repoId];
+		current = current.parent;
+	}
+	
+	return parentTree;
+}
+
+-(NSArray *)getChildTree {
+	if(!forkCount) {
+		return nil;
+	}
+	
+	NSMutableArray *forkTree = [[[NSMutableArray alloc] init] autorelease];
+	NSMutableArray *stack = [[NSMutableArray alloc] init];
+	
+	[stack addObject:self];
+	
+	while([stack count]) {
+		// pop
+		Repository *current = (Repository *) [stack objectAtIndex:0]; // depth first
+		[stack removeObjectAtIndex:0];
+		// process
+		if(current.forkCount) {
+			// forks of current to tree
+			for(Repository *repo in current.forks) {
+				[forkTree addObject:repo.repoId];		
+			}			
+			// we want to enumerate all forks
+			[stack addObjectsFromArray:current.forks];
+		}
+	}
+	
+	[stack release];
+	
+	return forkTree;
+}
+
 @end
