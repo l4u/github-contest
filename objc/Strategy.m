@@ -206,11 +206,7 @@
 	// testing
 	if(true) {
 		if([user.repos count]) {
-			if(!repo.parentId) {
-				return ((double)user.numRoot / (double) user.numWatched);
-			} else {
-				return ((double)(user.numWatched-user.numRoot) / (double)user.numWatched);
-			}
+			return ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
 		}
 		
 		return 0.0;
@@ -322,7 +318,7 @@
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_nonforked"];
 		}
 		// prob of this user watching a root repo
-		// ()
+		// (349  	7.289%)
 		if(!repo.parentId) {
 			tmp = ((double)user.numRoot / (double) user.numWatched);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_root"];
