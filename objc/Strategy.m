@@ -205,7 +205,7 @@
 	if(true) {
 		if(user.numNeighbours) {
 			return ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
-		}	
+		}
 	}
 	
 	double score = 0.0;
@@ -242,11 +242,13 @@
 	{
 		int totalRepos = [model.repositoryMap count];
 				
-		// prob of a user watching this repo (873  	18.23%)
+		// prob of a user watching this repo 
+		// (873  	18.23%)
 		tmp = ((double)repo.watchCount / (double)model.totalWatches);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch"];
 		
-		// forked repos	(487  	10.17%)	
+		// forked repos	
+		// (487  	10.17%)	
 		if(repo.forkCount > 0) {
 			// prob of a user watching a forked repo
 			tmp = ((double)model.totalWatchedForked / (double)model.totalForked);
@@ -258,7 +260,8 @@
 			tmp = ((double)(model.totalWatches-model.totalWatchedForked) / (double)(totalRepos-model.totalForked));
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch_nonforked"];
 		}
-		// root repos
+		// root repos 
+		// (359  	7.497%)
 		if(repo.parentId == 0) {
 			// prob of a user watching a root repo
 			tmp = ((double)model.totalWatchedRoot / (double)model.totalRoot);
