@@ -206,10 +206,10 @@
 	// testing
 	if(true) {
 		if([user.repos count]) {
-			if(repo.forkCount) {
-			 	return ((double)user.numForked / (double) user.numWatched);
+			if(!repo.parentId) {
+				return ((double)user.numRoot / (double) user.numWatched);
 			} else {
-				return ((double)(user.numWatched-user.numForked) / (double) user.numWatched);
+				return ((double)(user.numWatched-user.numRoot) / (double)user.numWatched);
 			}
 		}
 		
@@ -313,7 +313,7 @@
 	// ------------------------------------------
 	if([user.repos count]) {
 		// prob of this user watching a forked repo
-		// ()
+		// (461  	9.628%)
 		if(repo.forkCount) {
 			tmp = ((double)user.numForked / (double) user.numWatched);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_forked"];
