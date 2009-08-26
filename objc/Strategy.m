@@ -93,15 +93,11 @@
 		[self assignRepos:user repoIds:candidateList];
 		// clear mem sometimes
 		i++;
-		if((i % 500)==0) {
+		if((i % 100)==0) {
 			NSLog(@"Prediction status: [%i/%i]", i, [model.testUsers count]);
 			[pool drain];
 			pool = [[NSAutoreleasePool alloc] init];			
-		}			
-		// testing
-		// if(i > 50) {
-		// 	break;
-		// }	
+		}
 	}
 	
 	// validate
@@ -225,7 +221,10 @@
 		return testGlobalWeights;
 	}
 	
-	double w[11] = {0.3, 0.05, 0.05,    0.8, 0.1, 0.1,   0.05, 0.05, 0.8, 0.8, 0.05}; // 1854  	38.72%
+	// some human annealing
+	double w[11] = {1.0, 0, 0,    1.0, 0, 0,   0, 0, 1.0, 1.0, 0}; // K=5 (1857  	38.78%)
+	// double w[11] = {0.3, 0.05, 0.05,    0.8, 0.1, 0.1,   0.05, 0.05, 0.8, 0.8, 0.05}; // K=5 (1854  	38.72%)
+
 	
 	int i = 0;
 	
