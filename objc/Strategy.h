@@ -14,6 +14,7 @@
 	Model *model;
 	NSMutableArray *top20ReposByFork;
 	NSMutableArray *top20ReposByWatch;
+	NSMutableDictionary *testGlobalWeights;
 }
 
 @property(readonly, nonatomic) Model *model;
@@ -32,6 +33,7 @@
 
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo;
 -(NSDictionary *)indicatorWeights:(User *)user repo:(Repository *)repo;
+-(NSDictionary *)getTestWeights;
 
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds;
 
