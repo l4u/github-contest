@@ -206,7 +206,7 @@
 	// testing
 	if(true) {
 		if([user.repos count]) {
-			return ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
+			return ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
 		}
 		
 		return 0.0;
@@ -327,7 +327,7 @@
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_nonroot"];
 		}
 		// prob of user watching with owner
-		// ()
+		// (1061  	22.15%)
 		tmp = ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_owner"];
 		// prob of user watching with name
