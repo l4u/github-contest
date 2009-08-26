@@ -206,7 +206,7 @@
 	// testing
 	if(true){
 		if(user.numNeighbours){
-			return ((double)[[user neighbourhoodWatchName] countForObject:repo.name] / (double)user.numNeighbourhoodWatched);
+			return ((double)[[user neighbourhoodWatchOwner] countForObject:repo.owner] / (double)user.numNeighbourhoodWatched);
 		}
 	}	
 
@@ -301,7 +301,7 @@
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch"];
 ///*
 		// prob of a user in the group watching a repo with this name
-		// TEST: K=5  ()
+		// TEST: K=5  (1093  	22.82%)
 		tmp = ((double)[[user neighbourhoodWatchName] countForObject:repo.name] / (double)user.numNeighbourhoodWatched);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch_name"];
 		// prob of a user in the group watching a repo with this owner
