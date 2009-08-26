@@ -204,15 +204,14 @@
 	// testing
 	if(true) {
 		int totalRepos = [model.repositoryMap count];
-		
-		// forked repos		
-		if(repo.forkCount > 0) {
-			// prob of a user watching a forked repo
-			return ((double)model.totalWatchedForked / (double)model.totalForked);
+	
+		if(repo.parentId == 0) {
+			// prob of a user watching a root repo
+			return ((double)model.totalWatchedRoot / (double)model.totalRoot);
 		} else {
-			// prob of a user watching a non-forked repo
-			return ((double)(model.totalWatches-model.totalWatchedForked) / (double)(totalRepos-model.totalForked));
-		}
+			// prob of a user watching a non-root repo
+			return ((double)(model.totalWatches-model.totalWatchedRoot) / (double)(totalRepos-model.totalRoot));
+		}	
 	}
 	
 	double score = 0.0;
@@ -253,7 +252,7 @@
 		tmp = ((double)repo.watchCount / (double)model.totalWatches);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch"];
 		
-		// forked repos		
+		// forked repos	(487  	10.17%)	
 		if(repo.forkCount > 0) {
 			// prob of a user watching a forked repo
 			tmp = ((double)model.totalWatchedForked / (double)model.totalForked);
@@ -286,7 +285,7 @@
 	//
 	// group indicators
 	// ------------------------------------------	
-	if(user.numNeighbours > 0) {
+	if(user.numNeighbours) {
 		
 		// prob of a user in the group watching this repo
 		tmp = ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
@@ -304,9 +303,9 @@
 	//
 	// individual indicators
 	// ------------------------------------------
-	if([user.repos count] > 0) {
+	if([user.repos count]) {
 		// prob of this user watching a forked repo
-		if(repo.forkCount > 0) {
+		if(repo.forkCount) {
 			tmp = ((double)user.numForked / (double) user.numWatched);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_forked"];
 		} else {
@@ -314,7 +313,7 @@
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_nonforked"];
 		}
 		// prob of this user watching a root repo
-		if(repo.parentId == 0) {
+		if(!repo.parentId) {
 			tmp = ((double)user.numRoot / (double) user.numWatched);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_root"];
 		} else {
