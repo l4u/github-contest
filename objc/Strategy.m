@@ -199,7 +199,7 @@
 
 #define DEFAULT_WEIGHT 1.0
 
-// accidential good result: if neighbourhood - do prob in neighbourhood, otherwise do all of remainder.
+
 
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	
@@ -233,10 +233,13 @@
 	NSMutableDictionary *indicators = [[[NSMutableDictionary alloc] init] autorelease];
 	double tmp;
 	
+	// Test: global_prob_watch, local_prob_watch, user_prob_watch_owner, user_prob_watch_name: ()
+	
+	
 	//
 	// global indicators
 	// ------------------------------------------	
-/*	
+	
 	if(!user.numNeighbours) {
 		int totalRepos = [model.repositoryMap count];
 				
@@ -244,7 +247,7 @@
 		// (873  	18.23%)
 		tmp = ((double)repo.watchCount / (double)model.totalWatches);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch"];
-		
+/*		
 		// forked repos	
 		// (487  	10.17%)	
 		if(repo.forkCount > 0) {
@@ -276,19 +279,21 @@
 		}
 		// prob of a user watching a repo of this size (order)
 		// TODO
+*/		
 	}
-*/	
+
 		
 	//
 	// group indicators
 	// ------------------------------------------	
-/*	
+
 	if(user.numNeighbours) {
 		
 		// prob of a user in the group watching this repo
 		// (996  	20.80%)
 		tmp = ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch"];
+/*	
 		// prob of a user in the group watching a repo with this name
 		// ()
 		tmp = ((double)[user neighbourhoodTotalWatchesForName:repo.name repositoryMap:model.repositoryMap] / (double)user.numNeighbourhoodWatched);
@@ -297,11 +302,11 @@
 		// ()
 		tmp = ((double)[user neighbourhoodTotalWatchesForOwner:repo.owner repositoryMap:model.repositoryMap] / (double)user.numNeighbourhoodWatched);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"local_prob_watch_language"];
-
+*/
 		// prob of a user in the group watching a repo with this dominant language
 		// TODO
 	}
-*/	
+	
 	//
 	// individual indicators
 	// ------------------------------------------
@@ -327,10 +332,10 @@
 		}
 */
 		//
-		// predictive power of owner & name: ()
+		// predictive power of owner & name: (1673  	34.94%)
 		// 
 		
-		// prob of user watching with owner
+		// prob of user watching with owner 
 		// (1061  	22.15%)
 		tmp = ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_owner"];
