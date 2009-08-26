@@ -203,16 +203,7 @@
 
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	
-	// testing
-	if(true) {
-		if([user.repos count]) {
-			if(repo.languageMap && user.numWithLanguage) {
-				return ((double)[user.languageSet countForObject:repo.dominantLanguage] / (double) user.numWithLanguage);
-			}
-		}
-		
-		return 0.0;
-	}
+	
 	
 	double score = 0.0;
 	
@@ -245,6 +236,7 @@
 	//
 	// global indicators
 	// ------------------------------------------	
+/*	
 	if(!user.numNeighbours) {
 		int totalRepos = [model.repositoryMap count];
 				
@@ -284,10 +276,13 @@
 		}
 		// prob of a user watching a repo of this size (order)
 		// TODO
-	}	
+	}
+*/	
+		
 	//
 	// group indicators
 	// ------------------------------------------	
+/*	
 	if(user.numNeighbours) {
 		
 		// prob of a user in the group watching this repo
@@ -306,10 +301,12 @@
 		// prob of a user in the group watching a repo with this dominant language
 		// TODO
 	}
+*/	
 	//
 	// individual indicators
 	// ------------------------------------------
 	if([user.repos count]) {
+/*
 		// prob of this user watching a forked repo
 		// (461  	9.628%)
 		if(repo.forkCount) {
@@ -328,6 +325,11 @@
 			tmp = ((double)(user.numWatched-user.numRoot) / (double)user.numWatched);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_nonroot"];
 		}
+*/
+		//
+		// predictive power of owner & name: ()
+		// 
+		
 		// prob of user watching with owner
 		// (1061  	22.15%)
 		tmp = ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
@@ -336,12 +338,14 @@
 		// (1030  	21.51%)
 		tmp = ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
 		[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_name"];
+/*		
 		// prob of user watching with dominant language
-		// ()
+		// (614  	12.82%)
 		if(repo.languageMap && user.numWithLanguage > 0) {
 			tmp = ((double)[user.languageSet countForObject:repo.dominantLanguage] / (double) user.numWithLanguage);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_language"];
 		}
+*/		
 		// prob of a user watching a repo with this size (order)
 		// TODO
 	}
