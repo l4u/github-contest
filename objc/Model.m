@@ -24,8 +24,8 @@
 		repositoryMap = [[NSMutableDictionary dictionaryWithCapacity:120872] retain];
 		userMap = [[NSMutableDictionary dictionaryWithCapacity:56521] retain];
 		testUsers = [[NSMutableArray arrayWithCapacity:4788] retain];
-		ownerSet = [[NSMutableDictionary alloc] init];
-		nameSet = [[NSMutableDictionary alloc] init];
+		ownerSet = [[NSMutableDictionary dictionaryWithCapacity:41444] retain];
+		nameSet = [[NSMutableDictionary dictionaryWithCapacity:71847] retain];
 	}
 	
 	return self;
@@ -411,7 +411,7 @@
 			continue;
 		}
 		
-		int K = 3;
+		int K = 5;
 		
 		// process neighbours
 		NSArray *neighbours = [[pieces objectAtIndex:1] componentsSeparatedByString:@","];
