@@ -203,14 +203,8 @@
 	
 	// testing
 	if(true) {
-		int totalRepos = [model.repositoryMap count];
-	
-		if(repo.parentId == 0) {
-			// prob of a user watching a root repo
-			return ((double)model.totalWatchedRoot / (double)model.totalRoot);
-		} else {
-			// prob of a user watching a non-root repo
-			return ((double)(model.totalWatches-model.totalWatchedRoot) / (double)(totalRepos-model.totalRoot));
+		if(user.numNeighbours) {
+			return ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
 		}	
 	}
 	
