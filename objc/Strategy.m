@@ -374,10 +374,15 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	for(NSNumber *repoId in candidates) {		
 		// get repo
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
+		
 		// get indicators
-		NSDictionary *indicators = [self indicatorWeights:user repo:repo]; 
+		// NSDictionary *indicators = [self indicatorWeights:user repo:repo]; 
+		NSDictionary *indicators = [self indicatorWeights2:user repo:repo]; 
+		
 		// guts
-		[self buildClassificationLine:buffer indicators:indicators];
+		// [self buildClassificationLine:buffer indicators:indicators];
+		[self buildClassificationLine2:buffer indicators:indicators];
+		
 		// class
 		[buffer appendString:(([user.repos containsObject:repoId]) ? @"1.0" : @"0.0")];				
 		[buffer appendString:@"\n"];
@@ -424,7 +429,8 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		// prepare indicator string
 		NSMutableString *buffer = [[NSMutableString alloc] init];
 		// build the line
-		[self buildClassificationLine:buffer indicators:indicators];
+		// [self buildClassificationLine:buffer indicators:indicators];
+		[self buildClassificationLine2:buffer indicators:indicators];
 		
 		//
 		// This is really slow, but I'm a lazy programmer that wants to use Weka and not re-write this in java
@@ -745,7 +751,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 
 	testGlobalWeights = [[NSMutableDictionary alloc] init];
 	int i = 0;
-	double w[10] = {1, 0, 0, 0, 0,    1, 0, 0,   1, 1};
+	double w[10] = {1, 0, 0, 0.2, 0.2,    1, 0.5, 0.5,   1, 1};
 
 	// global
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"normalized_watch_rank"];
@@ -775,7 +781,21 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	return testGlobalWeights;
 }
 
-
+-(void)buildClassificationLine2:(NSMutableString *)buffer indicators:(NSDictionary *)indicators {
+	// fixed known format (10 indicators)
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"normalized_fork_rank"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"is_root"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"normalized_name_rank"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"normalized_owner_rank"]]];
+	
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"normalized_group_watch_rank"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"normalized_group_name_rank"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"normalized_group_owner_rank"]]];
+	
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"normalized_user_name_rank"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"normalized_user_owner_rank"]]];
+}
 
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds {
 	int i = 0;
