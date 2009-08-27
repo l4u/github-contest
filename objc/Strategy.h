@@ -12,7 +12,7 @@
 #define TOP_RANKED_REPOS 20
 #define MAX_REPOS 	10
 #define NUM_TRAINING_USERS 100
-#define USE_EXT_CLASSIFIER false
+#define USE_EXT_CLASSIFIER true
 
 @interface Strategy : NSObject {
 
