@@ -52,9 +52,15 @@ Indicators are at one of three levels:
 # <b>Group</b>: users grouped (knn or clustered using kmeans) then probabilistic indicators from this smaller user group
 # <b>User</b>: probabilistic indicators across the repos a user watches
 
+To Do:
+* Better user clustering using SVD, kmeans or even just an improved distance metric on my knn
+* Add in repo clustering for generating candidate repos (at least) and indicators (oh yeah)
+* Build classification models for each user group or even each user (slow, but might get good results)
+* More indicators: brainstorm, look at others peoples code, eval real users on github website...
+
 h3. Validation Testing
 
-...still a work in progress
+I just push to the server for now (strategy results) and do cross-validation for my classifier using WEKA. My machine/strategy is too slow to any kind of automated gradient decent on weights or strategy parameters.
 
 h2. Inspirations
 

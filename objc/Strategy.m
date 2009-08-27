@@ -300,13 +300,20 @@
 		NSMutableString *buffer = [[NSMutableString alloc] init];
 		// build the line
 		[self buildClassificationLine:buffer indicators:indicators];
-		// could not get array of doubles across
+		
+		//
+		// This is really slow, but I'm a lazy programmer that wants to use Weka and not re-write this in java
+		//
+		
+		// note: could not get array of doubles across
 		score = [classifier classify:buffer];
 
 		// release
 		[buffer release];
 	} else {
-		// use internal classifier
+		//
+		// use internal classifier - good for testing, or hand-annealing the weights.
+		//
 		
 		// get weights
 		NSDictionary *weights = [self getTestWeights]; 

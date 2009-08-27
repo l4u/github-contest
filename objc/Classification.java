@@ -5,6 +5,13 @@ import weka.core.Instance;
 import weka.core.Instances;
 import java.io.*;
 
+//
+// Note to self: for (weka + this + Objc java bridge) to work: compile/run under Java 1.5 32-bit
+//
+
+// java docs: http://weka.sourceforge.net/doc/
+
+
 public class Classification {
 	
 	private J48 model;
