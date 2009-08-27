@@ -205,20 +205,21 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 	// scope var hacking
 	{
 		// user name rank
-		NSArray * tmp = [userrepos sortedArrayUsingFunction:neighbourhoodNameSort context:nameSet];
-		int i = 0;		
+		NSArray *tmp = [userrepos sortedArrayUsingFunction:neighbourhoodNameSort context:nameSet];
+		int i = 0;	
+		int total = [tmp count];
 		for(Repository *repo in tmp) {
-			// set rank (decending)
-			double rank = (double)(numWatched-i) / (double)numWatched;
+			double rank = (double)(total-i) / (double)total;
 			repo.normalizedUserNameRank = rank;
 			i++;		
 		}
 		// user owner rank
 		tmp = [userrepos sortedArrayUsingFunction:neighbourhoodOwnerSort context:ownerSet];
 		i = 0;		
+		total = [tmp count];
 		for(Repository *repo in tmp) {
 			// set rank (decending)
-			double rank = (double)(numWatched-i) / (double)numWatched;
+			double rank = (double)(total-i) / (double)total;
 			repo.normalizedUserOwnerRank = rank;
 			i++;
 		}
@@ -251,27 +252,30 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 		// neighbourhood name rank
 		NSArray * tmp = [neighbourhood sortedArrayUsingFunction:neighbourhoodNameSort context:neighbourhoodWatchName];
 		int i = 0;		
+		int total = [tmp count];
 		for(Repository *repo in tmp) {
 			// set rank (decending)
-			double rank = (double)(numNeighbours-i) / (double)numNeighbours;
+			double rank = (double)(total-i) / (double)total;
 			repo.normalizedGroupNameRank = rank;
 			i++;		
 		}
 		// neighbourhood owner rank
 		tmp = [neighbourhood sortedArrayUsingFunction:neighbourhoodOwnerSort context:neighbourhoodWatchOwner];
 		i = 0;		
+		total = [tmp count];
 		for(Repository *repo in tmp) {
 			// set rank (decending)
-			double rank = (double)(numNeighbours-i) / (double)numNeighbours;
+			double rank = (double)(total-i) / (double)total;
 			repo.normalizedGroupOwnerRank = rank;
 			i++;		
 		}
 		// neighbourhood watch rank
 		tmp = [neighbourhood sortedArrayUsingFunction:neighbourhoodWatchSort context:neighbourhoodRepos];
 		i = 0;		
+		total = [tmp count];
 		for(Repository *repo in tmp) {
 			// set rank (decending)
-			double rank = (double)(numNeighbours-i) / (double)numNeighbours;
+			double rank = (double)(total-i) / (double)total;
 			repo.normalizedGroupWatchRank = rank;
 			i++;
 		}		

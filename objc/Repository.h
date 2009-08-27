@@ -24,33 +24,33 @@
 	Repository *parent;
 	NSString *dominantLanguage;
 	
-	int normalizedWatchRank;
-	int normalizedForkRank;
-	int normalizedNameRank;
-	int normalizedOwnerRank;
+	double normalizedWatchRank;
+	double normalizedForkRank;
+	double normalizedNameRank;
+	double normalizedOwnerRank;
 	
-	int normalizedGroupWatchRank;
-	int normalizedGroupForkRank;
-	int normalizedGroupNameRank;
-	int normalizedGroupOwnerRank;
+	double normalizedGroupWatchRank;
+	double normalizedGroupForkRank;
+	double normalizedGroupNameRank;
+	double normalizedGroupOwnerRank;
 	
-	int normalizedUserNameRank;
-	int normalizedUserOwnerRank;
+	double normalizedUserNameRank;
+	double normalizedUserOwnerRank;
 }
 
 
-@property(nonatomic) int normalizedWatchRank;
-@property(nonatomic) int normalizedForkRank;
-@property(nonatomic) int normalizedNameRank;
-@property(nonatomic) int normalizedOwnerRank;
+@property(nonatomic) double normalizedWatchRank;
+@property(nonatomic) double normalizedForkRank;
+@property(nonatomic) double normalizedNameRank;
+@property(nonatomic) double normalizedOwnerRank;
 
-@property(nonatomic) int normalizedUserNameRank;
-@property(nonatomic) int normalizedUserOwnerRank;
+@property(nonatomic) double normalizedUserNameRank;
+@property(nonatomic) double normalizedUserOwnerRank;
 
-@property(nonatomic) int normalizedGroupWatchRank;
-@property(nonatomic) int normalizedGroupForkRank;
-@property(nonatomic) int normalizedGroupNameRank;
-@property(nonatomic) int normalizedGroupOwnerRank;
+@property(nonatomic) double normalizedGroupWatchRank;
+@property(nonatomic) double normalizedGroupForkRank;
+@property(nonatomic) double normalizedGroupNameRank;
+@property(nonatomic) double normalizedGroupOwnerRank;
 
 
 // data

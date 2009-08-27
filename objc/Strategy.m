@@ -675,7 +675,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	//
 	// global
 	//
-	
+		
 	// normalized watch rank
 	[indicators setObject:[NSNumber numberWithDouble:repo.normalizedWatchRank] forKey:@"normalized_watch_rank"];
 	// normalized fork rank
@@ -751,7 +751,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 
 	testGlobalWeights = [[NSMutableDictionary alloc] init];
 	int i = 0;
-	double w[10] = {1, 0, 0, 0.2, 0.2,    1, 0.5, 0.5,   1, 1};
+	double w[10] = {1, 0, 0, 0, 0,    1, 0, 0,   1, 1};
 
 	// global
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"normalized_watch_rank"];
@@ -783,7 +783,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 
 -(void)buildClassificationLine2:(NSMutableString *)buffer indicators:(NSDictionary *)indicators {
 	// fixed known format (10 indicators)
-	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"normalized_watch_rank"]]];
 	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"normalized_fork_rank"]]];
 	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"is_root"]]];
 	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"normalized_name_rank"]]];
