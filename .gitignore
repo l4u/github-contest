@@ -1,5 +1,6 @@
 data/training_data_2000.txt
 objc/*.o
+objc/*.class
 objc/main
 ruby/*.bin
 backup/*.txt
