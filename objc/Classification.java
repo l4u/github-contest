@@ -20,8 +20,13 @@ public class Classification {
 	public Classification() {
 		// load the model		
 		try {
+			//String modelName = "../data/J48_100.model";
+			//String modelName = "../data/J48_500.model";
+			//String modelName = "../data/decision_table_100.model";
+			String modelName = "../data/bagging_100.model";
+			
 			// http://weka.wikispaces.com/Serialization
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream("../data/J48-500.model"));
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(modelName));
 			model = (Classifier) ois.readObject();
 	 		ois.close();
 			System.out.println(" > JAVA: Classifier loaded");
@@ -56,8 +61,8 @@ public class Classification {
 		double score = 99.99;
 		try {
 			//score = model.classifyInstance(dataset.instance(0));		
-			double [] dist = model.distributionForInstance(dataset.instance(0));
-			// score is weight for beloning to the user (nom 2)
+			
+			double [] dist = model.distributionForInstance(dataset.instance(0));			
 			score = dist[1];
 		} catch(Exception e){
 			throw new RuntimeException("Could not classify instance: " + e.getMessage(), e);

@@ -273,7 +273,7 @@
 }
 
 -(void)buildClassificationLine:(NSMutableString *)buffer indicators:(NSDictionary *)indicators {
-		// fixed known format
+	// fixed known format (15 indicators)
 	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch"]]];
 	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_forked"]]];
 	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_nonforked"]]];
