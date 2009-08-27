@@ -66,7 +66,7 @@
 		i++;
 	}	
 	
-	if(generateTrainingData == NO) {
+	if(USE_EXT_CLASSIFIER && generateTrainingData == NO) {
 		NSLog(@" > Booting the Java VM...");
 		// http://www.macosxhints.com/article.php?story=20040321163154226
 		// http://cocoadevcentral.com/articles/000024.php
@@ -137,6 +137,11 @@
 			NSLog(@"Prediction status: [%i/%i]", i, [model.testUsers count]);
 			[pool drain];
 			pool = [[NSAutoreleasePool alloc] init];
+		}
+		
+		// testing
+		if(i>=100) {
+			break;
 		}
 	}
 	
@@ -295,7 +300,7 @@
 	NSDictionary *indicators = [self indicatorWeights:user repo:repo];
 	
 	// use external classifier
-	if(true) {
+	if(USE_EXT_CLASSIFIER) {
 		// prepare indicator string
 		NSMutableString *buffer = [[NSMutableString alloc] init];
 		// build the line

@@ -1,5 +1,4 @@
 
-import weka.classifiers.trees.J48;
 import weka.classifiers.Classifier;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -14,7 +13,7 @@ import java.io.*;
 
 public class Classification {
 	
-	private J48 model;
+	private Classifier model;
 	private Instances dataset;
 	private final static int NUM_INDICATORS = 15;
 	
@@ -23,7 +22,7 @@ public class Classification {
 		try {
 			// http://weka.wikispaces.com/Serialization
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream("../data/J48-100.model"));
-			model = (J48) ois.readObject();
+			model = (Classifier) ois.readObject();
 	 		ois.close();
 			System.out.println(" > JAVA: Classifier loaded");
 	
@@ -56,7 +55,10 @@ public class Classification {
 		// ask for a prediction
 		double score = 99.99;
 		try {
-			score = model.classifyInstance(dataset.instance(0));		
+			//score = model.classifyInstance(dataset.instance(0));		
+			double [] dist = model.distributionForInstance(dataset.instance(0));
+			// score is weight for beloning to the user (nom 2)
+			score = dist[1];
 		} catch(Exception e){
 			throw new RuntimeException("Could not classify instance: " + e.getMessage(), e);
 		}

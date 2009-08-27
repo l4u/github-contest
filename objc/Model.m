@@ -98,8 +98,7 @@
 				[buffer appendString:[NSString stringWithFormat:@"%@:", user.userId]]; 
 				// store K
 				int i;
-				int K = 10;
-				int max = ([neighbours count] > K) ? K : [neighbours count] ; 			
+				int max = ([neighbours count] > KNN_STORE) ? KNN_STORE : [neighbours count] ; 			
 				for(i=0; i<max; i++) {
 					NSNumber *neighbourId = [neighbours objectAtIndex:i];
 					[user addNeighbour:[userMap objectForKey:neighbourId]];
@@ -411,14 +410,12 @@
 			continue;
 		}
 		
-		int K = 10;
-		
 		// process neighbours
 		NSArray *neighbours = [[pieces objectAtIndex:1] componentsSeparatedByString:@","];
 		int i=0;
 		for(NSString *neighbourId in neighbours) {			
 			// we can bound on load, get the K best neighbours
-			if(i >= K) {
+			if(i >= KNN_READ) {
 				break;
 			}
 			[user addNeighbour:[userMap objectForKey:[NSNumber numberWithInteger:[neighbourId integerValue]]]];

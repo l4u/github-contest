@@ -6,6 +6,10 @@
 
 
 
+#define KNN_STORE 	10
+#define KNN_READ 	5
+
+
 @interface Model : NSObject {
 @private
     NSMutableDictionary *repositoryMap;
