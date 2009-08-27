@@ -255,25 +255,8 @@
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		// get indicators
 		NSDictionary *indicators = [self indicatorWeights:user repo:repo]; 
-		// fixed known format
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_forked"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_nonforked"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_root"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_nonroot"]]];
-		
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"local_prob_watch"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"local_prob_watch_name"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"local_prob_watch_owner"]]];
-		
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_forked"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_nonforked"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_root"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_nonroot"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_owner"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_name"]]];
-		[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_language"]]];
-		
+		// guts
+		[self buildClassificationLine:buffer indicators:indicators];
 		// class
 		[buffer appendString:(([user.repos containsObject:repoId]) ? @"1.0" : @"0.0")];				
 		[buffer appendString:@"\n"];
@@ -284,39 +267,64 @@
 	[buffer release];
 }
 
--(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
+-(void)buildClassificationLine:(NSMutableString *)buffer indicators:(NSDictionary *)indicators {
+		// fixed known format
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_forked"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_nonforked"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_root"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"global_prob_watch_nonroot"]]];
 	
-	if(false) {
-		// Classification *test=[[NSClassFromString(@"Classification") alloc] init];
-		Classification * test = (Classification*) NSJavaObjectNamedInPath(@"Classification", nil);
-		
-		// could not get array of doubles across
-		double rs = [test classify:@"blah blah blah"];
-		NSLog(@" got something from the classifier: %f", rs);
-	}
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"local_prob_watch"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"local_prob_watch_name"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"local_prob_watch_owner"]]];
 	
-	
-	
-	double score = 0.0;
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_forked"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_nonforked"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_root"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_nonroot"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_owner"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_name"]]];
+	[buffer appendString:[NSString stringWithFormat:@"%@,", [indicators objectForKey:@"user_prob_watch_language"]]];
+}
 
+
+-(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
+	double score = 0.0;
 	// calculate indicators
 	NSDictionary *indicators = [self indicatorWeights:user repo:repo];
-	// get weights
-	NSDictionary *weights = [self getTestWeights]; 
 	
-	// process all indicators
-	for(NSString *key in indicators.allKeys) {
-		NSNumber *indicator = [indicators objectForKey:key];
-		NSNumber *weight = [weights objectForKey:key];
+	// use external classifier
+	if(true) {
+		// prepare indicator string
+		NSMutableString *buffer = [[NSMutableString alloc] init];
+		// build the line
+		[self buildClassificationLine:buffer indicators:indicators];
+		// could not get array of doubles across
+		score = [classifier classify:buffer];
 
-		// safety
-		if(!weight) {
-			[NSException raise:@"Invalid Indicator Key" format:@"we do not have a weight defined for indicator: %@", key];
-		}
+		// release
+		[buffer release];
+	} else {
+		// use internal classifier
+		
+		// get weights
+		NSDictionary *weights = [self getTestWeights]; 
+	
+		// process all indicators
+		for(NSString *key in indicators.allKeys) {
+			NSNumber *indicator = [indicators objectForKey:key];
+			NSNumber *weight = [weights objectForKey:key];
+
+			// safety
+			if(!weight) {
+				[NSException raise:@"Invalid Indicator Key" format:@"we do not have a weight defined for indicator: %@", key];
+			}
 				
-		// linear weighted sum of independent probablistic predictors		
-		score += (([weight doubleValue] * [indicator doubleValue]));		
-	} 
+			// linear weighted sum of independent probablistic predictors		
+			score += (([weight doubleValue] * [indicator doubleValue]));		
+		}
+	}
 
 	return score;
 }

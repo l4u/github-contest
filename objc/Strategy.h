@@ -51,6 +51,7 @@
 -(NSDictionary *)getTestWeights;
 
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds;
+-(void)buildClassificationLine:(NSMutableString *)buffer indicators:(NSDictionary *)indicators;
 
 -(void) generateTestCasesForUser:(User*)user candidates:(NSMutableSet*)candidates;
 
