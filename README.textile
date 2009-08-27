@@ -36,6 +36,7 @@ The following is a summary of the data provided in the competition, see /data/re
 Observations
 * All repos with parents have those parents in the dataset
 * There are 5 repo language definitions for repos that are not in main repo set (and therefore not currently watched by any users - maybe they were removed in prep of the test set)
+** there is no score for assigning these repos to any users - remove them (I tested this explicitly)!
 * All but 2 of the test users are in the main user set (2 are unknown or new users, maybe all of their repos were stripped in the prep of the test set)
 
 h3. Strategy

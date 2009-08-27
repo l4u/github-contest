@@ -44,11 +44,11 @@
 -(void) printStats {
 	NSLog(@"");
 	NSLog(@"Statistics: ");
-	NSLog(@"Total Repositories:.....%i", [repositoryMap count]);
-	NSLog(@"Total Repo Owners:......%i", [ownerSet count]);
-	NSLog(@"Total Repo Names:.......%i", [nameSet count]);
-	NSLog(@"Total Users:............%i", [userMap count]);
-	NSLog(@"Total Test Users:.......%i", [testUsers count]);
+	NSLog(@"Total Repositories:..........%i", [repositoryMap count]);
+	NSLog(@"Total Repo Owners:...........%i", [ownerSet count]);
+	NSLog(@"Total Repo Names:............%i", [nameSet count]);
+	NSLog(@"Total Users:.................%i", [userMap count]);
+	NSLog(@"Total Test Users:............%i", [testUsers count]);
 	
 	NSLog(@"Total Watched Repos:....%i", totalWatchedRepos);
 	NSLog(@"Total Watches:..........%i", totalWatches);
@@ -286,13 +286,15 @@
 		NSArray *pieces = [line componentsSeparatedByString:@":"];
 		NSNumber *repoKey = [NSNumber numberWithInteger:[[pieces objectAtIndex:0] integerValue]];
 		Repository *repo = [repositoryMap objectForKey:repoKey];
-		if(repo == nil) {
-			NSLog(@" > Repository %@ has language definition, but was not previously defined", repoKey);
-			repo = [[[Repository alloc] initWithId:repoKey] autorelease];
-			[repositoryMap setObject:repo forKey:repoKey];
+		if(!repo) {
+			// NOTE: we do not want these - they are not scored
+			NSLog(@" > Repository %@ has language definition, but was not previously defined. Skipping!", repoKey);
+			// repo = [[[Repository alloc] initWithId:repoKey] autorelease];
+			// [repositoryMap setObject:repo forKey:repoKey];
+		} else {
+			// process language data
+			[repo parseLanguage:[pieces objectAtIndex:1]];
 		}
-		// process language data
-		[repo parseLanguage:[pieces objectAtIndex:1]];
 	}
 	
 	NSLog(@"Finished loading %i repository language definitions", [lines count]);

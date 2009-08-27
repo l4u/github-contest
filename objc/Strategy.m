@@ -35,11 +35,11 @@
 
 -(void)employStrategy {
 	// test case
-	[self newReposFromLanguageTest];
+	// [self newReposFromLanguageTest];
 	
 	// normal case
-	// [self initialize];
-	// [self calculatePredictions];
+	[self initialize];
+	[self calculatePredictions];
 }
 
 //
@@ -205,10 +205,11 @@
 	// build a big list of **REPO ID's**
 	//
 		
-	// top 20 by watch count
+	// top repos by watch count
 	[candidateSet addObjectsFromArray:topReposByWatch];
-	// top 20 by fork count
+	// top repos by fork count
 	[candidateSet addObjectsFromArray:topReposByFork];
+/*	
 	// repos related to current repos
 	for(NSNumber *repoId in user.repos) {
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
@@ -237,6 +238,7 @@
 			[candidateSet addObject:repoId];
 		}		
 	}
+*/	
 }
 
 
