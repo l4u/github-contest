@@ -303,7 +303,7 @@
 	NSDictionary *indicators = [self indicatorWeights:user repo:repo];
 	
 	// use external classifier
-	if(USE_EXT_CLASSIFIER) {
+	if(USE_EXT_CLASSIFIER && [user.repos count]) {
 		// prepare indicator string
 		NSMutableString *buffer = [[NSMutableString alloc] init];
 		// build the line
@@ -430,7 +430,7 @@
 		}
 		// root repos 
 		// TEST: K=5  (359  	7.497%)
-		if(repo.parentId == 0) {
+		if(!repo.parentId) {
 			// prob of a user watching a root repo
 			tmp = ((double)model.totalWatchedRoot / (double)model.totalRoot);
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"global_prob_watch_root"];
