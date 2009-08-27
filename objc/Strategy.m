@@ -140,7 +140,7 @@
 		}
 		
 		// testing
-		if(i>=100) {
+		if(TASTE_TEST && i>=100) {
 			break;
 		}
 	}
@@ -294,6 +294,9 @@
 }
 
 
+//
+// score is maximizing
+//
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	double score = 0.0;
 	// calculate indicators

@@ -21,12 +21,12 @@ public class Classification {
 		// load the model		
 		try {
 			// http://weka.wikispaces.com/Serialization
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream("../data/J48-100.model"));
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream("../data/J48-500.model"));
 			model = (Classifier) ois.readObject();
 	 		ois.close();
 			System.out.println(" > JAVA: Classifier loaded");
 	
-			Reader reader = new FileReader("../data/training_data.arff");
+			Reader reader = new FileReader("../data/training_data_100.arff");
 			dataset = new Instances(reader);
 			reader.close();
 			dataset.setClassIndex(dataset.numAttributes() - 1);
