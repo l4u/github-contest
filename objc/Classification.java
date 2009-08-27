@@ -16,16 +16,16 @@ public class Classification {
 	//
 	// personalized classification model
 	//
-	
+/*	
 	public Classification() {
 		
 	}
 	
 	public double classify(String indicators) {
 	}
+*/	
 	
 	
-	/*
 	//
 	// first attempt : global classification model
 	//
@@ -98,5 +98,5 @@ public class Classification {
 		double r2 = c.classify("0.000402,1,0,0.999939,0,0.00082,0.00045,0.007776,0.743662,0,0.949296,0,0.010791,0.002915,0.076923"); //1
 		System.out.println("Successfully classified, got result: " + r2);
 	}
-	*/
+	
 }

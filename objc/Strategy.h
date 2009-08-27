@@ -23,10 +23,9 @@
 
 	// internal
 	Model *model;
-	NSMutableArray *top20ReposByFork;
-	NSMutableArray *top20ReposByWatch;
+	NSMutableArray *topReposByFork;
+	NSMutableArray *topReposByWatch;
 	NSMutableDictionary *testGlobalWeights;
-	NSFileHandle *file;
 	NSMutableSet *testSet;
 	
 	Classification * classifier;
@@ -54,7 +53,8 @@
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds;
 -(void)buildClassificationLine:(NSMutableString *)buffer indicators:(NSDictionary *)indicators;
 
--(void) generateTestCasesForUser:(User*)user candidates:(NSMutableSet*)candidates;
+-(NSString *) generateTestCasesForUser:(User*)user candidates:(NSMutableSet*)candidates;
 
+-(void)newReposFromLanguageTest;
 
 @end

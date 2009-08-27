@@ -22,8 +22,8 @@
 }
 
 -(void) dealloc {
-	[top20ReposByWatch release];
-	[top20ReposByFork release];
+	[topReposByWatch release];
+	[topReposByFork release];
 	[testGlobalWeights release];
 	[model release];
 	[testSet release];
@@ -34,8 +34,40 @@
 
 
 -(void)employStrategy {
-	[self initialize];
-	[self calculatePredictions];
+	// test case
+	[self newReposFromLanguageTest];
+	
+	// normal case
+	// [self initialize];
+	// [self calculatePredictions];
+}
+
+//
+// An experiment to see if there are any points for the 5 new repos defined in the language data
+//
+-(void)newReposFromLanguageTest {
+	// collect the repos with no watches
+	NSMutableArray *array = [NSMutableArray arrayWithCapacity:5];
+	
+	for(Repository * repo in [model.repositoryMap allValues]) {
+		if(!repo.watchCount){
+			[array addObject:repo.repoId];
+		}
+	}
+	
+	// validation
+	NSLog(@"Found a total of %i repos without watches", [array count]);
+	
+	// assign the same set to all users
+	for(User *user in model.testUsers) {
+		for(NSNumber *repoId in array) {
+			[user addPrediction:repoId];
+		}		
+	}
+	// validate
+	[model validatePredictions];
+	// output
+	[model outputPredictions];
 }
 
 
@@ -43,25 +75,25 @@
 	NSLog(@"Initializing...");
 	
 	NSArray *tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareWatchCount:)];
-	top20ReposByWatch = [[NSMutableArray arrayWithCapacity:TOP_RANKED_REPOS] retain];
+	topReposByWatch = [[NSMutableArray arrayWithCapacity:TOP_RANKED_REPOS] retain];
 	int i = 0;
 	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		if(i<TOP_RANKED_REPOS) {
-			[top20ReposByWatch addObject:repoId];
+			[topReposByWatch addObject:repoId];
 		}
 		i++;
 	}	
 	// top n by fork count
 	tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];
-	top20ReposByFork = [[NSMutableArray arrayWithCapacity:TOP_RANKED_REPOS] retain];
+	topReposByFork = [[NSMutableArray arrayWithCapacity:TOP_RANKED_REPOS] retain];
 	i = 0;
 	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		if(i<TOP_RANKED_REPOS) {
-			[top20ReposByFork addObject:repoId];
+			[topReposByFork addObject:repoId];
 		}
 		i++;
 	}	
@@ -86,6 +118,7 @@
 -(void)calculatePredictions {
 	NSLog(@"Calculating predictions...");
 	
+	NSFileHandle *file = nil;
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	int i = 0;
 	
@@ -120,7 +153,10 @@
 		// fiter
 		[self filterCandidates:candidateSet user:user];
 		if(generateTrainingData == YES) {
-			[self generateTestCasesForUser:user candidates:candidateSet];
+			// build string
+			NSString *buffer = [self generateTestCasesForUser:user candidates:candidateSet];
+			// write to disk
+			[file writeData:[buffer dataUsingEncoding: NSASCIIStringEncoding]];
 		} else {
 			// score
 			NSArray *candidateList = [self scoreCandidates:candidateSet user:user];
@@ -149,7 +185,6 @@
 		// close		
 		[file closeFile];
 		[file release];
-		file = nil;
 	}else{
 		// validate
 		[model validatePredictions];
@@ -169,12 +204,11 @@
 	//
 	// build a big list of **REPO ID's**
 	//
-	
-	
+		
 	// top 20 by watch count
-	[candidateSet addObjectsFromArray:top20ReposByWatch];
+	[candidateSet addObjectsFromArray:topReposByWatch];
 	// top 20 by fork count
-	[candidateSet addObjectsFromArray:top20ReposByFork];
+	[candidateSet addObjectsFromArray:topReposByFork];
 	// repos related to current repos
 	for(NSNumber *repoId in user.repos) {
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
@@ -195,7 +229,7 @@
 		// repos in same repo cluster
 		// TODO
 	}
-		
+
 	// repos of users in same user cluster (knn)
 	if(user.numNeighbours) {
 		// have to enumerate
@@ -229,6 +263,8 @@
 -(NSArray *)scoreCandidates:(NSSet *)candidates user:(User *)user {	
 	// stats
 	[user calculateStats:model.repositoryMap];
+	
+
 		
 	NSMutableDictionary *candidateDict = [[NSMutableDictionary alloc] init];	
 	for(NSNumber *repoId in candidates) {		
@@ -249,10 +285,10 @@
 }
 
 
--(void) generateTestCasesForUser:(User*)user candidates:(NSMutableSet*)candidates {
+-(NSString *) generateTestCasesForUser:(User*)user candidates:(NSMutableSet*)candidates {
 	// stats
 	[user calculateStats:model.repositoryMap];
-	NSMutableString *buffer = [[NSMutableString alloc] init];
+	NSMutableString *buffer = [[[NSMutableString alloc] init] autorelease];
 		
 	NSMutableDictionary *candidateDict = [[NSMutableDictionary alloc] init];	
 	for(NSNumber *repoId in candidates) {		
@@ -267,9 +303,7 @@
 		[buffer appendString:@"\n"];
 	}
 	
-	// flush buffer
-	[file writeData:[buffer dataUsingEncoding: NSASCIIStringEncoding]];
-	[buffer release];
+	return buffer;
 }
 
 -(void)buildClassificationLine:(NSMutableString *)buffer indicators:(NSDictionary *)indicators {
