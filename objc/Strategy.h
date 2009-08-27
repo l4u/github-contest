@@ -27,6 +27,8 @@
 	NSMutableDictionary *testGlobalWeights;
 	NSFileHandle *file;
 	NSMutableSet *testSet;
+	
+	Classification * classifier;
 }
 
 

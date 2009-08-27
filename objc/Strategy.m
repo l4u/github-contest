@@ -26,8 +26,8 @@
 	[top20ReposByFork release];
 	[testGlobalWeights release];
 	[model release];
-	// [file release];
 	[testSet release];
+	[classifier release];
 
 	[super dealloc]; // always last
 }
@@ -66,34 +66,16 @@
 		i++;
 	}	
 	
-	if(true) {
+	if(generateTrainingData == NO) {
 		NSLog(@" > Booting the Java VM...");
 		// http://www.macosxhints.com/article.php?story=20040321163154226
 		// http://cocoadevcentral.com/articles/000024.php
-		// 
 		
-		// Load the Java VM
-				
-	   // id vm = NSJavaSetupVirtualMachine();
-	   // Start the Java class loader
-	   // NSJavaClassesFromPath(nil, nil, YES, &vm);
-
-	   // [NSJavaVirtualMachine defaultVirtualMachine];
-	[[NSJavaVirtualMachine alloc] initWithClassPath:[[NSJavaVirtualMachine defaultClassPath] stringByAppendingString:@":./weka.jar:./"]];
+		// boot the vm
+		[[NSJavaVirtualMachine alloc] initWithClassPath:[[NSJavaVirtualMachine defaultClassPath] stringByAppendingString:@":./weka.jar:./"]];
 	
-	
-		// Load the Java VM
-		// id vm = NSJavaSetupVirtualMachine();
-
-		// Start the Java class loader
-		// no need to provide &vm, since we just got it above
-		// NSJavaClassesFromPath([NSArray arrayWithObject:[[NSBundle mainBundle] pathForResource:@"JavaClasses" ofType:@"jar"]], nil, YES, nil);
-		// // Load a new instance of the java.util.Vector Java class into an Objective-C pointer
-		// java_util_Vector * vector = NSJavaObjectNamedInPath(@"java.util.Vector", nil);
-		// [vector add:@"one item!"];
-		// NSLog(@"item 1=%@",[vector get:0]);
-		// [vector release];
-   
+   		// load the classifier
+		classifier = (Classification*) NSJavaObjectNamedInPath(@"Classification", nil);
 	}
 	
 }
@@ -523,13 +505,13 @@
 		// prob of a user watching a repo with this size (order)
 		// TODO
 	} else {
-		// [indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_forked"];
-		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonforked"];
-		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_root"];
-		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonroot"];
-		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_owner"];
-		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_name"];
-		// 	[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_language"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_forked"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonforked"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_root"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_nonroot"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_owner"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_name"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_language"];
 	}
 		
 	return indicators;
