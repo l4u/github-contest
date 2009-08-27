@@ -32,15 +32,16 @@ public class Classification {
 	
 	private Classifier model;
 	private Instances dataset;
-	private final static int NUM_INDICATORS = 15;
+	/*private final static int NUM_INDICATORS = 15;*/
+	private final static int NUM_INDICATORS = 10;
 	
 	public Classification() {
 		// load the model		
 		try {
-			//String modelName = "../data/J48_100.model";
-			//String modelName = "../data/J48_500.model";
+			//String modelName = "../data/J48-100.model";
+			//String modelName = "../data/J48-500.model";
 			//String modelName = "../data/decision_table_100.model";
-			String modelName = "../data/bagging_100.model";
+			String modelName = "../data/J48-100_2.model";
 			
 			// http://weka.wikispaces.com/Serialization
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(modelName));
@@ -48,7 +49,8 @@ public class Classification {
 	 		ois.close();
 			System.out.println(" > JAVA: Classifier loaded");
 	
-			Reader reader = new FileReader("../data/training_data_100.arff");
+			//Reader reader = new FileReader("../data/training_data_100.arff");
+			Reader reader = new FileReader("../data/training_data2_100.arff");
 			dataset = new Instances(reader);
 			reader.close();
 			dataset.setClassIndex(dataset.numAttributes() - 1);
@@ -93,9 +95,9 @@ public class Classification {
 	
 	public static void main(String [] args) {
 		Classification c = new Classification();
-		double r1 = c.classify("0.00007,1,0,0.999939,0,0.000273,0.00045,0.002333,0.743662,0,0.949296,0,0.003597,0,0"); //0
+		double r1 = c.classify("0.985993,0.990659,0,0.823153,0.57191,0.159963,0.40585,0.410878,0,0"); //0
 		System.out.println("Successfully classified, got result: " + r1);
-		double r2 = c.classify("0.000402,1,0,0.999939,0,0.00082,0.00045,0.007776,0.743662,0,0.949296,0,0.010791,0.002915,0.076923"); //1
+		double r2 = c.classify("0.999065,0.998279,0,0.794534,0.97987,0.849634,0.045704,0.944698,0.904255,0.904255"); //1
 		System.out.println("Successfully classified, got result: " + r2);
 	}
 	
