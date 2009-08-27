@@ -12,7 +12,7 @@
 
 CC = gcc
 CFLAGS = -g
-LIBS = -lobjc -L /System/Library/Frameworks/Foundation.framework/Foundation
+LIBS = -lobjc -L /System/Library/Frameworks/Foundation.framework/Foundation /System/Library/Frameworks/JavaVM.framework/JavaVM
 SRC=main.m User.m Repository.m Model.m Strategy.m 
 OBJ=main.o User.o Repository.o Model.o Strategy.o 
 

@@ -1,6 +1,5 @@
 #import "Strategy.h"
 
-
 // random numbers: http://stackoverflow.com/questions/160890/generating-random-numbers-in-objective-c
 
 @implementation Strategy
@@ -61,11 +60,42 @@
 	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
-		if(i<TOP_RANKED_REPOS) {
+		if(i<5) {
 			[top20ReposByFork addObject:repoId];
 		}
 		i++;
 	}	
+	
+	if(true) {
+		NSLog(@" > Booting the Java VM...");
+		// http://www.macosxhints.com/article.php?story=20040321163154226
+		// http://cocoadevcentral.com/articles/000024.php
+		// 
+		
+		// Load the Java VM
+				
+	   // id vm = NSJavaSetupVirtualMachine();
+	   // Start the Java class loader
+	   // NSJavaClassesFromPath(nil, nil, YES, &vm);
+
+	   // [NSJavaVirtualMachine defaultVirtualMachine];
+	[[NSJavaVirtualMachine alloc] initWithClassPath:[[NSJavaVirtualMachine defaultClassPath] stringByAppendingString:@":./weka.jar:./"]];
+	
+	
+		// Load the Java VM
+		// id vm = NSJavaSetupVirtualMachine();
+
+		// Start the Java class loader
+		// no need to provide &vm, since we just got it above
+		// NSJavaClassesFromPath([NSArray arrayWithObject:[[NSBundle mainBundle] pathForResource:@"JavaClasses" ofType:@"jar"]], nil, YES, nil);
+		// // Load a new instance of the java.util.Vector Java class into an Objective-C pointer
+		// java_util_Vector * vector = NSJavaObjectNamedInPath(@"java.util.Vector", nil);
+		// [vector add:@"one item!"];
+		// NSLog(@"item 1=%@",[vector get:0]);
+		// [vector release];
+   
+	}
+	
 }
 
 
@@ -273,6 +303,18 @@
 }
 
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
+	
+	if(false) {
+		// Classification *test=[[NSClassFromString(@"Classification") alloc] init];
+		Classification * test = (Classification*) NSJavaObjectNamedInPath(@"Classification", nil);
+		
+		// could not get array of doubles across
+		double rs = [test classify:@"blah blah blah"];
+		NSLog(@" got something from the classifier: %f", rs);
+	}
+	
+	
+	
 	double score = 0.0;
 
 	// calculate indicators

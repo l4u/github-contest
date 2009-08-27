@@ -3,7 +3,10 @@
 #import <stdlib.h>
 #import <time.h>
 
+#import <JavaVM/JavaVM.h>
+
 #import "Model.h"
+#import "Classification.h"
 
 
 #define TOP_RANKED_REPOS 20
