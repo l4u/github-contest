@@ -19,6 +19,18 @@
 @synthesize watchCount;
 @synthesize score;
 
+@synthesize normalizedWatchRank;
+@synthesize normalizedForkRank;
+@synthesize normalizedNameRank;
+@synthesize normalizedOwnerRank;
+
+@synthesize normalizedGroupWatchRank;
+@synthesize normalizedGroupForkRank;
+@synthesize normalizedGroupNameRank;
+@synthesize normalizedGroupOwnerRank;
+
+@synthesize normalizedUserNameRank;
+@synthesize normalizedUserOwnerRank;
 
 -(id) init {
 	self = [super init];	

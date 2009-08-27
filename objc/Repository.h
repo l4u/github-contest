@@ -23,7 +23,35 @@
 	NSMutableArray *forks;
 	Repository *parent;
 	NSString *dominantLanguage;
+	
+	int normalizedWatchRank;
+	int normalizedForkRank;
+	int normalizedNameRank;
+	int normalizedOwnerRank;
+	
+	int normalizedGroupWatchRank;
+	int normalizedGroupForkRank;
+	int normalizedGroupNameRank;
+	int normalizedGroupOwnerRank;
+	
+	int normalizedUserNameRank;
+	int normalizedUserOwnerRank;
 }
+
+
+@property(nonatomic) int normalizedWatchRank;
+@property(nonatomic) int normalizedForkRank;
+@property(nonatomic) int normalizedNameRank;
+@property(nonatomic) int normalizedOwnerRank;
+
+@property(nonatomic) int normalizedUserNameRank;
+@property(nonatomic) int normalizedUserOwnerRank;
+
+@property(nonatomic) int normalizedGroupWatchRank;
+@property(nonatomic) int normalizedGroupForkRank;
+@property(nonatomic) int normalizedGroupNameRank;
+@property(nonatomic) int normalizedGroupOwnerRank;
+
 
 // data
 @property(readonly, nonatomic) NSNumber *repoId;
@@ -42,6 +70,10 @@
 @property(readonly, nonatomic) NSMutableArray *forks;
 @property(readonly, nonatomic) NSString *dominantLanguage;
 @property(retain, readwrite, nonatomic) Repository *parent;
+
+
+
+
 
 -(id)initWithId:(NSNumber *)aId;
 -(void)parse:(NSString*)repoDef;

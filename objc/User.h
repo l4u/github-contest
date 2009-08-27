@@ -26,6 +26,8 @@
 	NSCountedSet *ownerSet;
 	NSCountedSet *nameSet;
 	NSCountedSet *languageSet;
+	
+
 }
 
 // data
@@ -63,5 +65,10 @@
 
 -(double)calculateUserDistance:(User*)other;
 -(void) calculateStats:(NSDictionary *)repositoryMap;
+
+NSInteger neighbourhoodWatchSort(id o1, id o2, void *context);
+NSInteger neighbourhoodNameSort(id o1, id o2, void *context);
+NSInteger neighbourhoodOwnerSort(id o1, id o2, void *context);
+
 
 @end

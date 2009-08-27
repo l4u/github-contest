@@ -21,6 +21,8 @@
 @synthesize nameSet;
 @synthesize languageSet;
 
+
+
 -(id) initWithId:(NSNumber *)aId {
 	self = [super init];	
 	
@@ -122,12 +124,61 @@
 	return dist;
 }
 
+NSInteger neighbourhoodNameSort(id o1, id o2, void *context) {
+	NSCountedSet *model = (NSCountedSet *) context;
+	
+	int v1 = [model countForObject:((Repository*)o1).name];
+	int v2 = [model countForObject:((Repository*)o2).name];
+	
+	// ensure decending
+	if(v1 > v2) {
+		return NSOrderedAscending;
+	} else if(v2 < v2) {
+		return NSOrderedDescending;
+	}
+	
+	return NSOrderedSame;
+}
+
+NSInteger neighbourhoodOwnerSort(id o1, id o2, void *context) {
+	NSCountedSet *model = (NSCountedSet *) context;
+	
+	int v1 = [model countForObject:((Repository*)o1).owner];
+	int v2 = [model countForObject:((Repository*)o2).owner];
+	
+	// ensure decending
+	if(v1 > v2) {
+		return NSOrderedAscending;
+	} else if(v2 < v2) {
+		return NSOrderedDescending;
+	}
+	
+	return NSOrderedSame;
+}
+
+NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
+	NSCountedSet *model = (NSCountedSet *) context;
+	
+	int v1 = [model countForObject:((Repository*)o1).repoId];
+	int v2 = [model countForObject:((Repository*)o2).repoId];
+	
+	// ensure decending
+	if(v1 > v2) {
+		return NSOrderedAscending;
+	} else if(v2 < v2) {
+		return NSOrderedDescending;
+	}
+	
+	return NSOrderedSame;
+}
 
 -(void) calculateStats:(NSDictionary *)repositoryMap {
 	numWatched = [repos count];
 	ownerSet = [[NSCountedSet alloc] init];
 	nameSet = [[NSCountedSet alloc] init];	
 	languageSet = [[NSCountedSet alloc] init];
+	
+	NSMutableArray *userrepos = [[NSMutableArray alloc] init];
 	
 	// process repos
 	for(NSNumber *repoId in repos) {
@@ -147,10 +198,39 @@
 		}
 		[ownerSet addObject:repo.owner];
 		[nameSet addObject:repo.name];
+		
+		[userrepos addObject:repo];
 	}
+	
+	// scope var hacking
+	{
+		// user name rank
+		NSArray * tmp = [userrepos sortedArrayUsingFunction:neighbourhoodNameSort context:nameSet];
+		int i = 0;		
+		for(Repository *repo in tmp) {
+			// set rank (decending)
+			double rank = (double)(numWatched-i) / (double)numWatched;
+			repo.normalizedUserNameRank = rank;
+			i++;		
+		}
+		// user owner rank
+		tmp = [userrepos sortedArrayUsingFunction:neighbourhoodOwnerSort context:ownerSet];
+		i = 0;		
+		for(Repository *repo in tmp) {
+			// set rank (decending)
+			double rank = (double)(numWatched-i) / (double)numWatched;
+			repo.normalizedUserOwnerRank = rank;
+			i++;
+		}
+	}
+	[userrepos release];
+	
+	
+	
 	
 	// process neighbour repos
 	if(numNeighbours){
+		NSMutableArray *neighbourhood = [[NSMutableArray alloc] init];
 		
 		numNeighbourhoodWatched = 0;
 		neighbourhoodWatchName = [[NSCountedSet alloc] init];
@@ -164,9 +244,50 @@
 			[neighbourhoodWatchOwner addObject:repo.owner];
 			// total neighbourhood watches
 			numNeighbourhoodWatched += [neighbourhoodRepos countForObject:repoId];
+			
+			[neighbourhood addObject:repo];
 		}
+		
+		// neighbourhood name rank
+		NSArray * tmp = [neighbourhood sortedArrayUsingFunction:neighbourhoodNameSort context:neighbourhoodWatchName];
+		int i = 0;		
+		for(Repository *repo in tmp) {
+			// set rank (decending)
+			double rank = (double)(numNeighbours-i) / (double)numNeighbours;
+			repo.normalizedGroupNameRank = rank;
+			i++;		
+		}
+		// neighbourhood owner rank
+		tmp = [neighbourhood sortedArrayUsingFunction:neighbourhoodOwnerSort context:neighbourhoodWatchOwner];
+		i = 0;		
+		for(Repository *repo in tmp) {
+			// set rank (decending)
+			double rank = (double)(numNeighbours-i) / (double)numNeighbours;
+			repo.normalizedGroupOwnerRank = rank;
+			i++;		
+		}
+		// neighbourhood watch rank
+		tmp = [neighbourhood sortedArrayUsingFunction:neighbourhoodWatchSort context:neighbourhoodRepos];
+		i = 0;		
+		for(Repository *repo in tmp) {
+			// set rank (decending)
+			double rank = (double)(numNeighbours-i) / (double)numNeighbours;
+			repo.normalizedGroupWatchRank = rank;
+			i++;
+		}		
+		
+		[neighbourhood release];
 	}	
+	
+	
+	
+	
+	
+
 }
+
+
+
 
 -(int)neighbourhoodOccurance:(NSNumber *)repoId {
 	if(numNeighbours) {

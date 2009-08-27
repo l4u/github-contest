@@ -13,7 +13,7 @@
 #define MAX_REPOS 	10
 #define NUM_TRAINING_USERS 500
 #define USE_EXT_CLASSIFIER false
-#define TASTE_TEST false
+#define TASTE_TEST true
 
 @interface Strategy : NSObject {
 
@@ -48,7 +48,9 @@
 
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo;
 -(NSDictionary *)indicatorWeights:(User *)user repo:(Repository *)repo;
+-(NSDictionary *)indicatorWeights2:(User *)user repo:(Repository *)repo;
 -(NSDictionary *)getTestWeights;
+-(NSDictionary *)getTestWeights2;
 
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds;
 -(void)buildClassificationLine:(NSMutableString *)buffer indicators:(NSDictionary *)indicators;
@@ -56,5 +58,13 @@
 -(NSString *) generateTestCasesForUser:(User*)user candidates:(NSMutableSet*)candidates;
 
 -(void)newReposFromLanguageTest;
+
+// -(NSComparisonResult)nameSort:(id)o1 o2:(id)o2 context:(void*)context;
+// -(NSComparisonResult)ownerSort:(id)o1 o2:(id)o2 context:(void*)context;
+
+NSInteger nameSort(id o1, id o2, void *context);
+NSInteger ownerSort(id o1, id o2, void *context);
+
+
 
 @end

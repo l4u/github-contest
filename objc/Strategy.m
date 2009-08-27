@@ -70,6 +70,47 @@
 	[model outputPredictions];
 }
 
+// -(NSComparisonResult)nameSort:(id)o1 o2:(id)o2 context:(void*)context {
+NSInteger nameSort(id o1, id o2, void *context) {
+	// The comparator method should return NSOrderedAscending 
+	// if the receiver is smaller than the argument, NSOrderedDescending 
+	// if the receiver is larger than the argument, and NSOrderedSame if they are equal.
+	
+	Model *model = (Model *) context;
+	
+	int v1 = [[model.nameSet objectForKey:((Repository*)o1).name] count];
+	int v2 = [[model.nameSet objectForKey:((Repository*)o2).name] count];
+	
+	// ensure decending
+	if(v1 > v2) {
+		return NSOrderedAscending;
+	} else if(v2 < v2) {
+		return NSOrderedDescending;
+	}
+	
+	return NSOrderedSame;
+}
+
+// -(NSComparisonResult)ownerSort:(id)o1 o2:(id)o2 context:(void*)context {
+NSInteger ownerSort(id o1, id o2, void *context) {
+	// The comparator method should return NSOrderedAscending 
+	// if the receiver is smaller than the argument, NSOrderedDescending 
+	// if the receiver is larger than the argument, and NSOrderedSame if they are equal.
+	
+	Model *model = (Model *) context;
+	
+	int v1 = [[model.ownerSet objectForKey:((Repository*)o1).owner] count];
+	int v2 = [[model.ownerSet objectForKey:((Repository*)o2).owner] count];
+	
+	// ensure decending
+	if(v1 > v2) {
+		return NSOrderedAscending;
+	} else if(v2 < v2) {
+		return NSOrderedDescending;
+	}
+	
+	return NSOrderedSame;
+}
 
 -(void) initialize {
 	NSLog(@"Initializing...");
@@ -77,11 +118,18 @@
 	NSArray *tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareWatchCount:)];
 	topReposByWatch = [[NSMutableArray arrayWithCapacity:TOP_RANKED_REPOS] retain];
 	int i = 0;
-	for(NSNumber *repoId in tmp) {
-		// set rank (decending)
+	int total = [tmp count];
+	NSLog(@"Watch Rank:");
+	for(NSNumber *repoId in tmp) {		
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		if(i<TOP_RANKED_REPOS) {
 			[topReposByWatch addObject:repoId];
+		}
+		// set rank (decending)
+		double rank = (double)(total-i) / (double)total;
+		repo.normalizedWatchRank = rank;
+		if(i<5) {
+			NSLog(@" > name=%@, rank=%i, nrank=%f", repo.name, i, rank);
 		}
 		i++;
 	}	
@@ -89,14 +137,47 @@
 	tmp = [model.repositoryMap keysSortedByValueUsingSelector:@selector(compareForkCount:)];
 	topReposByFork = [[NSMutableArray arrayWithCapacity:TOP_RANKED_REPOS] retain];
 	i = 0;
+	NSLog(@"Fork Rank:");
 	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		if(i<TOP_RANKED_REPOS) {
 			[topReposByFork addObject:repoId];
+		}		
+		// set rank (decending)
+		double rank = (double)(total-i) / (double)total;
+		repo.normalizedForkRank = rank;
+		if(i<5) {
+			NSLog(@" > name=%@, rank=%i, nrank=%f", repo.name, i, rank);
 		}
 		i++;
 	}	
+	// calculate name rank
+	tmp = [[model.repositoryMap allValues] sortedArrayUsingFunction:nameSort context:model];
+	i = 0;
+	NSLog(@"Name Rank:");
+	for(Repository *repo in tmp) {
+		// set rank (decending)
+		double rank = (double)(total-i) / (double)total;
+		repo.normalizedNameRank = rank;
+		if(i<5) {
+			NSLog(@" > name=%@, rank=%i, nrank=%f", repo.name, i, rank);
+		}
+		i++;		
+	}
+	// calculate owner rank
+	tmp = [[model.repositoryMap allValues] sortedArrayUsingFunction:ownerSort context:model];
+	i = 0;
+	NSLog(@"Owner Rank:");
+	for(Repository *repo in tmp) {
+		// set rank (decending)
+		double rank = (double)(total-i) / (double)total;
+		repo.normalizedOwnerRank = rank;
+		if(i<5) {
+			NSLog(@" > name=%@, rank=%i, nrank=%f", repo.name, i, rank);
+		}
+		i++;
+	}
 	
 	if(USE_EXT_CLASSIFIER && generateTrainingData == NO) {
 		NSLog(@" > Booting the Java VM...");
@@ -333,7 +414,10 @@
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	double score = 0.0;
 	// calculate indicators
-	NSDictionary *indicators = [self indicatorWeights:user repo:repo];
+	
+	// NSDictionary *indicators = [self indicatorWeights:user repo:repo];
+	NSDictionary *indicators = [self indicatorWeights2:user repo:repo];
+	
 	
 	// use external classifier
 	if(USE_EXT_CLASSIFIER && [user.repos count]) {
@@ -357,11 +441,11 @@
 		//
 		
 		// get weights
-		NSDictionary *weights = [self getTestWeights]; 
+		NSDictionary *weights = [self getTestWeights2]; 
 	
 		// process all indicators
 		for(NSString *key in indicators.allKeys) {
-			NSNumber *indicator = [indicators objectForKey:key];
+			NSNumber *indicator = [indicators objectForKey:key];			
 			NSNumber *weight = [weights objectForKey:key];
 
 			// safety
@@ -571,6 +655,124 @@
 	}
 		
 	return indicators;
+}
+
+
+
+//
+// an attempt at generating general indicators
+//
+-(NSDictionary *)indicatorWeights2:(User *)user repo:(Repository *)repo {
+	NSMutableDictionary *indicators = [[[NSMutableDictionary alloc] init] autorelease];
+	double tmp;
+	
+	//
+	// global
+	//
+	
+	// normalized watch rank
+	[indicators setObject:[NSNumber numberWithDouble:repo.normalizedWatchRank] forKey:@"normalized_watch_rank"];
+	// normalized fork rank
+	[indicators setObject:[NSNumber numberWithDouble:repo.normalizedForkRank] forKey:@"normalized_fork_rank"];
+	// is root
+	if(repo.parentId) {
+		[indicators setObject:[NSNumber numberWithDouble:1.0] forKey:@"is_root"];
+	} else {
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"is_root"];
+	}	
+	// name rank
+	[indicators setObject:[NSNumber numberWithDouble:repo.normalizedNameRank] forKey:@"normalized_name_rank"];
+	// owner rank
+	[indicators setObject:[NSNumber numberWithDouble:repo.normalizedOwnerRank] forKey:@"normalized_owner_rank"];
+
+
+	//
+	// group
+	//
+	if(user.numNeighbours) {
+		// neighbourhood watch rank
+		if([user neighbourhoodOccurance:repo.repoId]) {
+			[indicators setObject:[NSNumber numberWithDouble:repo.normalizedGroupWatchRank] forKey:@"normalized_group_watch_rank"];	
+		} else {
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"normalized_group_watch_rank"];	
+		}	
+		// neighbourhood name rank
+		if([user.neighbourhoodWatchName countForObject:repo.name]){
+			[indicators setObject:[NSNumber numberWithDouble:repo.normalizedGroupNameRank] forKey:@"normalized_group_name_rank"];	
+		} else {
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"normalized_group_name_rank"];
+		}
+		// neighbourhood owner rank
+		if([user.neighbourhoodWatchOwner countForObject:repo.owner]){
+			[indicators setObject:[NSNumber numberWithDouble:repo.normalizedGroupOwnerRank] forKey:@"normalized_group_owner_rank"];
+		} else {
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"normalized_group_owner_rank"];
+		}
+	}else{
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"normalized_group_watch_rank"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"normalized_group_name_rank"];	
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"normalized_group_owner_rank"];
+	}
+
+	//
+	// user
+	//
+	if(user.numWatched) {	
+		// user watch name rank
+		if([user.nameSet countForObject:repo.name]){
+			[indicators setObject:[NSNumber numberWithDouble:repo.normalizedUserNameRank] forKey:@"normalized_user_name_rank"];
+		} else {
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"normalized_user_name_rank"];
+		}
+		// user watch owner rank
+		if([user.ownerSet countForObject:repo.owner]){
+			[indicators setObject:[NSNumber numberWithDouble:repo.normalizedUserOwnerRank] forKey:@"normalized_user_owner_rank"];
+		} else {
+			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"normalized_user_owner_rank"];
+		}
+	}else{
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"normalized_user_name_rank"];
+		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"normalized_user_owner_rank"];
+	}		
+	return indicators;
+}
+
+
+-(NSDictionary *)getTestWeights2 {
+	if(testGlobalWeights){
+		return testGlobalWeights;
+	}
+
+	testGlobalWeights = [[NSMutableDictionary alloc] init];
+	int i = 0;
+	double w[10] = {1, 0, 0, 0, 0,    1, 0, 0,   1, 1};
+
+	// global
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"normalized_watch_rank"];
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"normalized_fork_rank"];
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"is_root"];
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"normalized_name_rank"];
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"normalized_owner_rank"];
+	i++;
+	
+	// neighbourhood
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"normalized_group_watch_rank"];
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"normalized_group_name_rank"];
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"normalized_group_owner_rank"];
+	i++;
+	
+	// user
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"normalized_user_name_rank"];	
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"normalized_user_owner_rank"];
+	
+	return testGlobalWeights;
 }
 
 
