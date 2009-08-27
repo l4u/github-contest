@@ -60,7 +60,7 @@
 	for(NSNumber *repoId in tmp) {
 		// set rank (decending)
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
-		if(i<5) {
+		if(i<TOP_RANKED_REPOS) {
 			[top20ReposByFork addObject:repoId];
 		}
 		i++;
@@ -318,7 +318,7 @@
 	double score = 0.0;
 
 	// calculate indicators
-	NSDictionary *indicators = [self indicatorWeights:user repo:repo]; 	
+	NSDictionary *indicators = [self indicatorWeights:user repo:repo];
 	// get weights
 	NSDictionary *weights = [self getTestWeights]; 
 	
@@ -360,22 +360,32 @@
 	//
 		
 	// global
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch"];i++;
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_forked"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch"];
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_forked"];
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_nonforked"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_root"];i++;
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_root"];
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"global_prob_watch_nonroot"];
+	i++;
 	// neighbourhood
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch"];i++;
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch_name"];i++;
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch_owner"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch"];
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch_name"];
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"local_prob_watch_owner"];
+	i++;
 	// user
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_forked"];i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_forked"];
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_nonforked"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_root"];i++;
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_root"];	
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_nonroot"];
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_owner"];i++;
-	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_name"];i++;
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_owner"];
+	i++;
+	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_name"];
+	i++;
 	[testGlobalWeights setObject:[NSNumber numberWithDouble:w[i]] forKey:@"user_prob_watch_language"];
 	
 	return testGlobalWeights;
