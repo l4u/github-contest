@@ -145,8 +145,7 @@
 				continue;
 			}
 		}
-		
-		
+				
 		NSMutableSet *candidateSet = [[NSMutableSet alloc] init];
 		// generate 
 		[self generateCandidates:user candidateSet:candidateSet];		
@@ -208,8 +207,7 @@
 	// top repos by watch count
 	[candidateSet addObjectsFromArray:topReposByWatch];
 	// top repos by fork count
-	[candidateSet addObjectsFromArray:topReposByFork];
-/*	
+	[candidateSet addObjectsFromArray:topReposByFork];	
 	// repos related to current repos
 	for(NSNumber *repoId in user.repos) {
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
@@ -238,7 +236,6 @@
 			[candidateSet addObject:repoId];
 		}		
 	}
-*/	
 }
 
 

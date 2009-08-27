@@ -9,11 +9,11 @@
 #import "Classification.h"
 
 
-#define TOP_RANKED_REPOS 20
+#define TOP_RANKED_REPOS 50
 #define MAX_REPOS 	10
 #define NUM_TRAINING_USERS 500
 #define USE_EXT_CLASSIFIER false
-#define TASTE_TEST true
+#define TASTE_TEST false
 
 @interface Strategy : NSObject {
 

@@ -57,6 +57,7 @@ To Do:
 * Better user clustering using SVD, kmeans or even just an improved distance metric on my knn
 * Add in repo clustering for generating candidate repos (at least) and indicators (oh yeah)
 * Build classification models for each user group or even each user (slow, but might get good results)
+* The current external classifier model approach is very poor, I'm considering using straight measures as indicators rather than prob's (let decision tree model the probs for me)
 * More indicators: brainstorm, look at others peoples code, eval real users on github website...
 
 h3. Validation Testing
