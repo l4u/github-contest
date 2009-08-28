@@ -314,31 +314,32 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	[candidateSet addObjectsFromArray:topReposByWatch];
 	// top repos by fork count
 	[candidateSet addObjectsFromArray:topReposByFork];	
+/*
 	// repos related to current repos
 	for(NSNumber *repoId in user.repos) {
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		// add list of parents
-		// if(repo.parentId) {
-		// 	[candidateSet addObjectsFromArray:[repo getParentTree]];
-		// }
+		if(repo.parentId) {
+			[candidateSet addObjectsFromArray:[repo getParentTree]];
+		}
 		// add list of forks
-		// if(repo.forkCount) {
-		// 	[candidateSet addObjectsFromArray:[repo getChildTree]];
-		// }
+		if(repo.forkCount) {
+			[candidateSet addObjectsFromArray:[repo getChildTree]];
+		}
 		// add list of siblings
 		// TODO
 		// repos with the same name
-		// [candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.name]];
+		[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.name]];
 		// repos with the same owner
-		// [candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.owner]];
+		[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.owner]];
 		// repos with the same deduced user name
-		// if(user.deducedName) {
-		// 	[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:user.deducedName]];
-		// }
+		if(user.deducedName) {
+			[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:user.deducedName]];
+		}
 		// repos in same repo cluster
 		// TODO
 	}
-
+*/
 	// repos of users in same user cluster (knn)
 	if(user.numNeighbours) {
 		// have to enumerate
@@ -383,7 +384,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		}
 		// remove
 		[candidates minusSet:trimList];
-		NSLog(@" >trimmed %i repos for user %@ [from %i repos to %i]", [trimList count], user.userId, ([candidates count]+[trimList count]), [candidates count]);
+		// NSLog(@" >trimmed %i repos for user %@ [from %i repos to %i]", [trimList count], user.userId, ([candidates count]+[trimList count]), [candidates count]);
 		
 		[trimList release];
 		

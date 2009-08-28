@@ -20,7 +20,7 @@
 // predictions
 #define USE_EXT_CLASSIFIER 		false
 // limited test user processing for testing
-#define TASTE_TEST 				true
+#define TASTE_TEST 				false
 // alternative indicator strategy using ranks (it sucks!)
 #define USE_RANK_INDICATORS 	false
 
