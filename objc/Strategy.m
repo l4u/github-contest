@@ -318,13 +318,13 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	for(NSNumber *repoId in user.repos) {
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		// add list of parents
-		if(repo.parentId) {
-			[candidateSet addObjectsFromArray:[repo getParentTree]];
-		}
+		// if(repo.parentId) {
+		// 	[candidateSet addObjectsFromArray:[repo getParentTree]];
+		// }
 		// add list of forks
-		if(repo.forkCount) {
-			[candidateSet addObjectsFromArray:[repo getChildTree]];
-		}
+		// if(repo.forkCount) {
+		// 	[candidateSet addObjectsFromArray:[repo getChildTree]];
+		// }
 		// add list of siblings
 		// TODO
 		// repos with the same name
@@ -382,8 +382,9 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			}
 		}
 		// remove
-		NSLog(@" >trimmed %i repos for user %@", [trimList count], user.userId);
 		[candidates minusSet:trimList];
+		NSLog(@" >trimmed %i repos for user %@ [from %i repos to %i]", [trimList count], user.userId, ([candidates count]+[trimList count]), [candidates count]);
+		
 		[trimList release];
 		
 	}
