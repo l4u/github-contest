@@ -351,6 +351,8 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 
 
 // strip candidates that are already being watched
+// the smaller we can make this - the faster!
+//
 -(void)filterCandidates:(NSMutableSet *)candidates user:(User *)user {	
 	// nothing to strip
 	if(![user.repos count]) {
@@ -366,11 +368,15 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		for(NSNumber *repoId in user.repos) {
 			[candidates removeObject:repoId];
 		}		
+		// remove all current predictions
+		for(NSNumber *repoId in user.predictions) {
+			[candidates removeObject:repoId];
+		}
 		
 		//
 		// intelligent trimming (no effect in taste test)
-		//
-
+		// seems to reduce total score by 0.13
+/*
 		NSMutableSet *trimList = [[NSMutableSet alloc] init]; 
 		// try and trim garbage
 		for(NSNumber *repoId in candidates) {
@@ -385,7 +391,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		// NSLog(@" >trimmed %i repos for user %@ [from %i repos to %i]", [trimList count], user.userId, ([candidates count]+[trimList count]), [candidates count]);
 		
 		[trimList release];
-		
+*/		
 	}
 	
 }
