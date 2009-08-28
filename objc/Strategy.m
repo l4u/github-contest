@@ -824,6 +824,10 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 -(void)assignRepos:(User *)user repoIds:(NSArray *)repoIds {
 	int i = 0;
 	for(NSNumber *repoId in repoIds) {
+		// make sure we are not already predicting it
+		if([user.predictions containsObject:repoId]) {
+			continue;
+		}
 		// check for finished
 		if([user.predictions count] >= MAX_REPOS) {
 			break;

@@ -312,7 +312,7 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 	}
 	
 	//only match if we multiple hits
-	if(match <= 2) {
+	if(match < 2) {
 		deducedName = nil;
 	}
 }
