@@ -308,9 +308,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 // somewhat inspired by: http://github.com/jeremybarnes/github_contest/tree/master
 -(void)generateCandidates:(User *)user candidateSet:(NSMutableSet *)candidateSet {
 	
-	//
 	// build a big list of **REPO ID's**
-	//
 		
 	// top repos by watch count
 	[candidateSet addObjectsFromArray:topReposByWatch];
@@ -334,9 +332,9 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		// repos with the same owner
 		[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.owner]];
 		// repos with the same deduced user name
-		if(user.deducedName) {
-			[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:user.deducedName]];
-		}
+		// if(user.deducedName) {
+		// 	[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:user.deducedName]];
+		// }
 		// repos in same repo cluster
 		// TODO
 	}
@@ -371,7 +369,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		}		
 		
 		//
-		// intelligent trimming
+		// intelligent trimming (no effect in taste test)
 		//
 /*
 		NSMutableSet *trimList = [[NSMutableSet alloc] init]; 
@@ -543,7 +541,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	}
 	
 	// some human annealing
-	double w[11] = {1, 0, 0,    1, 0, 0,   0, 0, 1, 1, 0}; // K=5 (1857  	38.78%)
+	double w[11] = {0.8, 0, 0,    0.5, 0, 0,   0, 0, 1, 1, 0}; // K=5 (1857  	38.78%)
 	//double w[11] = {0.3, 0.05, 0.05,    0.8, 0.1, 0.1,   0.05, 0.05, 0.8, 0.8, 0.05}; // K=5 (1854  	38.72%)
 	// double w[11] = {0.8, 0.05, 0.05,    0.9, 0.1, 0.1,   0.05, 0.05, 1, 1, 0.05}; // K=5 (1852  	38.68%)
 	
