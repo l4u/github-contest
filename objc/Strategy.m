@@ -373,7 +373,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		//
 		// intelligent trimming
 		//
-
+/*
 		NSMutableSet *trimList = [[NSMutableSet alloc] init]; 
 		// try and trim garbage
 		for(NSNumber *repoId in candidates) {
@@ -386,6 +386,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		NSLog(@" >trimmed %i repos for user %@", [trimList count], user.userId);
 		[candidates minusSet:trimList];
 		[trimList release];
+*/		
 	}
 	
 }
