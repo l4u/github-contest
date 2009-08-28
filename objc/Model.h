@@ -3,11 +3,10 @@
 
 #import "Repository.h"
 #import "User.h"
+#import "cfg.h"
 
 
 
-#define KNN_STORE 	10
-#define KNN_READ 	10
 
 
 @interface Model : NSObject {

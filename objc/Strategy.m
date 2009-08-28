@@ -1,10 +1,6 @@
 #import "Strategy.h"
 
-// random numbers: http://stackoverflow.com/questions/160890/generating-random-numbers-in-objective-c
-
 @implementation Strategy
-
-@synthesize generateTrainingData;
 
 
 
@@ -14,7 +10,8 @@
 	if(self) {		
 		model = aModel;
 		[aModel retain];		
-		// random numbers
+		
+		// random numbers: http://stackoverflow.com/questions/160890/generating-random-numbers-in-objective-c
 		srandom(time(NULL));
 	}
 	
@@ -129,7 +126,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		// set rank (decending)
 		double rank = (double)(total-i) / (double)total;
 		repo.normalizedWatchRank = rank;
-		if(i<5) {
+		if(i<TOP_RANKED_REPOS_PRINT) {
 			NSLog(@" > name=%@, rank=%i, nrank=%f", repo.name, i, rank);
 		}
 		i++;
@@ -148,7 +145,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		// set rank (decending)
 		double rank = (double)(total-i) / (double)total;
 		repo.normalizedForkRank = rank;
-		if(i<5) {
+		if(i<TOP_RANKED_REPOS_PRINT) {
 			NSLog(@" > name=%@, rank=%i, nrank=%f", repo.name, i, rank);
 		}
 		i++;
@@ -161,7 +158,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		// set rank (decending)
 		double rank = (double)(total-i) / (double)total;
 		repo.normalizedNameRank = rank;
-		if(i<5) {
+		if(i<TOP_RANKED_REPOS_PRINT) {
 			NSLog(@" > name=%@, rank=%i, nrank=%f", repo.name, i, rank);
 		}
 		i++;		
@@ -174,13 +171,13 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		// set rank (decending)
 		double rank = (double)(total-i) / (double)total;
 		repo.normalizedOwnerRank = rank;
-		if(i<5) {
+		if(i<TOP_RANKED_REPOS_PRINT) {
 			NSLog(@" > name=%@, rank=%i, nrank=%f", repo.name, i, rank);
 		}
 		i++;
 	}
 	
-	if(USE_EXT_CLASSIFIER && generateTrainingData == NO) {
+	if(USE_EXT_CLASSIFIER && !GENERATE_TRAINING_DATA) {
 		NSLog(@" > Booting the Java VM...");
 		// http://www.macosxhints.com/article.php?story=20040321163154226
 		// http://cocoadevcentral.com/articles/000024.php
@@ -233,7 +230,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	int i = 0;
 	
-	if(generateTrainingData == YES) {
+	if(GENERATE_TRAINING_DATA) {
 		NSString *filename = @"../data/training_data.txt";
 		[[NSFileManager defaultManager] createFileAtPath:filename contents:nil attributes:nil];		
 		file = [[NSFileHandle fileHandleForWritingAtPath:filename] retain];	
@@ -250,7 +247,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	
 	for(User *user in model.testUsers) {
 		
-		if(generateTrainingData == YES) {
+		if(GENERATE_TRAINING_DATA) {
 			// only concerned with a subset
 			if(![testSet containsObject:user.userId]){
 				continue;
@@ -262,7 +259,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		[self generateCandidates:user candidateSet:candidateSet];		
 		// fiter
 		[self filterCandidates:candidateSet user:user];
-		if(generateTrainingData == YES) {
+		if(GENERATE_TRAINING_DATA) {
 			// build string
 			NSString *buffer = [self generateTestCasesForUser:user candidates:candidateSet];
 			// write to disk
@@ -291,7 +288,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		}
 	}
 	
-	if(generateTrainingData == YES) {
+	if(GENERATE_TRAINING_DATA) {
 		// close		
 		[file closeFile];
 		[file release];
@@ -351,6 +348,8 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			[candidateSet addObject:repoId];
 		}		
 	}
+	
+
 }
 
 
@@ -360,7 +359,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	if(![user.repos count]) {
 		return;
 	}	
-	if(generateTrainingData == YES) {
+	if(GENERATE_TRAINING_DATA) {
 		// add repos
 		for(NSNumber *repoId in user.repos) {
 			[candidates addObject:repoId];
@@ -370,7 +369,25 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		for(NSNumber *repoId in user.repos) {
 			[candidates removeObject:repoId];
 		}		
+		
+		//
+		// intelligent trimming
+		//
+
+		NSMutableSet *trimList = [[NSMutableSet alloc] init]; 
+		// try and trim garbage
+		for(NSNumber *repoId in candidates) {
+			Repository *repo = [model.repositoryMap objectForKey:repoId];
+			if([[repo.name lowercaseString] isEqualToString:@"test"] == YES) {
+				[trimList addObject:repoId];
+			}
+		}
+		// remove
+		NSLog(@" >trimmed %i repos for user %@", [trimList count], user.userId);
+		[candidates minusSet:trimList];
+		[trimList release];
 	}
+	
 }
 
 // assign probabilities that predictions are correct
@@ -514,6 +531,9 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	return score;
 }
 
+//indicators
+// 
+ 
 // TODO optimize weights (graident decent)
 // TODO: get pre-learned weights from user/neighbourhood
 -(NSDictionary *)getTestWeights {
@@ -522,7 +542,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	}
 	
 	// some human annealing
-	double w[11] = {1, 0, 0,    1, 0, 0,   0, 0, 0.8, 1, 0}; // K=5 (1857  	38.78%)
+	double w[11] = {1, 0, 0,    1, 0, 0,   0, 0, 1, 1, 0}; // K=5 (1857  	38.78%)
 	//double w[11] = {0.3, 0.05, 0.05,    0.8, 0.1, 0.1,   0.05, 0.05, 0.8, 0.8, 0.05}; // K=5 (1854  	38.72%)
 	// double w[11] = {0.8, 0.05, 0.05,    0.9, 0.1, 0.1,   0.05, 0.05, 1, 1, 0.05}; // K=5 (1852  	38.68%)
 	

@@ -7,21 +7,13 @@
 
 #import "Model.h"
 #import "Classification.h"
+#import "cfg.h"
 
 
-#define TOP_RANKED_REPOS 100
-#define MAX_REPOS 	10
-#define NUM_TRAINING_USERS 100
-#define USE_EXT_CLASSIFIER false
-#define TASTE_TEST false
-#define USE_RANK_INDICATORS false
 
 @interface Strategy : NSObject {
 
 @private
-	// cfg
-	BOOL generateTrainingData;
-
 	// internal
 	Model *model;
 	NSMutableArray *topReposByFork;
@@ -31,9 +23,6 @@
 	
 	Classification * classifier;
 }
-
-
-@property(nonatomic) BOOL generateTrainingData;
 
 -(id)initWithModel:(Model *)aModel;
 
