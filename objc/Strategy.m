@@ -371,12 +371,13 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		//
 		// intelligent trimming (no effect in taste test)
 		//
-/*
+
 		NSMutableSet *trimList = [[NSMutableSet alloc] init]; 
 		// try and trim garbage
 		for(NSNumber *repoId in candidates) {
 			Repository *repo = [model.repositoryMap objectForKey:repoId];
-			if([[repo.name lowercaseString] isEqualToString:@"test"] == YES) {
+			if([[repo.name lowercaseString] isEqualToString:@"test"] == YES ||
+				[[repo.name lowercaseString] isEqualToString:@"dotfiles"] == YES) {
 				[trimList addObject:repoId];
 			}
 		}
@@ -384,7 +385,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		NSLog(@" >trimmed %i repos for user %@", [trimList count], user.userId);
 		[candidates minusSet:trimList];
 		[trimList release];
-*/		
+		
 	}
 	
 }
@@ -541,7 +542,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	}
 	
 	// some human annealing
-	double w[11] = {1, 0, 0,    1, 0, 0,   0, 0, 1, 1, 1};
+	double w[11] = {1, 0, 0,    1, 0, 0,   0, 0, 1, 1, 0};
 	//double w[11] = {0.3, 0.05, 0.05,    0.8, 0.1, 0.1,   0.05, 0.05, 0.8, 0.8, 0.05}; // K=5 (1854  	38.72%)
 	// double w[11] = {0.8, 0.05, 0.05,    0.9, 0.1, 0.1,   0.05, 0.05, 1, 1, 0.05}; // K=5 (1852  	38.68%)
 	
