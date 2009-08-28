@@ -27,6 +27,7 @@
 	NSCountedSet *nameSet;
 	NSCountedSet *languageSet;
 	
+	NSString *deducedName;
 
 }
 
@@ -44,6 +45,7 @@
 @property(readonly, nonatomic) NSCountedSet *languageSet;
 @property(readonly, nonatomic) NSCountedSet *neighbourhoodWatchName;
 @property(readonly, nonatomic) NSCountedSet *neighbourhoodWatchOwner;
+@property(readonly, nonatomic) NSString *deducedName;
 
 // stats
 @property(nonatomic) int numNeighbours;
@@ -70,5 +72,6 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context);
 NSInteger neighbourhoodNameSort(id o1, id o2, void *context);
 NSInteger neighbourhoodOwnerSort(id o1, id o2, void *context);
 
+-(void) deduceName:(NSDictionary *)repositoryMap;
 
 @end

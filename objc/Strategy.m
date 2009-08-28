@@ -39,6 +39,7 @@
 	
 	// normal case
 	[self initialize];
+	[self holisticPredictions];
 	[self calculatePredictions];
 }
 
@@ -194,15 +195,38 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 }
 
 
-
+-(void) holisticPredictions {
+	NSLog(@"Holistic predictions...");
+	
+	int count = 0;
+	int assignment = 0;
+	
+	// deduce name
+	for(User *user in model.testUsers) {
+		[user deduceName:model.repositoryMap];
+		if(user.deducedName) {
+			count++;
+			// repo assignment
+			NSArray *ownerSet = [model.ownerSet objectForKey:user.deducedName];
+			for(NSNumber *repoId in ownerSet) {
+				if(![user.repos containsObject:repoId]) {
+					[user addPrediction:repoId];
+					assignment++;
+				}
+			}
+		}
+	}
+	NSLog(@" > Successfully deduced %i user names, and assigned %i repos", count, assignment);	
+}
 
 -(void)calculatePredictions {
 	NSLog(@"Calculating predictions...");
+
 	
 	NSFileHandle *file = nil;
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	int i = 0;
-	
+/*	
 	if(generateTrainingData == YES) {
 		NSString *filename = @"../data/training_data.txt";
 		[[NSFileManager defaultManager] createFileAtPath:filename contents:nil attributes:nil];		
@@ -260,7 +284,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			break;
 		}
 	}
-	
+*/	
 	if(generateTrainingData == YES) {
 		// close		
 		[file closeFile];
@@ -801,10 +825,9 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	int i = 0;
 	for(NSNumber *repoId in repoIds) {
 		// check for finished
-		if(i >= MAX_REPOS) {
+		if([user.predictions count] >= MAX_REPOS) {
 			break;
 		}
-
 		// add
 		[user addPrediction:repoId];
 		i++;

@@ -11,6 +11,7 @@
 @synthesize numWithLanguage;
 @synthesize neighbourhoodWatchName;
 @synthesize neighbourhoodWatchOwner;
+@synthesize deducedName;
 
 @synthesize numNeighbours;
 @synthesize numForked;
@@ -42,6 +43,7 @@
 	[languageSet release];
 	[neighbourhoodWatchOwner release];
 	[neighbourhoodWatchName release];
+	[deducedName release];
 	
 	[super dealloc]; // always last
 }
@@ -283,15 +285,38 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 		[neighbourhood release];
 	}	
 	
-	
-	
-	
-	
-
 }
 
 
-
+-(void) deduceName:(NSDictionary *)repositoryMap {
+	int match = 0;
+	
+	for(NSNumber *repoId in repos) {
+		Repository *repo = [repositoryMap objectForKey:repoId];
+		// no parent, no children, only one watcher
+		if(!repo.parentId && !repo.forkCount, repo.watchCount==1) {
+			if(match) {
+				// an alternatve hypothesis is that other users are watching an not in this dataset
+				if(![deducedName isEqualToString:repo.owner]) {
+					//NSLog(@" > conflict on name resolution, id=%@, first=%@ new=%@", userId, deducedName, repo.owner);
+					deducedName = nil;
+					return;
+				} else {
+					match++;
+				}
+			} else {
+				deducedName = repo.owner;
+				match++;
+			}			
+		}
+	}
+	
+	//only match if we multiple hits
+	if(match <= 2) {
+		deducedName = nil;
+	}
+}
+	
 
 -(int)neighbourhoodOccurance:(NSNumber *)repoId {
 	if(numNeighbours) {
@@ -300,7 +325,5 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 	
 	return 0;
 }
-
-
 
 @end

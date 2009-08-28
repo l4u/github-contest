@@ -40,6 +40,7 @@
 -(void)employStrategy;
 -(void) initialize;
 -(void)calculatePredictions;
+-(void) holisticPredictions;
 
 // main prediction pipeline
 -(void)generateCandidates:(User *)user candidateSet:(NSMutableSet *)candidateSet;
