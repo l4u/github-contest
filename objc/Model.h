@@ -7,7 +7,7 @@
 
 
 #define KNN_STORE 	10
-#define KNN_READ 	5
+#define KNN_READ 	10
 
 
 @interface Model : NSObject {

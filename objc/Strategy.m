@@ -201,6 +201,12 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	int count = 0;
 	int assignment = 0;
 	
+	//
+	// note to self: 
+	//   - 204 of 229 assigned are correct with a cutoff of 2 name matches (4.260% boost)
+	//   - 146 of 166 are correct wit a cutoff of 3 matches (3.049% boost)
+	// 20 assured errors
+	
 	// deduce name
 	for(User *user in model.testUsers) {
 		[user deduceName:model.repositoryMap];
@@ -226,7 +232,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	NSFileHandle *file = nil;
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	int i = 0;
-/*	
+	
 	if(generateTrainingData == YES) {
 		NSString *filename = @"../data/training_data.txt";
 		[[NSFileManager defaultManager] createFileAtPath:filename contents:nil attributes:nil];		
@@ -284,7 +290,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			break;
 		}
 	}
-*/	
+	
 	if(generateTrainingData == YES) {
 		// close		
 		[file closeFile];
@@ -330,6 +336,8 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.name]];
 		// repos with the same owner
 		[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.owner]];
+		// repos with the same deduced user name
+		// TODO
 		// repos in same repo cluster
 		// TODO
 	}
@@ -368,8 +376,6 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	// stats
 	[user calculateStats:model.repositoryMap];
 	
-
-		
 	NSMutableDictionary *candidateDict = [[NSMutableDictionary alloc] init];	
 	for(NSNumber *repoId in candidates) {		
 		// get repo
@@ -399,13 +405,17 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		// get repo
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		
-		// get indicators
-		// NSDictionary *indicators = [self indicatorWeights:user repo:repo]; 
-		NSDictionary *indicators = [self indicatorWeights2:user repo:repo]; 
+		NSDictionary *indicators = nil;
 		
-		// guts
-		// [self buildClassificationLine:buffer indicators:indicators];
-		[self buildClassificationLine2:buffer indicators:indicators];
+		if(USE_RANK_INDICATORS) {
+			indicators = [self indicatorWeights2:user repo:repo]; 
+			[self buildClassificationLine2:buffer indicators:indicators];			
+		} else {
+			// get indicators
+			indicators = [self indicatorWeights:user repo:repo]; 
+			// get line
+			[self buildClassificationLine:buffer indicators:indicators];
+		}
 		
 		// class
 		[buffer appendString:(([user.repos containsObject:repoId]) ? @"1.0" : @"0.0")];				
@@ -442,20 +452,26 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 //
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	double score = 0.0;
+	
 	// calculate indicators
-	
-	// NSDictionary *indicators = [self indicatorWeights:user repo:repo];
-	NSDictionary *indicators = [self indicatorWeights2:user repo:repo];
-	
-	
+	NSDictionary *indicators = nil;
+	if(USE_RANK_INDICATORS) {
+		indicators = [self indicatorWeights2:user repo:repo];
+	}else {
+		indicators = [self indicatorWeights:user repo:repo];
+	}
+
 	// use external classifier
 	if(USE_EXT_CLASSIFIER && [user.repos count]) {
 		// prepare indicator string
 		NSMutableString *buffer = [[NSMutableString alloc] init];
 		// build the line
-		// [self buildClassificationLine:buffer indicators:indicators];
-		[self buildClassificationLine2:buffer indicators:indicators];
-		
+		if(USE_RANK_INDICATORS) {
+			[self buildClassificationLine2:buffer indicators:indicators];
+		} else {
+			[self buildClassificationLine:buffer indicators:indicators];	
+		}
+
 		//
 		// This is really slow, but I'm a lazy programmer that wants to use Weka and not re-write this in java
 		//
@@ -471,7 +487,12 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		//
 		
 		// get weights
-		NSDictionary *weights = [self getTestWeights2]; 
+		NSDictionary *weights = nil;
+		if(USE_RANK_INDICATORS) {
+			weights = [self getTestWeights2]; 
+		}else{
+			weights = [self getTestWeights]; 
+		}
 	
 		// process all indicators
 		for(NSString *key in indicators.allKeys) {
