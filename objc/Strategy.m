@@ -328,9 +328,9 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		// add list of siblings
 		// TODO
 		// repos with the same name
-		[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.name]];
+		// [candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.name]];
 		// repos with the same owner
-		[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.owner]];
+		// [candidateSet addObjectsFromArray:[model.ownerSet objectForKey:repo.owner]];
 		// repos with the same deduced user name
 		// if(user.deducedName) {
 		// 	[candidateSet addObjectsFromArray:[model.ownerSet objectForKey:user.deducedName]];
