@@ -74,7 +74,7 @@ h3. Findings
 
 I focused on user-based collaborative filtering, although I started looking into item-based collaborative filtering which turned out to be to slow for my old hardware. I also played with building global (stupid I know) classification models using WEKA (decision trees, J48, etc) which obviously returned poor results. 
 
-I calculated user groups (clusters) using n-nearest neighbors where the number of overlapping watches was the distance metric. This resulted in assigning at least one neighbor 3989 of the 4789 users (800 neighborless). I have considered (not implemented) looser relations (repos in lineage, repos with same language composition and size), and other distance metrics (pearson's, cosine, euclidean, etc).
+I calculated user groups (clusters) using n-nearest neighbors where the number of overlapping watches was the distance metric. This resulted in assigning at least one neighbor 3989 of the 4789 users (800 neighborless). I have considered (not implemented) looser relations (repos in lineage, repos with same language composition and size), and other distance metrics (pearson's, cosine, euclidean, etc). I tried a vector distance metric that took vector length into account - which resulted in lower scores using current indicators. Both cluster types have been generated and stored in the /data directory.
 
 Candidate selection involved: top 20 repos by watch count and fork count, all repos in users watched parent tree and child tree, all repos with the same name and the same owner name, and all repos in the users cluster. The top n repos was increased for a fractional score increase.
 
@@ -108,7 +108,7 @@ Using this algorithm with the previous indicators (global_prob_watch, local_prob
 
 Looking at the repos ranked by global repo name occurrence, the top named repos are 'test' and 'dotfiles'. I thought stripping these repos from the candidate set would give a boost or at least give a cutdown to computation. Unfortunately, filtering out these repos results in a lower score (1906 correct or 39.80%) using the same previous parameters.
 
-I tried a series of rank-based indicators which were fed into a classifier, resulting in very poor performance. I have not tested these single indicators against the test set yet, I doubt their results would be good or much different to the probablistic indicators used before. The rank indicators included:
+I tried a series of rank-based indicators which were fed into a classifier, resulting in very poor performance. I have not tested these single indicators against the test set yet, I doubt their results would be good or much different to the probabilistic indicators used before. The rank indicators included:
 * normalized_watch_rank
 * normalized_fork_rank
 * normalized_name_rank
