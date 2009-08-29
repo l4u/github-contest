@@ -57,19 +57,23 @@ Indicators are at one of three levels:
 # <b>Group</b>: users grouped (knn or clustered using kmeans) then probabilistic indicators from this smaller user group
 # <b>User</b>: probabilistic indicators across the repos a user watches
 
-To Do:
-* Better user clustering using kmeans or even just an improved distance metric on my knn
+To Do (time permitting or future collaborative filtering projects):
+* Dimensionality reduction using Singular Value Decomposition (SVD/LSI)
+* Better user clustering using kmeans or even just an improved distance metric on my kNN 
+** decrease similarity strength based on item popularity (i've seen equations for this)
 * Item-based collaborative filtering
 ** I started clustering repos, but it was going to take for ever with my crappy 5 y/o mac laptop
 * Build classification models for each user group or even each user (slow, but might get good results)
-* The current external classifier model approach is very poor, I'm considering using straight measures as indicators rather than prob's (let decision tree model the probs for me)
+** The current external classifier model approach is very poor, I'm considering using straight measures as indicators rather than prob and ranks (let decision tree model the probs for me)
 * More indicators: brainstorm, look at others peoples code, eval real users on github website...
+* Optimize weights on indicators for global/cluster/user (gradient descent or even a genetic algorithm)
+* Association rules: probabilistic co-occurrences in global/cluster
 
 h3. Findings
 
 I focused on user-based collaborative filtering, although I started looking into item-based collaborative filtering which turned out to be to slow for my old hardware. I also played with building global (stupid I know) classification models using WEKA (decision trees, J48, etc) which obviously returned poor results. 
 
-I calculated user groups (clusters) using n-nearest neighbors where the number of overlapping watches was the distance metric. This resulted in assigning at least one neighbor 3989 of the 4789 users (800 neighborless). I have considered (not implemented) looser relations (repos in lineage, repos with same language composition and size), and other distance metrics (pearson's, cosine, etc).
+I calculated user groups (clusters) using n-nearest neighbors where the number of overlapping watches was the distance metric. This resulted in assigning at least one neighbor 3989 of the 4789 users (800 neighborless). I have considered (not implemented) looser relations (repos in lineage, repos with same language composition and size), and other distance metrics (pearson's, cosine, euclidean, etc).
 
 Candidate selection involved: top 20 repos by watch count and fork count, all repos in users watched parent tree and child tree, all repos with the same name and the same owner name, and all repos in the users cluster. The top n repos was increased for a fractional score increase.
 
@@ -122,6 +126,8 @@ h3. Code
 
 I started with a Ruby implementation (/ruby) although quickly found that it was simply too slow. I then moved to an Objective-c implementation (/objc). I chose these two languages as I wanted to know more about their capabilities.
 
+To tap into WEKA (written in Java) I used Objective-C's java bridge. Worked fine as long as I compiled and ran under JDK 1.5 32-bit. The code is still in there but not apart of the main execution (it was a test). Strip it out if it cases problems during compilation.
+
 h2. References
 
 h3. Papers and Links
@@ -130,7 +136,6 @@ h3. Papers and Links
 * "Recommender System Algorithms":http://www.deitel.com/ResourceCenters/Web20/RecommenderSystems/RecommenderSystemAlgorithms/tabid/1317/Default.aspx
 * Emmanouil Vozalis and Konstantinos G. Margaritis, "Analysis of Recommender Systems’ Algorithms":http://macedonia.uom.gr/~mans/papiria/hercma2003.pdf (2003)
 * Coen Stevens, Lead Recommendations Engineer at Wakoopa, "How to build a recommender system?":http://www.slideshare.net/blueace/how-to-build-a-recommender-system-presentation (2008?)
-
 
 h3. Useful Fellow Contest Submissions
 
