@@ -21,6 +21,7 @@
 @synthesize ownerSet;
 @synthesize nameSet;
 @synthesize languageSet;
+@synthesize watchedParents;
 
 
 
@@ -44,6 +45,7 @@
 	[neighbourhoodWatchOwner release];
 	[neighbourhoodWatchName release];
 	[deducedName release];
+	[watchedParents release];
 	
 	[super dealloc]; // always last
 }
@@ -219,6 +221,7 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 	ownerSet = [[NSCountedSet alloc] init];
 	nameSet = [[NSCountedSet alloc] init];	
 	languageSet = [[NSCountedSet alloc] init];
+	watchedParents = [[NSMutableSet alloc] init];
 	
 	NSMutableArray *userrepos = [[NSMutableArray alloc] init];
 	
@@ -232,7 +235,10 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 		// root
 		if(!repo.parentId) {
 			numRoot++;
+		} else {
+			[watchedParents addObject:repo.parentId];
 		}
+		
 		// language
 		if(repo.languageMap != nil) {
 			numWithLanguage++;
@@ -365,5 +371,7 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 	
 	return 0;
 }
+
+
 
 @end

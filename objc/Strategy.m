@@ -12,7 +12,8 @@
 		[aModel retain];		
 		
 		// random numbers: http://stackoverflow.com/questions/160890/generating-random-numbers-in-objective-c
-		srandom(time(NULL));
+		// srandom(time(NULL));
+		srandom(99); // fixed seed for taste-testing results
 	}
 	
 	return self;
@@ -234,6 +235,9 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		NSString *filename = @"../data/training_data.txt";
 		[[NSFileManager defaultManager] createFileAtPath:filename contents:nil attributes:nil];		
 		file = [[NSFileHandle fileHandleForWritingAtPath:filename] retain];	
+	}
+	
+	if(TASTE_TEST || GENERATE_TRAINING_DATA) {
 		testSet = [[NSMutableSet alloc] init];	
 		// select test set
 		while([testSet count] < NUM_TRAINING_USERS) {
@@ -247,7 +251,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	
 	for(User *user in model.testUsers) {
 		
-		if(GENERATE_TRAINING_DATA) {
+		if(TASTE_TEST || GENERATE_TRAINING_DATA) {
 			// only concerned with a subset
 			if(![testSet containsObject:user.userId]){
 				continue;
@@ -283,9 +287,9 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		}
 		
 		// testing
-		if(TASTE_TEST && i>=100) {
-			break;
-		}
+		// if(TASTE_TEST && i>=100) {
+		// 	break;
+		// }
 	}
 	
 	if(GENERATE_TRAINING_DATA) {
@@ -524,6 +528,35 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo {
 	double score = 0.0;
 	
+							
+	
+	if(true){
+		// brass tacks time
+		
+		score += ((double)repo.watchCount / (double)model.totalWatches);
+			
+		if(user.numNeighbours) { 
+			// group popularity
+			score += ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
+		} else {
+			//reward direct parents
+			if([user.watchedParents containsObject:repo.repoId]){
+				score += 0.3;
+			}
+			// reward root 
+			if(!repo.parentId) {
+				score += 0.05;
+			}
+		}		
+		
+		if([user.repos count]) {			
+			score += ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
+			score += ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
+		}
+		
+		return score;
+	}
+	
 	// calculate indicators
 	NSDictionary *indicators = nil;
 	if(USE_RANK_INDICATORS) {
@@ -553,6 +586,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		// release
 		[buffer release];
 	} else {
+	
 		//
 		// use internal classifier - good for testing, or hand-annealing the weights.
 		//
@@ -578,6 +612,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			// linear weighted sum of independent probablistic predictors		
 			score += (([weight doubleValue] * [indicator doubleValue]));		
 		}
+	
 	}
 
 	return score;
@@ -750,6 +785,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			[indicators setObject:[NSNumber numberWithDouble:tmp] forKey:@"user_prob_watch_nonroot"];
 			[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"user_prob_watch_root"];
 		}		
+		
 		// prob of user watching with owner 
 		// TEST: K=5  (1061  	22.15%)
 		tmp = ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);

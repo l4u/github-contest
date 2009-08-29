@@ -14,6 +14,7 @@
 	NSCountedSet *neighbourhoodRepos;
 	NSCountedSet *neighbourhoodWatchName;
 	NSCountedSet *neighbourhoodWatchOwner;
+	NSMutableSet *watchedParents;
 	
 	// stats
 	int numNeighbours;
@@ -35,6 +36,7 @@
 @property(readonly, nonatomic) NSNumber *userId;
 @property(readonly, nonatomic) NSMutableSet *repos;
 @property(readonly, nonatomic) NSMutableSet *predictions;
+@property(readonly, nonatomic) NSMutableSet *watchedParents;
 @property(nonatomic) BOOL test;
 
 // derived
