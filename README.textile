@@ -1,12 +1,8 @@
 h1. GitHub Contest: August 2009
 
-A recommendation system for the github-contest by jbrownlee.
+A recommendation system for the github-contest by "Jason Brownlee":mailto:jason.brownlee05@gmai.com
 
-h2. Author
-
-"Jason Brownlee":mailto:jason.brownlee05@gmai.com
-
-h2. Description
+h2. Summary
 
 This project provides code to generate a solution (results.txt) to the github contest August 2009. I participated in this contest as a learning exercise for both programming languages (ruby and then Objective-c) and technology (collaborative filtering).
 
@@ -89,7 +85,7 @@ Using this algorithm with the previous indicators (global_prob_watch, local_prob
 
 Looking at the repos ranked by global repo name occurrence, the top named repos are 'test' and 'dotfiles'. I thought stripping these repos from the candidate set would give a boost or at least give a cutdown to computation. Unfortunately, filtering out these repos results in a lower score (1906 correct or 39.80%) using the same previous parameters.
 
-I tried a series of rank-based indicators which were fed into a classifier, resulting in very poor performance. I have not tested these single indicators against the test set yet, I doubt their results would be good or much different to the probabilistic indicators used before. The rank indicators included:
+I generated some sample datasets using the above probabilistic indicators and fed them through some decision tree classifiers with poor results. I also tried a series of rank-based indicators which were fed into a WEKA classifier, also resulting in very poor performance. I have not tested these single indicators against the test set yet, I doubt their results would be good or much different to the probabilistic indicators used before. The rank indicators included:
 * normalized_watch_rank
 * normalized_fork_rank
 * normalized_name_rank
@@ -130,9 +126,9 @@ To tap into WEKA (written in Java) I used Objective-C's java bridge. Worked fine
 
 h2. On the futility of the contest
 
-A goal of the contest as listed by the contest organizes was to generate an open source corpus of recommendation engine systems. I believe such efforts towards a 'white label' or 'turn key' system are futile.
+A goal of the contest as listed by the contest organizes was to generate an open source corpus of recommendation systems. I believe such efforts towards a 'white label' or 'turn key' system are futile.
 
-The utility of any recommendation engines/collaborative filtering, like any data mining or machine learning approach comes down to the specifics of the problem being solved (scale, data, static, live, etc). General algorithms are awesome, but they the starting point. The hard work in any such system is in identifying, selecting, and specializing existing techniques to your domain.
+The utility of any data mining or machine learning approach comes down to the specifics of the problem being solved (scale, data, timeliness, etc). General algorithms and even systems are awesome, but they the starting point. The hard work in any such system is in identifying, selecting, and specializing existing techniques to the domain.
 
 h2. References
 
@@ -148,6 +144,7 @@ h3. Contest Links
 
 h3. Papers and Links
 
+* "Weka: Data Mining Software in Java":http://www.cs.waikato.ac.nz/ml/weka/
 * "Recommended Systems Resource Center":http://www.deitel.com/ResourceCenters/Web20/RecommenderSystems/tabid/1229/Default.aspx
 * "Recommender System Algorithms":http://www.deitel.com/ResourceCenters/Web20/RecommenderSystems/RecommenderSystemAlgorithms/tabid/1317/Default.aspx
 * Emmanouil Vozalis and Konstantinos G. Margaritis, "Analysis of Recommender Systems’ Algorithms":http://macedonia.uom.gr/~mans/papiria/hercma2003.pdf (2003)
