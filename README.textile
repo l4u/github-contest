@@ -2,12 +2,6 @@ h1. GitHub Contest: August 2009
 
 A recommendation system for the github-contest by jbrownlee.
 
-h2. Quick Links
-
-* "Github contest website":http://contest.github.com 
-* "Contest Leaderboard":http://contest.github.com/leaderboard
-* "jbrownlee (my) contest submissions":http://contest.github.com/p/jbrownlee/github-contest
-
 h2. Author
 
 "Jason Brownlee":mailto:jason.brownlee05@gmai.com
@@ -18,7 +12,7 @@ This project provides code to generate a solution (results.txt) to the github co
 
 h2. Details
 
-The objective is to recommend repositories to users. Specifically to predict which repositories to recommend to a user given existing known user-repository relationships.
+The objective is to recommend repositories to users. Specifically, to predict which repositories to recommend to a user given existing known user-repository relationships.
 
 h3. Data
 
@@ -38,8 +32,8 @@ Observations
 * 71,847 distinct repo names
 * 56,521 distinct users
 * All 120,867 repos are watched (excluding the additions from the language data)
-* 12,064 forked repos (~10%)
-* 81,913 root repos (~67%)
+* 12,064 forked repos (about 10%)
+* 81,913 root repos (about 67%)
 
 h3. Strategy
 
@@ -57,40 +51,26 @@ Indicators are at one of three levels:
 # <b>Group</b>: users grouped (knn or clustered using kmeans) then probabilistic indicators from this smaller user group
 # <b>User</b>: probabilistic indicators across the repos a user watches
 
-To Do (time permitting or future collaborative filtering projects):
-* Dimensionality reduction using Singular Value Decomposition (SVD) or Latent Semantic Analysis / Latent Semantic Indexing
-* Better user clustering using kmeans or even just an improved distance metric on my kNN 
-** decrease similarity strength based on item popularity (i've seen equations for this)
-** User user-distance to weight indicators (neighborhood popularity indicator for example)
-* Item-based collaborative filtering
-** I started clustering repos, but it was going to take for ever with my crappy 5 y/o mac laptop
-* Build classification models for each user group or even each user (slow, but might get good results)
-** The current external classifier model approach is very poor, I'm considering using straight measures as indicators rather than prob and ranks (let decision tree model the probs for me)
-* More indicators: brainstorm, look at others peoples code, eval real users on github website...
-* Optimize weights on indicators for global/cluster/user (gradient descent or even a genetic algorithm)
-* Association rules: probabilistic co-occurrences in global/cluster
-** Started, but the computation was going to take too long - need to pre-compute co-occurrences or create a fast(er) lookup
-
 h3. Findings
 
-I focused on user-based collaborative filtering, although I started looking into item-based collaborative filtering which turned out to be to slow for my old hardware. I also played with building global (stupid I know) classification models using WEKA (decision trees, J48, etc) which obviously returned poor results. 
+I focused on user-based collaborative filtering, although I started looking into item-based collaborative filtering which turned out to be to slow for my old hardware. I also played with building global (stupid I know) classification models using WEKA (decision trees, J48, etc) which returned poor results. 
 
-I calculated user groups (clusters) using n-nearest neighbors where the number of overlapping watches was the distance metric. This resulted in assigning at least one neighbor 3989 of the 4789 users (800 neighborless). I have considered (not implemented) looser relations (repos in lineage, repos with same language composition and size), and other distance metrics (pearson's, cosine, euclidean, etc). I tried a vector distance metric that took vector length into account - which resulted in lower scores using current indicators. Both cluster types have been generated and stored in the /data directory.
+I calculated user groups (clusters) using n-nearest neighbors where the number of overlapping watches was the distance metric. This resulted in assigning at least one neighbor to 3989 of the 4789 test users (800 neighborless). I have considered (not implemented) less strict relations (repos in lineage, repos with same language composition and size), and other distance metrics (pearson's, cosine, euclidean, etc). I tried a vector distance metric that took vector length into account, which resulted in lower scores using current indicators over a range of K. Both cluster types have been generated and stored in the /data directory.
 
 Candidate selection involved: top 20 repos by watch count and fork count, all repos in users watched parent tree and child tree, all repos with the same name and the same owner name, and all repos in the users cluster. The top n repos was increased for a fractional score increase.
 
 User Collaborative Filtering: Single Indicator Results (User KNN=5, tests against whole dataset on server, weight is 1.0 of course)
-* global_prob_watch: (873 correct or 18.23%)
-* global_prob_watch_forked (487 correct or 10.17%)
-* global_prob_watch_root (359 correct or 7.497%)
-* local_prob_watch (996 correct or 20.80%)
-* local_prob_watch_name (1093 correct or 22.82%)
-* local_prob_watch_owner (1038 correct or 21.67%)
-* user_prob_watch_forked (461 correct or 9.628%)
-* user_prob_watch_root (349 correct or 7.289%)
-* user_prob_watch_owner (1061 correct or 22.15%)
-* user_prob_watch_name (1030 correct or 21.51%)
-* user_prob_watch_language (614 correct or 12.82%)
+* <b>global_prob_watch</b> (873 correct or 18.23%)
+* <b>global_prob_watch_forked</b> (487 correct or 10.17%)
+* <b>global_prob_watch_root</b> (359 correct or 7.497%)
+* <b>local_prob_watch</b> (996 correct or 20.80%)
+* <b>local_prob_watch_name</b> (1093 correct or 22.82%)
+* <b>local_prob_watch_owner</b> (1038 correct or 21.67%)
+* <b>user_prob_watch_forked</b> (461 correct or 9.628%)
+* <b>user_prob_watch_root</b> (349 correct or 7.289%)
+* <b>user_prob_watch_owner</b> (1061 correct or 22.15%)
+* <b>user_prob_watch_name</b> (1030 correct or 21.51%)
+* <b>user_prob_watch_language</b> (614 correct or 12.82%)
 
 It seems that popularity based (global and user cluster) indicators are useful. It also seems that indicators based on repo name and repo owner name are useful (user cluster and user repos). It seems repo forking and root status are poor indicators.
 
@@ -99,7 +79,7 @@ User Collaborative Filtering: Multiple Indicator Results (tests against whole da
 * K=5, global_prob_watch, local_prob_watch, user_prob_watch_owner, user_prob_watch_name: (1857 correct or 38.78%)
 * K=10, global_prob_watch, local_prob_watch, user_prob_watch_owner, user_prob_watch_name: (1867 correct or 38.99%)
 
-Using just global/cluster popularity and user name/owner probability combined linearly give useful result. Increasing K on the user cluster refines the local_prob_watch indicator, slightly increasing results.
+Using just global/cluster popularity and user name/owner probability combined linearly give a useful result. Increasing K on the user cluster refines the local_prob_watch indicator, slightly increasing results.
 
 Given the utility of repo owner name, and a summary of an approach to deduce the user name by jeremybarnes, I deduced user names (repo owners) for those users who where the single watcher of repos. Conflicting names were skipped, and two cut-off's for repo-owner match counts were tested:
 * 3+: assigns 166 repos to users, 146 are correct (score of 3.049%)
@@ -119,6 +99,23 @@ I tried a series of rank-based indicators which were fed into a classifier, resu
 * normalized_group_owner_rank
 * normalized_user_name_rank
 * normalized_user_owner_rank
+
+h3. To Do
+
+A list of tasks I'd like to tackle, time permitting or on future collaborative filtering projects:
+* Dimensionality reduction using Singular Value Decomposition (SVD) - this will give faster (maybe more useful) user and repo similarity calculations
+** Called Latent Semantic Analysis / Latent Semantic Indexing in the field of Information Retrieval
+* Better user clustering using kmeans or even just an improved distance metric on my kNN 
+** decrease similarity strength based on item popularity (i've seen equations for this)
+** User user-distance to weight indicators (neighborhood popularity indicator for example)
+* Item-based collaborative filtering
+** I started clustering repos, but it was going to take for ever with my crappy 5 y/o mac laptop
+* Build classification models for each user group or even each user (slow, but might get good results)
+** The current external classifier model approach is very poor, I'm considering using straight measures as indicators rather than prob and ranks (let decision tree model the probs for me)
+* More indicators: brainstorm, look at others peoples code, eval real users on github website...
+* Optimize weights on indicators for global/cluster/user (gradient descent or even a genetic algorithm)
+* Association rules: probabilistic co-occurrences in global/cluster
+** Started, but the computation was going to take too long - need to pre-compute co-occurrences or create a fast(er) lookup
 
 h3. Validation Testing
 
@@ -145,7 +142,8 @@ h3. Contest Links
 * "2009 GitHub Contest":http://contest.github.com/
 * "GitHub Contest Leaderboard":http://contest.github.com/leaderboard
 * "Github Contest Action":http://contest.github.com/action (recent submission summary) 
-* "Github contest dataset (.zip)":https://github.s3.amazonaws.com/data/download.zip
+* "Github contest dataset":https://github.s3.amazonaws.com/data/download.zip (.zip)
+* "jbrownlee (my) contest submissions":http://contest.github.com/p/jbrownlee/github-contest
 
 h3. Papers and Links
 
@@ -155,6 +153,8 @@ h3. Papers and Links
 * Coen Stevens, Lead Recommendations Engineer at Wakoopa, "How to build a recommender system?":http://www.slideshare.net/blueace/how-to-build-a-recommender-system-presentation (2008?)
 * Michael H. Pryor, "The Effects of Singular Value Decomposition on Collaborative Filtering":http://www.cs.dartmouth.edu/reports/abstracts/TR98-338/ Honors Thesis, 1998 
 * "SVD Recommendation System in Ruby":http://www.igvita.com/2007/01/15/svd-recommendation-system-in-ruby/ (2007) using "linalg":http://rubyforge.org/projects/linalg/
+* "Using Linear Algebra for Intelligent Information Retrieval":http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.34.9579 (1995)
+* "Collaborative Filtering Resources":http://ict.ewi.tudelft.nl/~jun/CollaborativeFiltering.html
 
 h3. Useful Fellow Contest Submissions
 
