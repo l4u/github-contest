@@ -6,7 +6,7 @@
 
 // model building
 #define KNN_STORE 				30
-#define KNN_READ 				10
+#define KNN_READ 				20
 
 
 // candidate selection
