@@ -58,7 +58,7 @@ Indicators are at one of three levels:
 # <b>User</b>: probabilistic indicators across the repos a user watches
 
 To Do (time permitting or future collaborative filtering projects):
-* Dimensionality reduction using Singular Value Decomposition (SVD/LSI)
+* Dimensionality reduction using Singular Value Decomposition (SVD) or Latent Semantic Analysis / Latent Semantic Indexing
 * Better user clustering using kmeans or even just an improved distance metric on my kNN 
 ** decrease similarity strength based on item popularity (i've seen equations for this)
 ** User user-distance to weight indicators (neighborhood popularity indicator for example)
@@ -69,6 +69,7 @@ To Do (time permitting or future collaborative filtering projects):
 * More indicators: brainstorm, look at others peoples code, eval real users on github website...
 * Optimize weights on indicators for global/cluster/user (gradient descent or even a genetic algorithm)
 * Association rules: probabilistic co-occurrences in global/cluster
+** Started, but the computation was going to take too long - need to pre-compute co-occurrences or create a fast(er) lookup
 
 h3. Findings
 
@@ -129,7 +130,22 @@ I started with a Ruby implementation (/ruby) although quickly found that it was 
 
 To tap into WEKA (written in Java) I used Objective-C's java bridge. Worked fine as long as I compiled and ran under JDK 1.5 32-bit. The code is still in there but not apart of the main execution (it was a test). Strip it out if it cases problems during compilation.
 
+h2. On the futility of the contest
+
+A goal of the contest as listed by the contest organizes was to generate an open source corpus of recommendation engine systems. I believe such efforts towards a 'white label' or 'turn key' system are futile.
+
+The utility of any recommendation engines/collaborative filtering, like any data mining or machine learning approach comes down to the specifics of the problem being solved (scale, data, static, live, etc). General algorithms are awesome, but they the starting point. The hard work in any such system is in identifying, selecting, and specializing existing techniques to your domain.
+
 h2. References
+
+h3. Contest Links
+
+* Github blog, "GitHub Contest almost over!":http://github.com/blog/478-github-contest-almost-over
+* Github blog, "The 2009 GitHub Contest":http://github.com/blog/466-the-2009-github-contest 
+* "2009 GitHub Contest":http://contest.github.com/
+* "GitHub Contest Leaderboard":http://contest.github.com/leaderboard
+* "Github Contest Action":http://contest.github.com/action (recent submission summary) 
+* "Github contest dataset (.zip)":https://github.s3.amazonaws.com/data/download.zip
 
 h3. Papers and Links
 
@@ -137,6 +153,8 @@ h3. Papers and Links
 * "Recommender System Algorithms":http://www.deitel.com/ResourceCenters/Web20/RecommenderSystems/RecommenderSystemAlgorithms/tabid/1317/Default.aspx
 * Emmanouil Vozalis and Konstantinos G. Margaritis, "Analysis of Recommender Systems’ Algorithms":http://macedonia.uom.gr/~mans/papiria/hercma2003.pdf (2003)
 * Coen Stevens, Lead Recommendations Engineer at Wakoopa, "How to build a recommender system?":http://www.slideshare.net/blueace/how-to-build-a-recommender-system-presentation (2008?)
+* Michael H. Pryor, "The Effects of Singular Value Decomposition on Collaborative Filtering":http://www.cs.dartmouth.edu/reports/abstracts/TR98-338/ Honors Thesis, 1998 
+* "SVD Recommendation System in Ruby":http://www.igvita.com/2007/01/15/svd-recommendation-system-in-ruby/ (2007) using "linalg":http://rubyforge.org/projects/linalg/
 
 h3. Useful Fellow Contest Submissions
 
