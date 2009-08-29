@@ -5,14 +5,14 @@
 
 
 // model building
-#define KNN_STORE 				10
+#define KNN_STORE 				30
 #define KNN_READ 				10
 
 
 // candidate selection
 #define TOP_RANKED_REPOS 		100
 // num top n we print (basis for insights!)
-#define TOP_RANKED_REPOS_PRINT 	20
+#define TOP_RANKED_REPOS_PRINT 	10
 
 // predictions
 #define MAX_REPOS 				10

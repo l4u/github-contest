@@ -116,9 +116,9 @@
 			dist += 1.0;
 		}
 		// count soft repo matches (ansestor, sibling, or child)
-	
+		// TODO
 		// count vauge repo matches (project compsition)
-		
+		// TODO
 	}	
 	
 	// consider user watched set size

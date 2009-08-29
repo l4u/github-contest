@@ -32,6 +32,8 @@
 @synthesize normalizedUserNameRank;
 @synthesize normalizedUserOwnerRank;
 
+@synthesize neighbours;
+
 -(id) init {
 	self = [super init];	
 	
@@ -64,6 +66,7 @@
 	[parent release];
 	[watches release];
 	[dominantLanguage release];
+	[neighbours release];
 	
 	[super dealloc]; // always last
 }
@@ -220,6 +223,36 @@
 	[stack release];
 	
 	return forkTree;
+}
+
+
+-(void) addNeighbour:(Repository *)other {	
+	// lazy create 
+	if(!neighbours){
+		neighbours = [[NSMutableSet alloc] init];		
+	}
+	
+	[neighbours addObject:other.repoId];
+}
+
+
+// bigger is better (maximizing)
+-(double)calculateRepoDistance:(Repository*)other {
+	// never self
+	if([other.repoId intValue] == [repoId intValue]) {
+		return 0.0;
+	}
+
+	double dist = 0.0;
+	
+	for(NSNumber *userId in watches) {
+		if([other.watches containsObject:userId]){
+			dist += 1.0;
+		}
+	}
+			
+			
+	return dist;
 }
 
 @end

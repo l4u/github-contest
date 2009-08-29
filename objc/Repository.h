@@ -11,6 +11,7 @@
 	NSString *name;
 	NSString *owner;
 	NSMutableDictionary *languageMap;	
+	NSMutableSet *neighbours;
 
 	// indicators
 	int watchCount;
@@ -62,6 +63,7 @@
 @property(readonly, nonatomic) NSString *owner;
 @property(readonly, nonatomic) NSMutableDictionary *languageMap;
 @property(readonly, nonatomic) NSSet *watches;
+@property(readonly, nonatomic) NSMutableSet *neighbours;
 // indicators
 @property(nonatomic) int watchCount;
 @property(nonatomic) int forkCount;
@@ -90,5 +92,7 @@
 
 -(NSArray *)getChildTree;
 -(NSArray *)getParentTree;
+-(void) addNeighbour:(Repository *)other;
+-(double)calculateRepoDistance:(Repository*)other;
 
 @end

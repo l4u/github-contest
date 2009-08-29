@@ -25,7 +25,7 @@ int main(int argc, const char *argv[]) {
 		strategy = [[Strategy alloc] initWithModel:model];		
 		// prep training data
 		// execute
-		[strategy employStrategy];
+		// [strategy employStrategy];
 	} 
 	@catch(NSException *e) {
 		NSLog(@">>Caught exception during run: %@", e);

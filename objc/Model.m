@@ -72,7 +72,7 @@
 	// second order pre-calculations
 	[self calculateForkCounts];
 	[self prepareUserNeighbours];
-	
+	// [self prepareRepoNeighbours];
 	
 	[pool drain];
 }
@@ -85,15 +85,19 @@
 	if([fm fileExistsAtPath:filename] == YES) {
 		// load user distance matrix
 		NSLog(@"Loading user neighbours...");
-		[self loadNeighbours];
+		[self loadUserNeighbours];
 	} else {
+		[[NSFileManager defaultManager] createFileAtPath:filename contents:nil attributes:nil];		
+		NSFileHandle *file = [NSFileHandle fileHandleForWritingAtPath:filename];
+
 		NSLog(@"User neighbourhood's don't exist, creating...");
 		NSMutableString *buffer = [[NSMutableString alloc] init];
+		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 		// calculate neighbours
-		for(User *user in [userMap allValues]) {
-			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		int count = 0;
+		for(User *user in testUsers) {			
 			// calculate
-			NSArray *neighbours = [self calculateNeighbours:user];
+			NSArray *neighbours = [self calculateUserNeighbours:user];
 			if([neighbours count] > 0) {
 				[buffer appendString:[NSString stringWithFormat:@"%@:", user.userId]]; 
 				// store K
@@ -101,7 +105,9 @@
 				int max = ([neighbours count] > KNN_STORE) ? KNN_STORE : [neighbours count] ; 			
 				for(i=0; i<max; i++) {
 					NSNumber *neighbourId = [neighbours objectAtIndex:i];
-					[user addNeighbour:[userMap objectForKey:neighbourId]];
+					if(i < KNN_READ) {
+						[user addNeighbour:[userMap objectForKey:neighbourId]];
+					} 					
 					[buffer appendString:[NSString stringWithFormat:@"%@", neighbourId]];
 					if(i != max-1) {
 						[buffer appendString:@","];
@@ -109,21 +115,31 @@
 				}
 				[buffer appendString:@"\n"];
 			}
-			[pool drain];
+			count++;
+			if((count%50) == 0) {
+				// flush
+				[file writeData:[buffer dataUsingEncoding: NSASCIIStringEncoding]];
+				[buffer release];
+				[pool drain];
+				NSLog(@" >  finished [%i of %i] user knn", count, [testUsers count]);
+				// init
+				pool = [[NSAutoreleasePool alloc] init];
+				buffer = [[NSMutableString alloc] init];
+			}			
 		}		
-		// save		
-		if([buffer writeToFile:filename atomically:NO encoding:NSASCIIStringEncoding error:NULL] == NO) {
-			[NSException raise:@"File Write Error" format:@"Unable to write user neighbourhoods to filename: %@", filename];
-		} else {
-			NSLog(@"Wrote user neighbourhoods to %@", filename);
-		}
-				
+
+		// done
+		[file writeData:[buffer dataUsingEncoding: NSASCIIStringEncoding]];		
+		[file closeFile];
+		[pool drain];
 		[buffer release];
+		
+		NSLog(@"Wrote user neighbourhoods to %@", filename);		
 	} 	
 }
 
 // calculates neighbouring users using user-defined distance metric
--(NSArray *) calculateNeighbours:(User *)user {	
+-(NSArray *) calculateUserNeighbours:(User *)user {	
 	// build overlap set for all users
 	NSMutableDictionary *dic = [[[NSMutableDictionary alloc] init] autorelease];
 	// process all users
@@ -132,7 +148,91 @@
 		double distance = [user calculateUserDistance:other];
 		// only add if useful
 		if(distance > 0) {
-			[dic setObject:[NSNumber numberWithInt:distance] forKey:other.userId];
+			[dic setObject:[NSNumber numberWithDouble:distance] forKey:other.userId];
+		}
+	}
+	// order by occurance count (ascending)
+	NSArray *ordered = [dic keysSortedByValueUsingSelector:@selector(compare:)];
+	// reverse (decending)
+	ordered = [self reversedArray:ordered];
+	// extract 
+	return ordered;
+}
+
+//
+// way toooo slow! also a bug in here that stops be from cleaning up mem every mod(n) cycles
+//
+-(void) prepareRepoNeighbours { 
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSString *filename =@"../data/derived_repo_neighbours.txt";
+	
+	if([fm fileExistsAtPath:filename] == YES) {
+		NSLog(@"Loading repo neighbours...");
+		[self loadRepoNeighbours];
+	} else {
+		[[NSFileManager defaultManager] createFileAtPath:filename contents:nil attributes:nil];		
+		NSFileHandle *file = [[NSFileHandle fileHandleForWritingAtPath:filename] retain];
+		
+		NSLog(@"Repo neighbourhood's don't exist, creating...(going to be a long time!)");
+		NSMutableString *buffer = [[NSMutableString alloc] init];
+		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		
+		// calculate neighbours
+		int count = 0;
+		for(Repository *repo in [repositoryMap allValues]) {
+			// calculate
+			NSArray *neighbours = [self calculateRepoNeighbours:repo];
+			if([neighbours count] > 0) {
+				[buffer appendString:[NSString stringWithFormat:@"%@:", repo.repoId]]; 
+				// store K
+				int i;
+				int max = ([neighbours count] > KNN_STORE) ? KNN_STORE : [neighbours count] ; 			
+				for(i=0; i<max; i++) {
+					NSNumber *neighbourId = [neighbours objectAtIndex:i];
+					if(i < KNN_READ) {
+						[repo addNeighbour:[repositoryMap objectForKey:neighbourId]];
+					}
+					[buffer appendString:[NSString stringWithFormat:@"%@", neighbourId]];
+					if(i != max-1) {
+						[buffer appendString:@","];
+					}					
+				}
+				[buffer appendString:@"\n"];
+			}
+			count++;
+			if((count%100) == 0) {				
+				// flush
+				if([buffer length]){ // safe as!
+					[file writeData:[buffer dataUsingEncoding: NSASCIIStringEncoding]];
+					[buffer release];
+					buffer = [[NSMutableString alloc] init];
+				}				
+				NSLog(@" >  finished [%i of %i] repo knn", count, [repositoryMap count]);
+				// some bug stops me from doing this
+				// [pool drain];	
+				// pool = [[NSAutoreleasePool alloc] init];
+			}
+		}		
+		
+		// done
+		[file writeData:[buffer dataUsingEncoding: NSASCIIStringEncoding]];		
+		[file closeFile];
+		[file release];
+		[pool drain];
+		[buffer release];
+	}
+}
+
+-(NSArray *) calculateRepoNeighbours:(Repository *)repo {	
+	// build overlap set for all users
+	NSMutableDictionary *dic = [[[NSMutableDictionary alloc] init] autorelease];
+	// process all users
+	for(Repository *other in [repositoryMap allValues]) {
+		// calculate distance
+		double distance = [repo calculateRepoDistance:other];
+		// only add if useful
+		if(distance > 0) {
+			[dic setObject:[NSNumber numberWithDouble:distance] forKey:other.repoId];
 		}
 	}
 	// order by occurance count (ascending)
@@ -389,11 +489,13 @@
 	NSLog(@"..Prediction model appears valid");
 }
 
--(void) loadNeighbours {	
+-(void) loadUserNeighbours {	
 	// load file 
 	NSString *fileString = [NSString stringWithContentsOfFile:@"../data/derived_user_neighbours.txt" encoding:NSASCIIStringEncoding error:NULL]; 
 	// each line, adjust character for line endings
 	NSArray *lines = [fileString componentsSeparatedByString:@"\n"]; 
+
+	int numLoaded = 0;
 
 	// process all lines
 	for(NSString *line in lines) {
@@ -423,9 +525,46 @@
 			[user addNeighbour:[userMap objectForKey:[NSNumber numberWithInteger:[neighbourId integerValue]]]];
 			i++;
 		}
+		numLoaded++;
 	}
 	
-	NSLog(@"Finished loading %i derived_user_neighbours", [lines count]);
+	NSLog(@"Finished loading %i derived_user_neighbours", numLoaded);
+}
+
+
+-(void) loadRepoNeighbours {	
+	// load file 
+	NSString *fileString = [NSString stringWithContentsOfFile:@"../data/derived_repo_neighbours.txt" encoding:NSASCIIStringEncoding error:NULL]; 
+	// each line, adjust character for line endings
+	NSArray *lines = [fileString componentsSeparatedByString:@"\n"]; 
+
+	// process all lines
+	for(NSString *line in lines) {
+		if([line length]<= 0) {
+			continue;
+		}
+		NSArray *pieces = [line componentsSeparatedByString:@":"];
+		NSNumber *repoId = [NSNumber numberWithInteger:[[pieces objectAtIndex:0] integerValue]];	
+		// get repo
+		Repository *repo = [repositoryMap objectForKey:repoId];
+		if(!repo) {
+			[NSException raise:@"Invalid Repo" format:@"Repo %@ has neighbours but was not previously known %@", repoId];
+		}
+		
+		// process neighbours
+		NSArray *neighbours = [[pieces objectAtIndex:1] componentsSeparatedByString:@","];
+		int i=0;
+		for(NSString *neighbourId in neighbours) {			
+			// we can bound on load, get the K best neighbours
+			if(i >= KNN_READ) {
+				break;
+			}
+			[repo addNeighbour:[repositoryMap objectForKey:[NSNumber numberWithInteger:[neighbourId integerValue]]]];
+			i++;
+		}
+	}
+	
+	NSLog(@"Finished loading %i derived_repo_neighbours", [lines count]);
 }
 
 

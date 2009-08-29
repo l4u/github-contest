@@ -46,12 +46,19 @@
 -(void) loadRepoLanguages;
 -(void) loadRepoUserRelationships;
 -(void) loadTestUsers;
--(void) loadNeighbours;
+
+-(void) loadUserNeighbours;
+-(void) loadRepoNeighbours;
 
 // indicators
 -(void) calculateForkCounts;
+
 -(void) prepareUserNeighbours;
--(NSArray *) calculateNeighbours:(User *)user;
+-(NSArray *) calculateUserNeighbours:(User *)user;
+-(NSArray *) calculateRepoNeighbours:(Repository *)repo;
+-(void) prepareRepoNeighbours;
+
+
 - (NSArray *)reversedArray:(NSArray *)other;
 
 // output
