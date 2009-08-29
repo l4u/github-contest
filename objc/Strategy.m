@@ -405,8 +405,9 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	for(NSNumber *repoId in candidates) {		
 		// get repo
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
-		// ask user to score it
+		// score
 		repo.score = [self userScoreToWatchRepo:user repo:repo];
+		//repo.score = [self cooccurrencesScoreToWatchRepo:user repo:repo];
 		// add to dict
 		[candidateDict setObject:repo forKey:repoId];
 	}
@@ -419,6 +420,51 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	return candidateList;
 }
 
+//
+// far far too slow - need to pre-calculate things
+//
+-(double)cooccurrencesScoreToWatchRepo:(User *)user repo:(Repository *)repo {
+	
+	// return best for now
+	double best = 0.0;
+	
+	// probability of watching this repo
+	double probWatch = ((double)repo.watchCount / (double)model.totalWatches);
+	
+	
+	// process all user repos and calculate the co-occurance for this repo with each
+	for(NSNumber *repoId in user.repos) {
+		//Repository *userRepo = [model.repositoryMap objectForKey:repoId];
+		
+		int count = 0;
+		// process all watches of the active repo and count occurance of the other repo
+		for(NSNumber *userId in repo.watches) {
+			if(userId == user.userId) {
+				continue; // impossible right?
+			}
+			// get the user 
+			User *other = [model.userMap objectForKey:userId];
+			// check for user repo in other (the co-occurrence)
+			if([other.repos containsObject:repoId]) {
+				count++;
+			}
+		}
+		
+		// probability actual co-occurrences out if possible co-occurrences
+		double probCoOcc = ((double)count /(double) repo.watchCount);
+		
+		
+		// what about mediating by actual occurances out of all possible occurances
+		// a multiplication factor perhaps?
+		double score = (probCoOcc * probWatch);
+		
+		if(score > best) {
+			best = score;
+		}
+	}
+	
+	return best;
+}
 
 -(NSString *) generateTestCasesForUser:(User*)user candidates:(NSMutableSet*)candidates {
 	// stats

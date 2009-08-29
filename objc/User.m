@@ -97,6 +97,45 @@
 	return buffer;
 }
 
+// minimizing is better
+-(double)calculateUserDistance:(User*)other {
+	double distance = 0.0;
+	
+	int numRepos = [repos count];
+	int numOtherRepos = [other.repos count];
+	
+	// attempt to do the least work
+	
+	if(numRepos < numOtherRepos) {
+		distance += (numOtherRepos - numRepos);
+		
+		for(Repository *repo_id in repos) {
+			if(![other.repos containsObject:repo_id]) {
+				distance += 1.0;
+			}
+		}
+		
+	} else if(numRepos > numOtherRepos){
+		distance += (numRepos - numOtherRepos);
+		
+		for(Repository *repo_id in other.repos) {
+			if(![repos containsObject:repo_id]) {
+				distance += 1.0;
+			}
+		}
+		
+	} else{
+		for(Repository *repo_id in repos) {
+			if(![other.repos containsObject:repo_id]) {
+				distance += 1.0;
+			}
+		}
+	}
+	
+	return distance;
+}
+
+/*
 // bigger is better (maximizing)
 -(double)calculateUserDistance:(User*)other {
 	// never self
@@ -125,6 +164,7 @@
 			
 	return dist;
 }
+*/
 
 NSInteger neighbourhoodNameSort(id o1, id o2, void *context) {
 	NSCountedSet *model = (NSCountedSet *) context;

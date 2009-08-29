@@ -144,17 +144,33 @@
 	NSMutableDictionary *dic = [[[NSMutableDictionary alloc] init] autorelease];
 	// process all users
 	for(User *other in [userMap allValues]) {
+		// never match self
+		if(other.userId == user.userId) {
+			continue;
+		}
+		// never compare against empty set
+		if(![other.repos count]) {
+			continue;
+		}
+		
 		// calculate distance
 		double distance = [user calculateUserDistance:other];
 		// only add if useful
-		if(distance > 0) {
+
+		// if(distance > 0) {
+		// 	[dic setObject:[NSNumber numberWithDouble:distance] forKey:other.userId];
+		// }
+		
+		// only add if useful (at least one matching repo)
+		if(distance && distance < [user.repos count]){
 			[dic setObject:[NSNumber numberWithDouble:distance] forKey:other.userId];
 		}
+		
 	}
 	// order by occurance count (ascending)
 	NSArray *ordered = [dic keysSortedByValueUsingSelector:@selector(compare:)];
 	// reverse (decending)
-	ordered = [self reversedArray:ordered];
+	// ordered = [self reversedArray:ordered];
 	// extract 
 	return ordered;
 }

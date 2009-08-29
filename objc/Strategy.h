@@ -37,6 +37,8 @@
 -(void)filterCandidates:(NSMutableSet *)candidates user:(User *)user;
 -(NSArray *)scoreCandidates:(NSSet *)candidates user:(User *)user;
 
+
+-(double)cooccurrencesScoreToWatchRepo:(User *)user repo:(Repository *)repo;
 -(double)userScoreToWatchRepo:(User *)user repo:(Repository *)repo;
 -(NSDictionary *)indicatorWeights:(User *)user repo:(Repository *)repo;
 -(NSDictionary *)indicatorWeights2:(User *)user repo:(Repository *)repo;

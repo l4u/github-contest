@@ -61,6 +61,7 @@ To Do (time permitting or future collaborative filtering projects):
 * Dimensionality reduction using Singular Value Decomposition (SVD/LSI)
 * Better user clustering using kmeans or even just an improved distance metric on my kNN 
 ** decrease similarity strength based on item popularity (i've seen equations for this)
+** User user-distance to weight indicators (neighborhood popularity indicator for example)
 * Item-based collaborative filtering
 ** I started clustering repos, but it was going to take for ever with my crappy 5 y/o mac laptop
 * Build classification models for each user group or even each user (slow, but might get good results)
