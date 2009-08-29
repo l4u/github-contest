@@ -499,7 +499,7 @@
 
 	// process all lines
 	for(NSString *line in lines) {
-		if([line length]<= 0) {
+		if(![line length]) {
 			continue;
 		}
 		NSArray *pieces = [line componentsSeparatedByString:@":"];
@@ -528,7 +528,7 @@
 		numLoaded++;
 	}
 	
-	NSLog(@"Finished loading %i derived_user_neighbours", numLoaded);
+	NSLog(@"Finished loading neighbours for %i of %i test users", numLoaded, [testUsers count]);
 }
 
 

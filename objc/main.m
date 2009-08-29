@@ -22,10 +22,9 @@ int main(int argc, const char *argv[]) {
 		[model loadModel];
 		[model printStats];
 		// strategy
-		strategy = [[Strategy alloc] initWithModel:model];		
-		// prep training data
+		strategy = [[Strategy alloc] initWithModel:model];
 		// execute
-		// [strategy employStrategy];
+		[strategy employStrategy];
 	} 
 	@catch(NSException *e) {
 		NSLog(@">>Caught exception during run: %@", e);

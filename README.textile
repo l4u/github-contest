@@ -34,6 +34,12 @@ Observations
 * There are 5 repo language definitions for repos that are not in main repo set (and therefore not currently watched by any users - maybe they were removed in prep of the test set)
 ** there is no score for assigning these repos to any users - remove them (I tested this explicitly)
 * All but 2 of the test users are in the main user set (2 are unknown or new users, maybe all of their repos were stripped in the prep of the test set)
+* 41,444 distinct repo owner names
+* 71,847 distinct repo names
+* 56,521 distinct users
+* All 120,867 repos are watched (excluding the additions from the language data)
+* 12,064 forked repos (~10%)
+* 81,913 root repos (~67%)
 
 h3. Strategy
 
@@ -61,9 +67,11 @@ To Do:
 
 h3. Findings
 
-Candidate selection involved: top 20 repos by watch count and fork count, all repos in users watched parent tree and child tree, all repos with the same name and the same owner name, and all repos in the users cluster. The top n repos was increased for a fractional score increase.
-
 I focused on user-based collaborative filtering, although I started looking into item-based collaborative filtering which turned out to be to slow for my old hardware. I also played with building global (stupid I know) classification models using WEKA (decision trees, J48, etc) which obviously returned poor results. 
+
+I calculated user groups (clusters) using n-nearest neighbors where the number of overlapping watches was the distance metric. This resulted in assigning at least one neighbor 3989 of the 4789 users (800 neighborless). I have considered (not implemented) looser relations (repos in lineage, repos with same language composition and size), and other distance metrics (pearson's, cosine, etc).
+
+Candidate selection involved: top 20 repos by watch count and fork count, all repos in users watched parent tree and child tree, all repos with the same name and the same owner name, and all repos in the users cluster. The top n repos was increased for a fractional score increase.
 
 User Collaborative Filtering: Single Indicator Results (User KNN=5, tests against whole dataset on server, weight is 1.0 of course)
 * global_prob_watch: (873 correct or 18.23%)
@@ -95,7 +103,16 @@ Using this algorithm with the previous indicators (global_prob_watch, local_prob
 
 Looking at the repos ranked by global repo name occurrence, the top named repos are 'test' and 'dotfiles'. I thought stripping these repos from the candidate set would give a boost or at least give a cutdown to computation. Unfortunately, filtering out these repos results in a lower score (1906 correct or 39.80%) using the same previous parameters.
 
-
+I tried a series of rank-based indicators which were fed into a classifier, resulting in very poor performance. I have not tested these single indicators against the test set yet, I doubt their results would be good or much different to the probablistic indicators used before. The rank indicators included:
+* normalized_watch_rank
+* normalized_fork_rank
+* normalized_name_rank
+* normalized_owner_rank
+* normalized_group_watch_rank
+* normalized_group_name_rank
+* normalized_group_owner_rank
+* normalized_user_name_rank
+* normalized_user_owner_rank
 
 h3. Validation Testing
 
