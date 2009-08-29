@@ -124,6 +124,8 @@ I started with a Ruby implementation (/ruby) although quickly found that it was 
 
 To tap into WEKA (written in Java) I used Objective-C's java bridge. Worked fine as long as I compiled and ran under JDK 1.5 32-bit. The code is still in there but not apart of the main execution (it was a test). Strip it out if it cases problems during compilation.
 
+Ignore the ruby code, the objective-c code is the main show (/objc folder). To configure, tweak cfg.h. To build, use 'make' (makefile is provided). To run, call: ./main
+
 h2. On the futility of the contest
 
 A goal of the contest as listed by the contest organizes was to generate an open source corpus of recommendation systems. I believe such efforts towards a 'white label' or 'turn key' system are futile.
