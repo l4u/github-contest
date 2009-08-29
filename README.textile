@@ -116,6 +116,7 @@ A list of tasks I'd like to tackle, time permitting or on future collaborative f
 * Optimize weights on indicators for global/cluster/user (gradient descent or even a genetic algorithm)
 * Association rules: probabilistic co-occurrences in global/cluster
 ** Started, but the computation was going to take too long - need to pre-compute co-occurrences or create a fast(er) lookup
+* Pay for some Amazon EC2 time to do some serious number crunching, my laptop is not upto the task and fast proving of ideas may accelerate progress.
 
 h3. Validation Testing
 
