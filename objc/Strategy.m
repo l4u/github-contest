@@ -322,19 +322,19 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	
 	// users watched parent hierarchy
 	//[candidateSet addObjectsFromArray:user.watchedParentHierarchy];
-	if(user.numWatched) {
-		for(NSNumber *repoId in user.watchedParentHierarchy) {
-			[candidateSet addObject:repoId];
-		}
-	}
+	// if(user.numWatched) {
+	// 	for(NSNumber *repoId in user.watchedParentHierarchy) {
+	// 		[candidateSet addObject:repoId];
+	// 	}
+	// }
 	
 	// repos related to current repos
 	for(NSNumber *repoId in user.repos) {
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		// add list of parents
-		// if(repo.parentId) {
-		// 	[candidateSet addObjectsFromArray:[repo getParentTree]];
-		// }
+		if(repo.parentId) {
+			[candidateSet addObjectsFromArray:[repo getParentTree]];
+		}
 		// add list of forks
 		if(repo.forkCount) {
 			[candidateSet addObjectsFromArray:[repo getChildTree]];
@@ -561,6 +561,24 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			score += ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
 			score += ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
 			
+			
+			
+			if([user.watchedParents containsObject:repo.repoId]){
+				score += 0.3;
+			} else {
+				// ansestor of watched repo
+				for(NSNumber *repoId in user.repos) {
+					Repository *other = [model.repositoryMap objectForKey:repoId];
+					if(other.parentId) {
+						NSArray *tree = [other getParentTree];
+						if([tree containsObject:repo.repoId]) {
+							score += 0.4;
+							break;
+						}
+					}
+				}
+			}
+/*			
 			//reward direct parents
 			if([user.watchedParents containsObject:repo.repoId]){
 				score += 0.5;
@@ -568,7 +586,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			} else if([user.watchedParentHierarchy containsObject:repo.repoId]){
 				score += 0.4;
 			}	
-
+*/
 /*
 			//
 			// try to personalize (looking for bump)
