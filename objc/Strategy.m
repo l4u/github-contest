@@ -562,9 +562,9 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			score += ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
 			
 			
-			
+			/*
 			if([user.watchedParents containsObject:repo.repoId]){
-				score += 0.3;
+				score += 0.4;
 			} else {
 				// ansestor of watched repo
 				for(NSNumber *repoId in user.repos) {
@@ -578,15 +578,16 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 					}
 				}
 			}
-/*			
+			*/
+			
 			//reward direct parents
 			if([user.watchedParents containsObject:repo.repoId]){
-				score += 0.5;
+				score += 0.4;
 			// reward parent hiearchy
 			} else if([user.watchedParentHierarchy containsObject:repo.repoId]){
 				score += 0.4;
 			}	
-*/
+
 /*
 			//
 			// try to personalize (looking for bump)
