@@ -318,13 +318,23 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	[candidateSet addObjectsFromArray:topReposByWatch];
 	// top repos by fork count
 	[candidateSet addObjectsFromArray:topReposByFork];	
+	
+	
+	// users watched parent hierarchy
+	//[candidateSet addObjectsFromArray:user.watchedParentHierarchy];
+	if(user.numWatched) {
+		for(NSNumber *repoId in user.watchedParentHierarchy) {
+			[candidateSet addObject:repoId];
+		}
+	}
+	
 	// repos related to current repos
 	for(NSNumber *repoId in user.repos) {
 		Repository *repo = [model.repositoryMap objectForKey:repoId];
 		// add list of parents
-		if(repo.parentId) {
-			[candidateSet addObjectsFromArray:[repo getParentTree]];
-		}
+		// if(repo.parentId) {
+		// 	[candidateSet addObjectsFromArray:[repo getParentTree]];
+		// }
 		// add list of forks
 		if(repo.forkCount) {
 			[candidateSet addObjectsFromArray:[repo getChildTree]];
@@ -539,17 +549,10 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			// group popularity
 			score += ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
 		} else {
-			// //reward direct parents
-			// if([user.watchedParents containsObject:repo.repoId]){
-			// 	score += 0.3;
-			// }
-			// // reward root 
-			// if(!repo.parentId) {
-			// 	score += 0.05;
-			// }
+			
 		}	
 		 
-		// reward root 
+		// bias toward root repos
 		if(!repo.parentId) {
 			score += 0.05;
 		}	
@@ -557,24 +560,25 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		if([user.repos count]) {			
 			score += ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
 			score += ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
-			
+/*			
 			//reward direct parents
 			if([user.watchedParents containsObject:repo.repoId]){
 				score += 0.4;
-			} else {
-				// ansestor of watched repo
-				for(NSNumber *repoId in user.repos) {
-					Repository *other = [model.repositoryMap objectForKey:repoId];
-					if(other.parentId) {
-						NSArray *tree = [other getParentTree];
-						if([tree containsObject:repo.repoId]) {
-							score += 0.4;
-							break;
-						}
-					}
-				}
+			// reward parent hiearchy
+			} else if([user.watchedParentHierarchy containsObject:repo.repoId]){
+				score += 0.4;
+			}	
+*/
+			//
+			// try to personalize
+			//
+			if([user.watchedParents containsObject:repo.repoId]){
+				score += user.probWatchParentOfWatched;
+			// reward parent hiearchy
+			} else if([user.watchedParentHierarchy containsObject:repo.repoId]){
+				score += user.probWatchParentHiearchyOfWatched;
 			}
-			
+					
 		}
 		
 		return score;

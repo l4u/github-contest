@@ -23,7 +23,9 @@
 @synthesize languageSet;
 @synthesize watchedParents;
 
-
+@synthesize probWatchParentOfWatched;
+@synthesize watchedParentHierarchy;
+@synthesize probWatchParentHiearchyOfWatched;
 
 -(id) initWithId:(NSNumber *)aId {
 	self = [super init];	
@@ -222,6 +224,7 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 	nameSet = [[NSCountedSet alloc] init];	
 	languageSet = [[NSCountedSet alloc] init];
 	watchedParents = [[NSMutableSet alloc] init];
+	watchedParentHierarchy = [[NSMutableSet alloc] init];
 	
 	NSMutableArray *userrepos = [[NSMutableArray alloc] init];
 	
@@ -237,6 +240,8 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 			numRoot++;
 		} else {
 			[watchedParents addObject:repo.parentId];
+			// hacking
+			[watchedParentHierarchy addObjectsFromArray:[repo getParentTree]];
 		}
 		
 		// language
@@ -248,6 +253,23 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 		[nameSet addObject:repo.name];
 		
 		[userrepos addObject:repo];
+	}
+	
+	// count things
+	for(NSNumber *repoId in repos) { 
+		if([watchedParents containsObject:repoId]){
+			probWatchParentOfWatched += 1.0;
+		}
+		if([watchedParentHierarchy containsObject:repoId]){
+			probWatchParentHiearchyOfWatched += 1.0;
+		}
+	}
+	
+	if(probWatchParentOfWatched > 0) {
+		probWatchParentOfWatched /= (double) numWatched;
+	}
+	if(probWatchParentHiearchyOfWatched > 0) {
+		probWatchParentHiearchyOfWatched /= (double) numWatched;
 	}
 	
 	// scope var hacking
