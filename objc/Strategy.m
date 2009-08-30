@@ -539,11 +539,22 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 	double score = 0.0;
 	
 							
-	
+	//
+	// brass tacks time
+	//
 	if(true){
-		// brass tacks time
 		
 		score += ((double)repo.watchCount / (double)model.totalWatches);
+		
+		// if([user.repos count] < 10){
+		// 	
+		// 	if(repo.forkCount) {
+		// 		score += repo.normalizedForkRank;
+		// 	}
+		// } else {
+		// 	
+		// }
+		
 			
 		if(user.numNeighbours) { 
 			// group popularity
@@ -560,18 +571,20 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 				if([other.repos containsObject:repo.repoId]){
 					double dist = [user calculateUserDistance2:other];
 					double distRatio = (dist/(double)[user.repos count]);
-					occurance += (1 * distRatio);
+					occurance += (1.0 * distRatio);
 				}
 			}
 			score += (occurance /(double)user.numNeighbours);
 			
 		} else {
-			
+			// if(repo.forkCount) {
+			// 	score += repo.normalizedForkRank;
+			// }
 		}	
 		 
 		// bias toward root repos
 		if(!repo.parentId) {
-			score += 0.2;
+			score += 0.3;
 		}	
 		
 		if([user.repos count]) {		
@@ -625,10 +638,19 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 				score += user.probWatchParentHiearchyOfWatched;
 			}
 */					
+		} else{
+			
+
+			
 		}
 		
 		return score;
 	}
+	
+	
+	//
+	// old stuff below here, not used anymore - competition deadline approaches! 
+	//
 	
 	// calculate indicators
 	NSDictionary *indicators = nil;
