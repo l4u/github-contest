@@ -96,6 +96,8 @@ I generated some sample datasets using the above probabilistic indicators and fe
 * normalized_user_name_rank
 * normalized_user_owner_rank
 
+In the dash for the finish, my goal was to top 40%. I achieved this by human-annealing the key indicators.
+
 h3. To Do
 
 A list of tasks I'd like to tackle, time permitting or on future collaborative filtering projects:
@@ -143,6 +145,11 @@ h3. Contest Links
 * "Github Contest Action":http://contest.github.com/action (recent submission summary) 
 * "Github contest dataset":https://github.s3.amazonaws.com/data/download.zip (.zip)
 * "jbrownlee (my) contest submissions":http://contest.github.com/p/jbrownlee/github-contest
+
+h3. Other Contest Links
+
+* Ryan Cox, "Lessons Learned from the GitHub Recommender Contest":http://www.asciiarmor.com/post/163265720/lessons-learned-from-the-github-recommender-contest (Aug 14th 2009)
+
 
 h3. Papers and Links
 
