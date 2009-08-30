@@ -554,7 +554,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		 
 		// bias toward root repos
 		if(!repo.parentId) {
-			score += 0.1;
+			score += 0.05;
 		}	
 		
 		if([user.repos count]) {			
