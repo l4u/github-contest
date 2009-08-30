@@ -553,7 +553,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			//score += ((double)[[user neighbourhoodWatchOwner] countForObject:repo.owner] / (double) user.numNeighbourhoodWatched);
 			
 			double occurance = 0;
-			// try weighted neighbourhood
+			// try weighted neighbourhood (and bug fix)
 			for(NSNumber *userId in user.neighbours) {
 				User *other = [model.userMap objectForKey:userId];
 				// check for watch

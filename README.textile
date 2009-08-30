@@ -96,7 +96,7 @@ I generated some sample datasets using the above probabilistic indicators and fe
 * normalized_user_name_rank
 * normalized_user_owner_rank
 
-In the dash for the finish, my goal was to top 40%. I achieved this by human-annealing the key indicators. Specifically, I focused on the indicators that give a big boost (global and local popularity, user probs for repo name and owner) and hacked in hand-tuned indicators for repos in user repo parent hierarchy and root repos. This took me to first to 40% then to 44%.
+In the dash for the finish, my goal was to top 40%. I achieved this by human-annealing the key indicators. Specifically, I focused on the indicators that give a big boost (global and local popularity, user probs for repo name and owner) and hacked in hand-tuned indicators for repos in user repo parent hierarchy and root repos. This took me to first to 40% then to 44%. I managed some further improvements (around 48%) with some bug fixes in probability calculations, hand tuning some weight parameters, and using weighted neighborhood probability of occurrence. 
 
 h3. To Do
 
@@ -115,6 +115,7 @@ A list of tasks I'd like to tackle, time permitting or on future collaborative f
 * Association rules: probabilistic co-occurrences in global/cluster
 ** Started, but the computation was going to take too long - need to pre-compute co-occurrences or create a fast(er) lookup
 * Pay for some Amazon EC2 time to do some serious number crunching, my laptop is not upto the task and fast proving of ideas may accelerate progress.
+* Offline validation testing
 
 h3. Validation Testing
 
