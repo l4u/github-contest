@@ -548,6 +548,10 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		if(user.numNeighbours) { 
 			// group popularity
 			score += ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
+			
+			score += ((double)[[user neighbourhoodWatchName] countForObject:repo.name] / (double) user.numNeighbourhoodWatched);
+			score += ((double)[[user neighbourhoodWatchOwner] countForObject:repo.owner] / (double) user.numNeighbourhoodWatched);
+			
 		} else {
 			
 		}	
@@ -557,28 +561,12 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			score += 0.05;
 		}	
 		
-		if([user.repos count]) {			
-			score += ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
-			score += ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
-			
-			
-			/*
-			if([user.watchedParents containsObject:repo.repoId]){
-				score += 0.4;
-			} else {
-				// ansestor of watched repo
-				for(NSNumber *repoId in user.repos) {
-					Repository *other = [model.repositoryMap objectForKey:repoId];
-					if(other.parentId) {
-						NSArray *tree = [other getParentTree];
-						if([tree containsObject:repo.repoId]) {
-							score += 0.4;
-							break;
-						}
-					}
-				}
+		if([user.repos count]) {		
+			if(!user.numNeighbours) { 	
+				score += ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
+				score += ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
 			}
-			*/
+			
 			
 			//reward direct parents
 			if([user.watchedParents containsObject:repo.repoId]){
@@ -801,6 +789,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"local_prob_watch_name"];
 		[indicators setObject:[NSNumber numberWithDouble:0.0] forKey:@"local_prob_watch_owner"];
 	}
+	
 	
 	//
 	// individual indicators
