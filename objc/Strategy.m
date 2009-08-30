@@ -585,7 +585,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 				score += 0.4;
 			// reward parent hiearchy
 			} else if([user.watchedParentHierarchy containsObject:repo.repoId]){
-				score += 0.4;
+				score += 0.5;
 			}	
 
 /*
