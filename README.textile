@@ -96,7 +96,7 @@ I generated some sample datasets using the above probabilistic indicators and fe
 * normalized_user_name_rank
 * normalized_user_owner_rank
 
-In the dash for the finish, my goal was to top 40%. I achieved this by human-annealing the key indicators.
+In the dash for the finish, my goal was to top 40%. I achieved this by human-annealing the key indicators. Specifically, I focused on the indicators that give a big boost (global and local popularity, user probs for repo name and owner) and hacked in hand-tuned indicators for repos in user repo parent hierarchy and root repos. This took me to first to 40% then to 44%.
 
 h3. To Do
 

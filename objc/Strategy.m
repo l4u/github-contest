@@ -548,8 +548,6 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			// 	score += 0.05;
 			// }
 		}	
-		
-
 		 
 		// reward root 
 		if(!repo.parentId) {
@@ -562,7 +560,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			
 			//reward direct parents
 			if([user.watchedParents containsObject:repo.repoId]){
-				score += 0.3;
+				score += 0.4;
 			} else {
 				// ansestor of watched repo
 				for(NSNumber *repoId in user.repos) {
@@ -570,12 +568,13 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 					if(other.parentId) {
 						NSArray *tree = [other getParentTree];
 						if([tree containsObject:repo.repoId]) {
-							score += 0.3;
+							score += 0.4;
 							break;
 						}
 					}
 				}
 			}
+			
 		}
 		
 		return score;
