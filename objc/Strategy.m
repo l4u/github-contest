@@ -554,23 +554,24 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		 
 		// bias toward root repos
 		if(!repo.parentId) {
-			score += 0.05;
+			score += 0.1;
 		}	
 		
 		if([user.repos count]) {			
 			score += ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
 			score += ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
-/*			
+			
 			//reward direct parents
 			if([user.watchedParents containsObject:repo.repoId]){
-				score += 0.4;
+				score += 0.5;
 			// reward parent hiearchy
 			} else if([user.watchedParentHierarchy containsObject:repo.repoId]){
 				score += 0.4;
 			}	
-*/
+
+/*
 			//
-			// try to personalize
+			// try to personalize (looking for bump)
 			//
 			if([user.watchedParents containsObject:repo.repoId]){
 				score += user.probWatchParentOfWatched;
@@ -578,7 +579,7 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			} else if([user.watchedParentHierarchy containsObject:repo.repoId]){
 				score += user.probWatchParentHiearchyOfWatched;
 			}
-					
+*/					
 		}
 		
 		return score;
