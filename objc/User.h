@@ -72,7 +72,7 @@
 
 -(int)neighbourhoodOccurance:(NSNumber *)repoId;
 
-
+-(double)calculateUserDistance2:(User*)other;
 -(double)calculateUserDistance:(User*)other;
 -(void) calculateStats:(NSDictionary *)repositoryMap;
 

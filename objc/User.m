@@ -139,9 +139,9 @@
 	return distance;
 }
 
-/*
+
 // bigger is better (maximizing)
--(double)calculateUserDistance:(User*)other {
+-(double)calculateUserDistance2:(User*)other {
 	// never self
 	if([other.userId intValue] == [userId intValue]) {
 		return 0.0;
@@ -168,7 +168,7 @@
 			
 	return dist;
 }
-*/
+
 
 NSInteger neighbourhoodNameSort(id o1, id o2, void *context) {
 	NSCountedSet *model = (NSCountedSet *) context;
@@ -245,9 +245,15 @@ NSInteger neighbourhoodWatchSort(id o1, id o2, void *context) {
 		}
 		
 		// language
-		if(repo.languageMap != nil) {
+		if(repo.languageMap) {
 			numWithLanguage++;
-			[languageSet addObject:repo.dominantLanguage];
+			// [languageSet addObject:repo.dominantLanguage];
+			
+			// hack - load in all known languages
+			for(NSString *langName in [repo.languageMap allKeys]){
+				[languageSet addObject:langName];
+			}
+			
 		}
 		[ownerSet addObject:repo.owner];
 		[nameSet addObject:repo.name];

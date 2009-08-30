@@ -547,10 +547,23 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 			
 		if(user.numNeighbours) { 
 			// group popularity
-			score += ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
+			//score += ((double)[user neighbourhoodOccurance:repo.repoId] / (double)user.numNeighbourhoodWatched);
 			
-			score += ((double)[[user neighbourhoodWatchName] countForObject:repo.name] / (double) user.numNeighbourhoodWatched);
-			score += ((double)[[user neighbourhoodWatchOwner] countForObject:repo.owner] / (double) user.numNeighbourhoodWatched);
+			//score += ((double)[[user neighbourhoodWatchName] countForObject:repo.name] / (double) user.numNeighbourhoodWatched);
+			//score += ((double)[[user neighbourhoodWatchOwner] countForObject:repo.owner] / (double) user.numNeighbourhoodWatched);
+			
+			double occurance = 0;
+			// try weighted neighbourhood
+			for(NSNumber *userId in user.neighbours) {
+				User *other = [model.userMap objectForKey:userId];
+				// check for watch
+				if([other.repos containsObject:repo.repoId]){
+					double dist = [user calculateUserDistance2:other];
+					double distRatio = (dist/(double)[user.repos count]);
+					occurance += (1 * distRatio);
+				}
+			}
+			score += (occurance /(double)user.numNeighbours);
 			
 		} else {
 			
@@ -558,23 +571,48 @@ NSInteger ownerSort(id o1, id o2, void *context) {
 		 
 		// bias toward root repos
 		if(!repo.parentId) {
-			score += 0.05;
+			score += 0.2;
 		}	
 		
 		if([user.repos count]) {		
-			if(!user.numNeighbours) { 	
-				score += ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
-				score += ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
-			}
+			// if(!user.numNeighbours) { 	
+			// 	score += ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
+			// 	score += ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
+			// }
+
+			// score += ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.ownerSet count]);
+			// score += ((double) [user.nameSet countForObject:repo.name] / (double) [user.nameSet count]);
+
+			// bug fix
+			score += ((double) [user.ownerSet countForObject:repo.owner] / (double) [user.repos count]);
+			score += ((double) [user.nameSet countForObject:repo.name] / (double) [user.repos count]);
+
 			
 			
 			//reward direct parents
 			if([user.watchedParents containsObject:repo.repoId]){
-				score += 0.4;
+				score += 0.5;
 			// reward parent hiearchy
 			} else if([user.watchedParentHierarchy containsObject:repo.repoId]){
-				score += 0.5;
+				score += 0.6;
 			}	
+			
+/*			
+			// hack give repos that match langs a boost
+			if(repo.languageMap) {
+				int match = 0;
+				// look for at least one match
+				for(NSString *langName in [repo.languageMap allKeys]) {
+					if([user.languageSet countForObject:langName]) {
+						match += 1;
+					}
+				}
+				
+				if(match) {
+					score += 0.1;
+				}
+			}
+*/			
 
 /*
 			//
