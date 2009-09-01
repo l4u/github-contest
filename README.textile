@@ -137,6 +137,11 @@ The utility of any data mining or machine learning approach comes down to the sp
 
 h2. References
 
+h3. My Links
+
+* "Competition hacking with Ruby and Objective-C":http://www.neverreadpassively.com/2009/09/competition-hacking-with-ruby-and.html (blog post summarizing my involvement)
+* "jbrownlee (my) contest submissions":http://contest.github.com/p/jbrownlee/github-contest
+
 h3. Contest Links
 
 * Github blog, "GitHub Contest almost over!":http://github.com/blog/478-github-contest-almost-over
@@ -145,7 +150,6 @@ h3. Contest Links
 * "GitHub Contest Leaderboard":http://contest.github.com/leaderboard
 * "Github Contest Action":http://contest.github.com/action (recent submission summary) 
 * "Github contest dataset":https://github.s3.amazonaws.com/data/download.zip (.zip)
-* "jbrownlee (my) contest submissions":http://contest.github.com/p/jbrownlee/github-contest
 
 h3. Other Contest Links
 
