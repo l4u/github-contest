@@ -150,6 +150,7 @@ h3. Contest Links
 * "GitHub Contest Leaderboard":http://contest.github.com/leaderboard
 * "Github Contest Action":http://contest.github.com/action (recent submission summary) 
 * "Github contest dataset":https://github.s3.amazonaws.com/data/download.zip (.zip)
+* "About the GitHub Contest":http://github.com/blog/481-about-the-github-contest finalizing the competition, highlighting strategies and code bases.
 
 h3. Other Contest Links
 
